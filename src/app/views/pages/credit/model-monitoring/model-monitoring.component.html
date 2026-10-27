@@ -1,29 +1,246 @@
-<section class="kpi-grid">
-  <article class="cd-card kpi"><div><p>Gini</p><strong>{{ model.gini | number:'1.2-2' }}</strong><small>Stable versus last champion build</small></div></article>
-  <article class="cd-card kpi"><div><p>KS</p><strong>{{ model.ks }}</strong><small>Good / bad separation</small></div></article>
-  <article class="cd-card kpi"><div><p>PSI</p><strong>{{ model.psi | number:'1.2-2' }}</strong><small>Below the 0.10 watch line</small></div></article>
-  <article class="cd-card kpi"><div><p>Override rate</p><strong>{{ model.overrideRate }}%</strong><small>Analyst decisions against the scorecard</small></div></article>
-</section>
-
-<article class="cd-card" style="margin-top: 16px">
-  <div class="cd-card-head">
+<div class="mm">
+  <header class="mm-head">
     <div>
-      <h2>{{ model.name }} {{ model.version }}</h2>
-      <p class="fine">Population stability by score band. A shift above 2 points is the watch threshold in this demo.</p>
+      <span class="eyebrow">Model operations · Credit risk</span>
+      <h1>Model monitoring</h1>
+      <p>Train and retrain the models that score new credit and predict who will default.</p>
     </div>
-    <span class="pill is-ok">Healthy</span>
+    <div class="mm-status">
+      <span class="live"><i></i> Champion live</span>
+      <span>Validation book · Oct 2026</span>
+    </div>
+  </header>
+
+  <section class="mm-ensemble">
+    <div class="mm-section-title">
+      <h2>Three models, one decision</h2>
+      <p>No single model approves a loan. Origination ranks the application, behaviour updates the open account, and the ensemble is the score the cutoff uses.</p>
+    </div>
+    <div class="mm-pipeline">
+      <ng-container *ngFor="let model of models; let last = last">
+        <button type="button" class="mm-model" [attr.data-tone]="model.id" [class.on]="model.id === selectedId" (click)="select(model.id)">
+          <span class="mm-kicker">{{ model.status }} · {{ model.ensembleShare }}</span>
+          <strong>{{ model.name }}</strong>
+          <em>{{ model.algorithm }} · {{ model.code }}</em>
+          <b>{{ model.auc | number:'1.3-3' }} <small>ROC-AUC</small></b>
+          <span class="mm-mini">Gini {{ model.gini | number:'1.3-3' }} · KS {{ model.ks | number:'1.1-1' }}</span>
+        </button>
+        <span class="mm-join" *ngIf="!last" aria-hidden="true"></span>
+      </ng-container>
+    </div>
+  </section>
+
+  <div class="mm-stage" [class.fresh]="fresh" [attr.data-tone]="selectedId">
+  <section class="mm-board">
+    <article class="mm-card mm-main">
+      <div class="mm-card-head">
+        <div>
+          <span class="eyebrow">{{ selected.role }}</span>
+          <h2>{{ selected.name }}</h2>
+          <p>{{ selected.summary }}</p>
+        </div>
+        <button type="button" class="mm-train" [class.running]="job && job.phase !== 'Held'" (click)="retrain()" [disabled]="job && job.phase !== 'Held'">
+          {{ job && job.phase !== 'Held' ? job.phase : 'Retrain model' }}
+        </button>
+      </div>
+
+      <dl class="mm-facts">
+        <div><dt>Algorithm</dt><dd>{{ selected.algorithm }}</dd></div>
+        <div><dt>Champion</dt><dd>{{ selected.code }}</dd></div>
+        <div><dt>Last fit</dt><dd>{{ selected.trained }}</dd></div>
+        <div><dt>Next window</dt><dd>{{ selected.next }}</dd></div>
+        <div><dt>Training book</dt><dd>{{ selected.sample }}</dd></div>
+      </dl>
+
+      <div class="mm-job" *ngIf="job">
+        <strong>{{ job.phase }} · {{ job.model }}</strong>
+        <p>{{ job.detail }}</p>
+      </div>
+
+      <h3>Success metrics</h3>
+      <div class="mm-metrics">
+        <article>
+          <span>ROC-AUC</span>
+          <strong>{{ selected.auc | number:'1.3-3' }}</strong>
+          <small>Chance a defaulter ranks riskier than a good payer. 0.50 is a coin toss.</small>
+        </article>
+        <article>
+          <span>Gini</span>
+          <strong>{{ selected.gini | number:'1.3-3' }}</strong>
+          <small>Same separation as ROC-AUC, on the 0 to 1 scale credit risk reports. Gini = 2 × AUC − 1.</small>
+        </article>
+        <article>
+          <span>KS</span>
+          <strong>{{ selected.ks | number:'1.1-1' }}</strong>
+          <small>Widest gap between the cumulative share of good and bad accounts.</small>
+        </article>
+        <article>
+          <span>Brier</span>
+          <strong>{{ selected.brier | number:'1.3-3' }}</strong>
+          <small>Average squared error of the probability. Lower means the predicted default rate is closer to what happened.</small>
+        </article>
+        <article>
+          <span>PSI</span>
+          <strong [class]="psiTone(selected.psi)">{{ selected.psi | number:'1.2-2' }}</strong>
+          <small>Score mix versus training. Under 0.10 is stable. Above 0.25 is a reason to retrain.</small>
+        </article>
+        <article>
+          <span>Bad capture</span>
+          <strong>{{ live.recall | percent:'1.1-1' }}</strong>
+          <small>Share of actual defaults the cutoff still catches. This is recall on the default class.</small>
+        </article>
+      </div>
+    </article>
+
+    <article class="mm-card">
+      <h3>ROC curve</h3>
+      <p class="mm-note">Holdout curve for {{ selected.code }}. The diagonal is a model with no skill.</p>
+      <svg class="mm-roc" viewBox="0 0 100 100" role="img" [attr.aria-label]="'ROC curve, area ' + selected.auc">
+        <defs>
+          <linearGradient id="mmRocFill" x1="0" y1="0" x2="0" y2="1">
+            <stop class="roc-top" offset="0%" stop-opacity="0.38" />
+            <stop class="roc-base" offset="100%" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <line x1="8" y1="92" x2="96" y2="92" />
+        <line x1="8" y1="92" x2="8" y2="6" />
+        <line x1="8" y1="92" x2="96" y2="8" class="chance" />
+        <path class="area" [attr.d]="selected.roc + ' L98 92 L2 92 Z'" />
+        <path class="curve" [class.draw]="fresh" [attr.d]="selected.roc" />
+      </svg>
+      <div class="mm-roc-key"><i></i> Model <i class="chance"></i> No skill</div>
+
+      <h3>Class weights</h3>
+      <p class="mm-note">Defaults are rare, so an unweighted fit can look accurate by calling almost everyone good. The default class is up-weighted in the loss.</p>
+      <div class="mm-weight">
+        <div>
+          <span>Non-default</span>
+          <b>{{ selected.weightGood | number:'1.1-1' }}</b>
+        </div>
+        <i [style.width.%]="weightWidth(selected.weightGood)"></i>
+      </div>
+      <div class="mm-weight default">
+        <div>
+          <span>Default · scale_pos_weight</span>
+          <b>{{ selected.weightDefault | number:'1.1-1' }}</b>
+        </div>
+        <i [style.width.%]="weightWidth(selected.weightDefault)"></i>
+      </div>
+      <p class="mm-note">Weight ≈ good accounts / defaults in the training window, then damped so the probability stays calibrated. Base default rate {{ selected.baseRate | percent:'1.1-1' }}.</p>
+    </article>
+  </section>
+
+  <section class="mm-card mm-cut">
+    <div class="mm-card-head">
+      <div>
+        <h2>Operating point</h2>
+        <p>Approve at score {{ cutoff }} and above. A higher cutoff declines more good customers and lets fewer defaults through.</p>
+      </div>
+      <label class="mm-slider">
+        <span>Decision score cutoff <b>{{ cutoff }}</b></span>
+        <input type="range" min="520" max="780" step="10" [ngModel]="cutoff" (ngModelChange)="setCutoff($event)" />
+      </label>
+    </div>
+
+    <div class="mm-errors">
+      <article class="fp">
+        <span>False positives</span>
+        <strong>{{ live.fp | number }}</strong>
+        <p>Good customers scored as a default and declined. The bank turns away credit it would have been paid, and the customer is refused.</p>
+        <small>False positive rate {{ live.fpr | number:'1.1-1' }}% of good accounts</small>
+      </article>
+      <article class="fn">
+        <span>False negatives</span>
+        <strong>{{ live.fn | number }}</strong>
+        <p>Customers who will default and are still approved. The loss shows up later as non-performing credit.</p>
+        <small>False negative rate {{ live.fnr | number:'1.1-1' }}% of defaults</small>
+      </article>
+      <article>
+        <span>Approvals on the holdout</span>
+        <strong>{{ live.approvalRate | percent:'1.0-0' }}</strong>
+        <p>{{ live.approved | number }} accounts clear the cutoff. Bad rate inside those approvals is {{ live.badRate | percent:'1.1-1' }}.</p>
+        <small>Precision on defaults {{ live.precision | percent:'1.0-0' }} · catches {{ live.tp | number }} of {{ (live.tp + live.fn) | number }} defaults</small>
+      </article>
+    </div>
+
+    <table class="mm-matrix">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Predicted good</th>
+          <th>Predicted default</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>Actually good</th>
+          <td>{{ live.tn | number }} <small>True negative</small></td>
+          <td class="fp">{{ live.fp | number }} <small>False positive</small></td>
+        </tr>
+        <tr>
+          <th>Actually default</th>
+          <td class="fn">{{ live.fn | number }} <small>False negative</small></td>
+          <td>{{ live.tp | number }} <small>True positive</small></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="mm-note">Counts are the {{ selected.validationN | number }} holdout accounts for this champion, replayed at the cutoff above. Moving the slider does not refit the model.</p>
+  </section>
+
+  <section class="mm-split">
+    <article class="mm-card">
+      <h2>Score stability</h2>
+      <p class="mm-note">Expected mix is the training window. A shift past two points on a band is the watch line.</p>
+      <table class="mm-table">
+        <thead>
+          <tr><th>Score band</th><th>Expected</th><th>Actual</th><th>Drift</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of selected.bands">
+            <td>{{ row.band }}</td>
+            <td>{{ row.expected }}%</td>
+            <td>{{ row.actual }}%</td>
+            <td [class.shift]="drift(row.actual, row.expected) > 1 || drift(row.actual, row.expected) < -1">
+              {{ drift(row.actual, row.expected) > 0 ? '+' : '' }}{{ drift(row.actual, row.expected) }} pts
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article class="mm-card">
+      <h2>Characteristic stability</h2>
+      <p class="mm-note">PSI on the inputs this model actually uses. Under 0.10 stays on the champion.</p>
+      <ul class="mm-features">
+        <li *ngFor="let feature of selected.features">
+          <span>{{ feature.name }}</span>
+          <b [class]="psiTone(feature.psi)">{{ feature.psi | number:'1.2-2' }}</b>
+          <i [class]="psiTone(feature.psi)" [style.width.%]="feature.psi / 0.25 * 100"></i>
+        </li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="mm-card">
+    <div class="mm-card-head">
+      <div>
+        <h2>Champion history</h2>
+        <p>Each row is a signed-off fit. Retrain on this page queues a demo job and leaves these weights in place.</p>
+      </div>
+    </div>
+    <table class="mm-table">
+      <thead>
+        <tr><th>Version</th><th>Fit date</th><th>ROC-AUC</th><th>State</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let build of selected.builds">
+          <td>v{{ build.version }}</td>
+          <td>{{ build.date }}</td>
+          <td>{{ build.auc | number:'1.3-3' }}</td>
+          <td><span class="mm-state" [class.on]="build.state === 'Champion'">{{ build.state }}</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
   </div>
-  <table class="cd-table">
-    <thead>
-      <tr><th>Score band</th><th>Expected %</th><th>Actual %</th><th>Drift</th></tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let row of model.population">
-        <td>{{ row.band }}</td>
-        <td>{{ row.expected }}</td>
-        <td>{{ row.actual }}</td>
-        <td [class.neg]="drift(row.actual, row.expected) > 1">{{ drift(row.actual, row.expected) > 0 ? '+' : '' }}{{ drift(row.actual, row.expected) }} pts</td>
-      </tr>
-    </tbody>
-  </table>
-</article>
+</div>

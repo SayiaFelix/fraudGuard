@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { initialsFromName, officerDisplayName } from 'src/app/shared/services/auth.service';
 import { CreditApplication } from './credit-demo.data';
 import { CreditDataService } from './credit-data.service';
 
@@ -16,6 +17,10 @@ export class CreditShellComponent implements OnInit, OnDestroy {
   now = new Date();
   showNotes = false;
   showUser = false;
+  displayName = 'User';
+  email = '';
+  title = 'Bank Officer';
+  initials = 'U';
   queue: CreditApplication[] = [];
   private sub = new Subscription();
 
@@ -36,7 +41,32 @@ export class CreditShellComponent implements OnInit, OnDestroy {
       this.queue = apps.filter(item => item.decision === 'Refer' && item.caseStatus !== 'Closed').slice(0, 5);
     }));
     this.sub.add(interval(1000).subscribe(() => this.now = new Date()));
+    this.loadOfficer();
     queueMicrotask(() => this.syncTitle());
+  }
+
+  private loadOfficer(): void {
+    let loginId = '';
+    let sessionUser: any = null;
+    const raw = sessionStorage.getItem('uba_demo_user');
+    if (raw) {
+      try {
+        sessionUser = JSON.parse(raw);
+        loginId = String(sessionUser?.email || sessionUser?.username || '').trim();
+      } catch {
+        loginId = '';
+      }
+    }
+    if (!loginId) {
+      loginId = localStorage.getItem('userEmail') || localStorage.getItem('userName') || '';
+    }
+    const derived = officerDisplayName(sessionUser, loginId);
+    this.displayName = derived && derived !== 'User'
+      ? derived
+      : (localStorage.getItem('userDisplayName') || 'User');
+    this.email = loginId;
+    this.title = localStorage.getItem('userTitle') || 'Bank Officer';
+    this.initials = initialsFromName(this.displayName);
   }
 
   ngOnDestroy(): void {

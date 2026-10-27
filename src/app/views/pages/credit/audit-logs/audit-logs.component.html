@@ -1,11 +1,12 @@
-<div class="ops">
+<div class="ops command">
   <header class="ops-head">
     <div>
-      <h1>Audit trail</h1>
-      <p>Scorecard decisions, analyst overrides, assignments, and case notes on this workspace.</p>
+      <span class="eyebrow">Credit operations · Evidence</span>
+      <h1>Audit logs</h1>
+      <p>Scorecard decisions, officer overrides, and case notes.</p>
     </div>
     <div class="ops-head-actions ops-no-print">
-      <button class="ops-btn ghost" type="button" (click)="download()" title="Download this slice of the trail">Download CSV</button>
+      <button class="ops-btn ghost" type="button" (click)="download()" title="Export this slice of the trail">Export CSV</button>
       <button class="ops-btn ghost" type="button" (click)="printView()" title="Print the audit view">Print</button>
     </div>
   </header>

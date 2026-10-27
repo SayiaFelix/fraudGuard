@@ -6,6 +6,7 @@ import {
   FormGroup,
   Validators
 } from '@angular/forms';
+import { officerDisplayName } from 'src/app/shared/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -133,10 +134,20 @@ export class LoginComponent implements OnInit {
       JSON.stringify(demoUser)
     );
 
+    const displayName = officerDisplayName(demoUser, username);
+
     sessionStorage.setItem(
       'uba_demo_display_name',
-      'Felix Sayia'
+      displayName
     );
+
+    localStorage.setItem('userDisplayName', displayName);
+    localStorage.setItem('userEmail', username);
+    localStorage.setItem('userName', username);
+    localStorage.setItem('userTitle', 'Bank Officer');
+    localStorage.setItem('userRole', 'CREDIT_ANALYST');
+    localStorage.setItem('isLoggedin', 'true');
+    localStorage.setItem('access_token', 'frontend-demo-token');
 
     // ==========================================
     // NAVIGATE TO DASHBOARD

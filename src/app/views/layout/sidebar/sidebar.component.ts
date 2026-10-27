@@ -22,6 +22,8 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('sidebarToggler') sidebarToggler: ElementRef;
   @Output() helpCenterToggled = new EventEmitter<MouseEvent>();
   menuItems: MenuItem[] = [];
+  menuGroups: SidebarGroup[] = [];
+  logoutItem: MenuItem | null = null;
   userDisplayName = '';
   userTitle = '';
   userInitials = '';
@@ -49,6 +51,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     
     router.events.forEach((event) => {
       if (event instanceof NavigationEnd) {
+        this.openActiveGroup();
         this._activateMenuDropdown();
         if (window.matchMedia('(max-width: 991px)').matches) {
           this.document.body.classList.remove('sidebar-open');
@@ -63,6 +66,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.menuItems = MENU.filter(item => 
       !item.roles || item.roles.includes(role!)
     );
+    this.buildGroups();
 
     this.userDisplayName = this.authservice.getUserDisplayName();
     this.userTitle = this.authservice.getUserTitle();
@@ -103,6 +107,47 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   
+  toggleGroup(group: SidebarGroup): void {
+    group.open = !group.open;
+  }
+
+  private buildGroups(): void {
+    const groups: SidebarGroup[] = [];
+    let current: SidebarGroup | null = null;
+    this.logoutItem = null;
+    this.menuItems.forEach(item => {
+      if (item.isLogout) {
+        this.logoutItem = item;
+        return;
+      }
+      if (item.isTitle) {
+        current = { label: item.label || '', items: [], open: false };
+        groups.push(current);
+        return;
+      }
+      if (!current) {
+        current = { label: null, items: [], open: true };
+        groups.push(current);
+      }
+      current.items.push(item);
+    });
+    this.menuGroups = groups;
+    this.openActiveGroup();
+  }
+
+  private openActiveGroup(): void {
+    const url = this.router.url.split('?')[0];
+    this.menuGroups.forEach(group => {
+      if (!group.label) {
+        return;
+      }
+      const active = group.items.some(item => !!item.link && (url === item.link || url.startsWith(item.link + '/')));
+      if (active) {
+        group.open = true;
+      }
+    });
+  }
+
   private updateInboxBadge(_notifications: InboxItem[]): void {
     // The Alerts badge follows the open credit cases, not the legacy inbox.
   }
@@ -124,7 +169,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     } else if (/alert|case|escalat|review/.test(lower)) {
       reply = 'Alerts and cases are one desk. Open a row, then approve, decline, request information, assign, or escalate. Statuses are Open, In review, Escalated, and Resolved.';
     } else if (/report|audit|export|csv/.test(lower)) {
-      reply = 'Reports and the audit trail use the same applications as the alerts desk. You can download CSV or print a report, and every case action is written to the trail.';
+      reply = 'Reports and the audit trail use the same applications as the alerts desk. You can export CSV or print a report, and every case action is written to the trail.';
     }
     this.aiMessages = [...this.aiMessages, { from: 'ai', text: reply }];
   }
@@ -234,8 +279,12 @@ onLogout(e: Event) {
         localStorage.removeItem('userName');
         localStorage.removeItem('userDisplayName');
         localStorage.removeItem('userTitle');
+        localStorage.removeItem('isLoggedin');
+        sessionStorage.removeItem('uba_demo_mode');
+        sessionStorage.removeItem('uba_demo_user');
+        sessionStorage.removeItem('uba_demo_display_name');
 
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/auth/login']);
       
         Swal.close();
         
@@ -362,4 +411,10 @@ onLogout(e: Event) {
     }
     return name.substring(0, 2).toUpperCase();
   }
+}
+
+interface SidebarGroup {
+  label: string | null;
+  items: MenuItem[];
+  open: boolean;
 }

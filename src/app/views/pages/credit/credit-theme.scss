@@ -83,6 +83,39 @@ body.uba-credit .sidebar .nav-category {
   padding: 18px 12px 8px;
 }
 
+body.uba-credit .sidebar button.nav-category {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+body.uba-credit .sidebar .nav-chevron {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform: rotate(-90deg);
+  transition: transform 160ms ease;
+}
+
+body.uba-credit .sidebar button.nav-category.open .nav-chevron {
+  transform: rotate(0deg);
+}
+
+body.uba-credit .sidebar .nav-item[hidden] {
+  display: none !important;
+}
+
 body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item {
   padding: 0;
   margin: 0 0 4px;
@@ -109,6 +142,7 @@ body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link .link-
   margin: 0 !important;
   color: #ffffff !important;
   stroke: currentColor;
+  display: inline-block !important;
 }
 
 body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link .link-title,
@@ -162,10 +196,12 @@ body.uba-credit .sidebar .badge.bg-uba {
   color: #fff;
   font-weight: 700;
   margin-left: auto;
+  padding: 0.35em 0.65em;
 }
 
 body.uba-credit .sidebar .nav-link.active .badge.bg-uba {
   background: rgba(255, 255, 255, 0.22);
+  color: #fff;
 }
 
 body.uba-credit .main-wrapper {

@@ -19,7 +19,6 @@ import { CreditReportsComponent } from './reports/credit-reports.component';
 import { ModelMonitoringComponent } from './model-monitoring/model-monitoring.component';
 import { AuditLogsComponent } from './audit-logs/audit-logs.component';
 import { IntegrationsComponent } from './integrations/integrations.component';
-import { CreditSettingsComponent } from './settings/credit-settings.component';
 import { CreditBehaviourComponent } from './ops/credit-behaviour.component';
 
 const routes: Routes = [
@@ -38,12 +37,12 @@ const routes: Routes = [
       { path: 'credit-scoring', component: CreditScoringComponent, data: { title: 'Credit scoring', subtitle: 'Retail scorecard v3.2' } },
       { path: 'decision-rules', component: DecisionRulesComponent, data: { title: 'Decision rules', subtitle: 'Policy that sits on top of the score' } },
       { path: 'policy-simulator', component: PolicySimulatorComponent, data: { title: 'Policy simulator', subtitle: 'See who would move if the cutoffs change' } },
-      { path: 'portfolio', component: PortfolioComponent, data: { title: 'Portfolio analytics', subtitle: 'Where the book is concentrated' } },
+      { path: 'portfolio', redirectTo: 'reports', pathMatch: 'full' },
       { path: 'reports', component: CreditReportsComponent, data: { ownHeader: true } },
-      { path: 'model-monitoring', component: ModelMonitoringComponent, data: { title: 'Model monitoring', subtitle: 'Gini, KS, and population stability' } },
+      { path: 'model-monitoring', component: ModelMonitoringComponent, data: { ownHeader: true } },
       { path: 'audit-logs', component: AuditLogsComponent, data: { ownHeader: true } },
       { path: 'integrations', component: IntegrationsComponent, data: { ownHeader: true } },
-      { path: 'settings', component: CreditSettingsComponent, data: { ownHeader: true } }
+      { path: 'settings', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   }
 ];
@@ -66,7 +65,6 @@ const routes: Routes = [
     ModelMonitoringComponent,
     AuditLogsComponent,
     IntegrationsComponent,
-    CreditSettingsComponent,
     CreditBehaviourComponent
   ],
   imports: [
