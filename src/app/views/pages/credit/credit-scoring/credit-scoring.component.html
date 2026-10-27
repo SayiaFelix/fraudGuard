@@ -1,51 +1,296 @@
-<section class="kpi-grid scoring-kpis">
-  <article class="cd-card kpi"><div><p>Scorecard</p><strong>{{ model.name }}</strong><small>{{ model.version }} · demo</small></div></article>
-  <article class="cd-card kpi"><div><p>Gini</p><strong>{{ model.gini | number:'1.2-2' }}</strong><small>Rank-ordering power</small></div></article>
-  <article class="cd-card kpi"><div><p>KS</p><strong>{{ model.ks }}</strong><small>Separation of good and bad</small></div></article>
-  <article class="cd-card kpi"><div><p>PSI</p><strong>{{ model.psi | number:'1.2-2' }}</strong><small>Population is stable</small></div></article>
+<!-- ========================================== -->
+<!-- TOP INTRO & JOURNEY BANNER                 -->
+<!-- ========================================== -->
+<section class="channel-intro">
+  <div>
+    <span class="eyebrow">OMNICHANNEL LENDING</span>
+    <h1>Customer Channel Simulator</h1>
+    <p>Experience a full loan application through Mobile Banking or our AI Chatbot.</p>
+  </div>
 </section>
 
-<section class="mid-grid">
-  <article class="cd-card">
-    <div class="cd-card-head"><h2>Score bands</h2></div>
-    <table class="cd-table">
-      <thead>
-        <tr><th>Band</th><th>Grade</th><th>Share</th><th>Policy</th></tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let band of bands">
-          <td>{{ band.band }}</td>
-          <td>{{ band.label }}</td>
-          <td>
-            <div class="bar-line"><i [style.width.%]="band.share"></i></div>
-            {{ band.share }}%
-          </td>
-          <td>{{ band.decision }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </article>
-
-  <article class="cd-card" *ngIf="selected as app">
-    <div class="cd-card-head">
-      <h2>Applicant contribution</h2>
-    </div>
-    <label class="select-line">
-      Application
-      <select [(ngModel)]="selectedId">
-        <option *ngFor="let item of apps" [value]="item.id">{{ item.applicant }} · {{ item.score }}</option>
-      </select>
-    </label>
-    <div class="case-score">
-      <strong [ngClass]="credit.riskClass(app.risk)">{{ app.score }}</strong>
-      <span>{{ app.risk }} risk · {{ app.decision }}</span>
-    </div>
-    <div class="factor" *ngFor="let factor of app.factors">
-      <div><span>{{ factor.label }}</span><b [class.neg]="factor.impact < 0">{{ factor.impact > 0 ? '+' : '' }}{{ factor.impact }}</b></div>
-      <i [style.width.%]="factorBar(factor.impact)" [class.neg]="factor.impact < 0"></i>
-    </div>
-    <ul class="reason-list">
-      <li *ngFor="let reason of app.reasonCodes">{{ reason }}</li>
-    </ul>
-  </article>
+<section class="journey-banner">
+  <div class="journey-step active">
+    <span>1</span>
+    <div><strong>Profile</strong><small>Customer data</small></div>
+  </div>
+  <div class="journey-line"></div>
+  <div class="journey-step active">
+    <span>2</span>
+    <div><strong>Assess</strong><small>Score & affordability</small></div>
+  </div>
+  <div class="journey-line"></div>
+  <div class="journey-step">
+    <span>3</span>
+    <div><strong>Explain</strong><small>Decision insights</small></div>
+  </div>
+  <div class="journey-line"></div>
+  <div class="journey-step">
+    <span>4</span>
+    <div><strong>Apply</strong><small>Demo application</small></div>
+  </div>
 </section>
+
+<section class="channel-switch">
+  <button [class.active]="channel === 'mobile'" (click)="channel = 'mobile'">
+    <span class="icon">📱</span>
+    <div><strong>Mobile Banking App</strong><small>Full step-by-step journey</small></div>
+  </button>
+  <button [class.active]="channel === 'chatbot'" (click)="channel = 'chatbot'">
+    <span class="icon">💬</span>
+    <div><strong>AI Loan Assistant</strong><small>Conversational journey</small></div>
+  </button>
+</section>
+
+<div class="simulator-layout">
+  
+  <!-- ========================================== -->
+  <!-- LEFT: CHANNEL WORKSPACE                    -->
+  <!-- ========================================== -->
+  <main class="channel-workspace">
+    
+    <!-- ========================================== -->
+    <!-- MOBILE APP FLOW                            -->
+    <!-- ========================================== -->
+    <section *ngIf="channel === 'mobile'" class="phone-frame">
+      <div class="phone-top">
+        <span>UBA Mobile</span>
+        <span class="secure">● Secure</span>
+      </div>
+
+      <div class="mobile-content">
+        
+        <!-- STEP 1: WELCOME -->
+        <div *ngIf="journeyStep === 'welcome'" class="step-view">
+          <div class="greeting">
+            <h2>Hello, Felix 👋</h2>
+            <p>Welcome back. Need a little extra cash?</p>
+          </div>
+          <div class="hero-card">
+            <h3>Personal Loan</h3>
+            <p>Check your limit in seconds with no impact on your credit score.</p>
+            <button class="primary-btn" (click)="startJourney()" [disabled]="isProcessing">
+              {{ isProcessing ? 'Checking...' : 'Check My Limit' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 2: LIMIT CHECK & EXPLAIN -->
+        <div *ngIf="journeyStep === 'limit-check' || journeyStep === 'explain'" class="step-view">
+          <button class="back-btn" (click)="journeyStep = 'welcome'">← Back</button>
+          
+          <!-- SEMI-CIRCLE CREDIT SCORE GAUGE -->
+          <div class="score-gauge-card">
+            <h3>Your Credit Score</h3>
+            <div class="gauge-container">
+              <svg viewBox="0 0 200 100" class="gauge-svg">
+                <!-- Background Track -->
+                <path d="M 10 100 A 90 90 0 0 1 190 100" fill="none" stroke="#e2e8f0" stroke-width="16" stroke-linecap="round"/>
+                <!-- Colored Track -->
+                <path d="M 10 100 A 90 90 0 0 1 190 100" fill="none" 
+                      [attr.stroke]="assessment.score >= 650 ? '#10b981' : '#f59e0b'" 
+                      stroke-width="16" stroke-linecap="round"
+                      [attr.stroke-dasharray]="283" 
+                      [attr.stroke-dashoffset]="283 - (283 * ((assessment.score - 300) / 550))"/>
+              </svg>
+              <div class="gauge-value">
+                <strong>{{ assessment.score }}</strong>
+                <span>out of 850</span>
+              </div>
+            </div>
+            <span class="risk-tag" [ngClass]="assessment.score >= 650 ? 'low' : 'mid'">
+              {{ assessment.score >= 650 ? 'Low Risk' : 'Moderate Risk' }}
+            </span>
+          </div>
+
+          <div class="limit-display">
+            <span>Your indicative limit</span>
+            <h2>{{ money(assessment.maxLimit) }}</h2>
+          </div>
+
+          <!-- DETAILED EXPLAINABILITY -->
+          <div class="explain-card">
+            <h3>Why this limit?</h3>
+            <p class="sub-text">We analyze your income and debt to ensure you can comfortably repay the loan.</p>
+            
+            <!-- Income Bar -->
+            <div class="metric-bar">
+              <div class="metric-header">
+                <span>Verified Monthly Income</span>
+                <strong>{{ money(customer.income) }}</strong>
+              </div>
+              <div class="bar-track"><div class="bar-fill income" style="width: 100%;"></div></div>
+              <small>Your income supports your application.</small>
+            </div>
+
+            <!-- DTI Bar -->
+            <div class="metric-bar">
+              <div class="metric-header">
+                <span>Debt-to-Income Ratio (DTI)</span>
+                <strong [style.color]="assessment.dti > 40 ? '#d97706' : '#10b981'">{{ assessment.dti | number:'1.1-1' }}%</strong>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" [ngClass]="assessment.dti > 40 ? 'warning' : 'good'" [style.width.%]="assessment.dti"></div>
+              </div>
+              <small *ngIf="assessment.dti <= 40">Your debt is within the healthy 40% limit.</small>
+              <small *ngIf="assessment.dti > 40" style="color: #d97706;">Your DTI is slightly high. We require it to be under 40%.</small>
+            </div>
+
+            <button class="secondary-btn" (click)="showWhatIf = !showWhatIf">
+              {{ showWhatIf ? 'Close Simulator' : 'How can I increase my limit?' }}
+            </button>
+
+            <!-- WHAT-IF SIMULATOR -->
+            <div class="what-if" *ngIf="showWhatIf">
+              <p>Adjust your income or debt to see the impact instantly.</p>
+              <label>Monthly Income: {{ money(whatIfIncome) }}</label>
+              <input type="range" min="50000" max="300000" step="10000" [(ngModel)]="whatIfIncome">
+              
+              <label>Existing Debt: {{ money(whatIfDebt) }}</label>
+              <input type="range" min="0" max="100000" step="5000" [(ngModel)]="whatIfDebt">
+              
+              <div class="what-if-result">
+                New Max Limit: <b>{{ money(whatIfAssessment.maxLimit) }}</b>
+              </div>
+              <button class="primary-btn" (click)="applyWhatIf()">Use These Values</button>
+            </div>
+          </div>
+
+          <button class="primary-btn full" (click)="proceedToApply()">Apply for {{ money(requestedAmount) }}</button>
+        </div>
+
+        <!-- STEP 3: APPLY -->
+        <div *ngIf="journeyStep === 'apply'" class="step-view">
+          <button class="back-btn" (click)="journeyStep = 'limit-check'">← Back</button>
+          
+          <h3>Configure your loan</h3>
+          
+          <div class="form-group">
+            <label>How much do you need?</label>
+            <h2 class="amount-val">{{ money(requestedAmount) }}</h2>
+            <input type="range" min="5000" [max]="assessment.maxLimit" step="5000" [(ngModel)]="requestedAmount">
+          </div>
+
+          <div class="form-group">
+            <label>Repayment Period</label>
+            <select [(ngModel)]="loanTermMonths">
+              <option [ngValue]="6">6 Months</option>
+              <option [ngValue]="12">12 Months</option>
+              <option [ngValue]="24">24 Months</option>
+            </select>
+          </div>
+
+          <div class="summary-box">
+            <div><span>Monthly Repayment</span> <b>{{ money(assessment.monthlyRepayment) }}</b></div>
+            <div><span>Interest Rate</span> <b>18% p.a.</b></div>
+            <div><span>Total Repayment</span> <b>{{ money(assessment.monthlyRepayment * loanTermMonths) }}</b></div>
+          </div>
+
+          <button class="primary-btn full" (click)="submitApplication()" [disabled]="isProcessing">
+            {{ isProcessing ? 'Submitting...' : 'Submit Application' }}
+          </button>
+        </div>
+
+        <!-- STEP 4: SUCCESS -->
+        <div *ngIf="journeyStep === 'success'" class="step-view success-view">
+          <div class="success-icon">✓</div>
+          <h2>Application Submitted!</h2>
+          <p>Your reference number is</p>
+          <h3 class="ref-num">{{ applicationRef }}</h3>
+          <p class="status">Status: Pending Disbursement</p>
+          
+          <button class="secondary-btn full" (click)="resetJourney()">Start New Application</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- CHATBOT FLOW                               -->
+    <!-- ========================================== -->
+    <section *ngIf="channel === 'chatbot'" class="chatbot-panel">
+      <header class="chat-header">
+        <div class="bot-avatar">🤖</div>
+        <div class="chat-info">
+          <h2>Leo · Loan Assistant</h2>
+          <span>Online</span>
+        </div>
+      </header>
+
+      <div class="chat-context">
+        <div>
+          <small>Customer</small>
+          <strong>{{ customer.name }}</strong>
+        </div>
+        <div>
+          <small>Indicative Limit</small>
+          <strong>{{ money(assessment.maxLimit) }}</strong>
+        </div>
+      </div>
+
+      <div class="chat-scroll" id="chat-scroll">
+        <div class="message-row" *ngFor="let msg of chatMessages" [class.customer-row]="msg.sender === 'customer'">
+          <div class="avatar" *ngIf="msg.sender === 'bot'">🤖</div>
+          <div class="bubble" [class.customer-bubble]="msg.sender === 'customer'">
+            <p>{{ msg.text }}</p>
+            <span class="time">{{ msg.time }}</span>
+          </div>
+        </div>
+        <div class="message-row" *ngIf="isBotTyping">
+          <div class="avatar">🤖</div>
+          <div class="bubble typing"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+
+      <div class="quick-replies">
+        <button (click)="sendQuickReply('Why is my limit this amount?')">Why this limit?</button>
+        <button (click)="sendQuickReply('How can I get more?')">Get more credit</button>
+        <button (click)="sendQuickReply('Apply for a loan')">Apply now</button>
+        <button (click)="sendQuickReply('Track my application')">Track status</button>
+      </div>
+
+      <form class="chat-input" (ngSubmit)="sendChatMessage()">
+        <input type="text" [(ngModel)]="chatInput" name="input" placeholder="Ask Leo anything..." [disabled]="isBotTyping">
+        <button type="submit" [disabled]="!chatInput.trim() || isBotTyping">Send</button>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- RIGHT: SHARED ENGINE SIDEBAR               -->
+  <!-- ========================================== -->
+  <aside class="assessment-sidebar">
+    <div class="sidebar-head">
+      <span class="eyebrow">LIVE DECISION ENGINE</span>
+      <h2>Assessment Details</h2>
+    </div>
+
+    <div class="profile-card">
+      <div class="avatar">{{ customer.name.charAt(0) }}</div>
+      <div><strong>{{ customer.name }}</strong><small>{{ customer.id }}</small></div>
+    </div>
+
+    <div class="score-box">
+      <div class="score">{{ assessment.score }}</div>
+      <div class="score-label">Demo Score<br><small>{{ assessment.score > 650 ? 'Low Risk' : 'Review' }}</small></div>
+    </div>
+
+    <div class="stat"><span>Requested Amount</span> <strong>{{ money(requestedAmount) }}</strong></div>
+    <div class="stat"><span>Maximum Limit</span> <strong>{{ money(assessment.maxLimit) }}</strong></div>
+    <div class="stat"><span>Monthly Repayment</span> <strong>{{ money(assessment.monthlyRepayment) }}</strong></div>
+    <div class="stat"><span>Debt-to-Income (DTI)</span> <strong>{{ assessment.dti | number:'1.1-1' }}%</strong></div>
+
+    <div class="decision-box" [ngClass]="assessment.outcome">
+      <small>DEMO DECISION</small>
+      <h3>{{ assessment.outcome === 'eligible' ? 'Eligible' : assessment.outcome === 'review' ? 'Referred' : 'Declined' }}</h3>
+      <p>{{ assessment.reason }}</p>
+    </div>
+
+    <div class="consistency-box">
+      <strong>↔ Single Source of Truth</strong>
+      <p>Both the Mobile App and the Chatbot are reading from this exact same assessment object. Change the amount or income, and both channels update instantly.</p>
+    </div>
+  </aside>
+
+</div>
