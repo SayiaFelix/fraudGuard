@@ -17,7 +17,6 @@ interface ChatMessage {
   styleUrls: ['./credit-scoring.component.scss']
 })
 export class CreditScoringComponent implements OnInit, OnDestroy {
-  // Customer profile (The "Source of Truth" for the demo)
   customer = {
     id: 'CUST-8821',
     name: 'Felix Sayia',
@@ -26,25 +25,20 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     hasDefaulted: false
   };
 
-  // Journey State
   channel: Channel = 'mobile';
   journeyStep: JourneyStep = 'welcome'; 
   isProcessing = false;
 
-  // Loan Parameters
   requestedAmount = 50000;
   loanTermMonths = 12;
   annualInterestRate = 18;
   
-  // What-If State
   showWhatIf = false;
   whatIfIncome = 150000;
   whatIfDebt = 20000;
 
-  // Application State
   applicationRef = '';
 
-  // Chat State
   chatInput = '';
   chatMessages: ChatMessage[] = [];
   isBotTyping = false;
@@ -61,21 +55,17 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void { this.sub.unsubscribe(); }
 
-  // --- CORE ENGINE (Shared by Mobile & Chat) ---
   calculateAssessment(income = this.customer.income, debt = this.customer.existingDebt) {
-    // 1. Calculate Score
     let score = 500;
     if (income >= 100000) score += 150;
     else if (income >= 50000) score += 100;
     if (!this.customer.hasDefaulted) score += 100;
     if (debt <= income * 0.15) score += 50;
 
-    // Determine Risk Category
     let riskCategory = 'High';
     if (score >= 700) riskCategory = 'Low';
     else if (score >= 600) riskCategory = 'Medium';
 
-    // 2. Calculate Repayment & DTI
     const monthlyRate = this.annualInterestRate / 100 / 12;
     const factor = Math.pow(1 + monthlyRate, this.loanTermMonths);
     const repaymentFactor = monthlyRate === 0 ? 1 / this.loanTermMonths : (monthlyRate * factor) / (factor - 1);
@@ -83,17 +73,14 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     const monthlyRepayment = this.requestedAmount * repaymentFactor;
     const dti = ((debt + monthlyRepayment) / income) * 100;
 
-    // 3. Affordability & Max Limit
     const availableForRepayment = Math.max(0, income * 0.4 - debt);
     const maxLimit = Math.floor((availableForRepayment / repaymentFactor) / 1000) * 1000;
 
-    // 4. Decision & Next Action (AI Insights)
     let outcome: 'eligible' | 'review' | 'declined' = 'declined';
     let reason = '';
     let nextAction = '';
     let policyChecks: { label: string, passed: boolean }[] = [];
 
-    // Policy Checks
     policyChecks.push({ label: `Minimum Score (650)`, passed: score >= 650 });
     policyChecks.push({ label: `Max DTI (40%)`, passed: dti <= 40 });
     policyChecks.push({ label: `Within Max Limit (${this.money(maxLimit)})`, passed: this.requestedAmount <= maxLimit });
@@ -128,17 +115,12 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     return this.calculateAssessment(this.whatIfIncome, this.whatIfDebt);
   }
 
-  // --- MOBILE APP JOURNEY ACTIONS ---
   startJourney() {
     this.isProcessing = true;
     setTimeout(() => {
       this.isProcessing = false;
       this.journeyStep = 'limit-check';
     }, 1200);
-  }
-
-  exploreImprovements() {
-    this.journeyStep = 'explain';
   }
 
   proceedToApply() {
@@ -151,10 +133,6 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
       this.isProcessing = false;
       this.applicationRef = 'DEMO-' + Math.floor(Math.random() * 900000 + 100000);
       this.journeyStep = 'success';
-      
-      if (this.channel === 'chatbot') {
-        this.addBotMessage(`Your application has been submitted! Reference: ${this.applicationRef}. You can track its status here.`);
-      }
     }, 1500);
   }
 
@@ -164,7 +142,7 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     this.showWhatIf = false;
     this.whatIfIncome = this.customer.income;
     this.whatIfDebt = this.customer.existingDebt;
-    this.applicationRef = ''; // Reset application so you can demo again
+    this.applicationRef = ''; 
     this.resetChat();
   }
 
@@ -174,7 +152,6 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     this.showWhatIf = false;
   }
 
-  // --- CHATBOT ACTIONS ---
   resetChat() {
     this.chatMessages = [{
       sender: 'bot',
@@ -208,7 +185,6 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     const a = this.assessment;
     let reply = '';
 
-    // 1. Handle Follow-up Confirmations
     if (lower === 'yes' || lower === 'yeah' || lower === 'sure') {
       reply = `Great! To increase your limit, you could:<br><br>` +
               `• Reduce your existing monthly debt (currently <b>${this.money(this.customer.existingDebt)}</b>).<br>` +
@@ -219,12 +195,10 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     else if (lower === 'no' || lower === 'nope') {
       reply = `Understood. If you change your mind, you can always ask me to explain your limit or help you apply for a loan.`;
     }
-    // 2. Limit Queries
     else if (lower.includes('limit') || lower.includes('how much')) {
       reply = `Your indicative maximum limit is <b>${this.money(a.maxLimit)}</b>.<br><br>` +
               `This is calculated based on your income of <b>${this.money(this.customer.income)}</b> and existing monthly obligations of <b>${this.money(this.customer.existingDebt)}</b>.`;
     } 
-    // 3. Explainability Queries
     else if (lower.includes('why') || lower.includes('explain')) {
       const passedChecks = a.policyChecks.filter(c => c.passed).length;
       const failedChecks = a.policyChecks.filter(c => !c.passed).map(c => c.label).join(', ');
@@ -240,12 +214,10 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
               `• <b>${a.nextAction}</b><br><br>` +
               `Would you like to explore how to increase this limit?`;
     }
-    // 4. CHATBOT APPLICATION FLOW
     else if (lower.includes('apply')) {
       if (this.applicationRef) {
         reply = `You already have a pending application: <b>${this.applicationRef}</b>. You can track its status anytime.`;
       } else {
-        // Capture the intent and confirm the terms right in the chat!
         reply = `I can process that for you right now.<br><br>` +
                 `Based on your limit, here are the demo terms:<br>` +
                 `• Amount: <b>${this.money(this.requestedAmount)}</b><br>` +
@@ -254,14 +226,11 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
                 `Shall I submit this application? Reply <b>"Confirm"</b> to proceed.`;
       }
     }
-    // 5. HANDLE CONFIRMATION FROM CHAT
     else if (lower === 'confirm' || lower === 'proceed') {
-      this.isProcessing = true; // Trigger loading state
+      this.isProcessing = true; 
       setTimeout(() => {
         this.isProcessing = false;
         this.applicationRef = 'DEMO-' + Math.floor(Math.random() * 900000 + 100000);
-        
-        // Auto-switch the view to success (optional, but good for demo)
         this.journeyStep = 'success';
         
         this.addBotMessage(
@@ -272,14 +241,13 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
           `You can view your new limit and application details by clicking the "Mobile Banking" tab.`
         );
       }, 1500);
-      return; // Exit here because we handle the response inside the setTimeout
+      return; 
     }
     else if (lower.includes('status') || lower.includes('track')) {
       reply = this.applicationRef 
         ? `Your application <b>${this.applicationRef}</b> is currently in status: <b>Pending Disbursement</b>.`
         : `You haven't submitted an application yet. Ask me to "Apply" to get started.`;
     }
-    // 6. Fallback
     else {
       reply = `I can help you check your limit, explain how it's calculated, show you how to qualify for more, or apply for a loan right here in chat. What would you like to do?`;
     }

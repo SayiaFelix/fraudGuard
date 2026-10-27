@@ -1,23 +1,35 @@
 :host {
   display: block;
   font-family: 'Inter', -apple-system, sans-serif;
+  background-color: #f5f7fb;
   --uba-red: #c8102e;
   --navy: #142d4e;
   --muted: #748198;
   --border: #e5eaf1;
-  --bg: #f5f7fb;
+}
+
+/* --- THE WRAPPER FOR MARGINS --- */
+.page-container {
+  padding: 24px 32px; /* Added padding here for breathing room */
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
 /* --- TOP INTRO & SWITCHER --- */
-.channel-intro { margin-bottom: 20px; }
+.channel-intro { margin-bottom: 24px; }
 .eyebrow { color: var(--uba-red); font-size: 11px; font-weight: 800; letter-spacing: 1px; }
 .channel-intro h1 {
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   font-size: 32px;
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.15;
   color: #122033;
+}
+.channel-intro p {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 6px;
 }
 
 .journey-banner {
@@ -363,4 +375,5 @@
 @media (max-width: 900px) {
   .simulator-layout { grid-template-columns: 1fr; }
   .channel-switch { flex-direction: column; }
+  .page-container { padding: 16px; }
 }
