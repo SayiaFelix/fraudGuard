@@ -1,55 +1,10 @@
-<article class="cd-card missing" *ngIf="!application">
-  <h2>Application not on this book</h2>
-  <a routerLink="/applications">Back to applications</a>
-</article>
-
-<section class="detail-grid" *ngIf="application as app">
-  <article class="cd-card">
-    <div class="cd-card-head">
-      <div>
-        <p class="eyebrow">{{ app.id }} · {{ app.country }} · {{ app.branch }}</p>
-        <h2>{{ app.applicant }}</h2>
-      </div>
-      <span class="pill" [ngClass]="credit.decisionClass(app.decision)">{{ app.decision }}</span>
-    </div>
-    <div class="fact-grid">
-      <div><small>Product</small><strong>{{ app.product }}</strong></div>
-      <div><small>Amount</small><strong>{{ credit.money(app.amount) }}</strong></div>
-      <div><small>Tenor</small><strong>{{ app.tenorMonths }} months</strong></div>
-      <div><small>Score</small><strong>{{ app.score }} · {{ app.risk }}</strong></div>
-      <div><small>DTI</small><strong>{{ app.dti | percent:'1.0-0' }}</strong></div>
-      <div><small>Income</small><strong>{{ credit.money(app.income) }}</strong></div>
-      <div><small>Bureau</small><strong>{{ app.bureau }}</strong></div>
-      <div><small>Employment</small><strong>{{ app.employment }}</strong></div>
-      <div><small>Channel</small><strong>{{ app.channel }}</strong></div>
-      <div><small>Case</small><strong>{{ app.caseStatus }}</strong></div>
-      <div><small>Owner</small><strong>{{ app.assignedTo }}</strong></div>
-      <div><small>Submitted</small><strong>{{ app.submittedAt | date:'d MMM y, h:mm a' }}</strong></div>
-    </div>
-    <div class="form-actions" *ngIf="app.decision === 'Refer' && app.caseStatus !== 'Closed'">
-      <a class="btn-primary" [routerLink]="['/alerts']" [queryParams]="{ id: app.id }">Take case action</a>
-    </div>
-  </article>
-
-  <article class="cd-card">
-    <h2>Reason codes</h2>
-    <ul class="reason-list">
-      <li *ngFor="let reason of app.reasonCodes">{{ reason }}</li>
-    </ul>
-    <h2>Score factors</h2>
-    <div class="factor" *ngFor="let factor of app.factors">
-      <div><span>{{ factor.label }}</span><b [class.neg]="factor.impact < 0">{{ factor.impact > 0 ? '+' : '' }}{{ factor.impact }}</b></div>
-      <i [style.width.%]="factorBar(factor.impact)"></i>
-    </div>
-  </article>
-
-  <article class="cd-card notes-card">
-    <h2>Case notes</h2>
-    <p class="cd-empty" *ngIf="!app.notes.length">No notes yet. Case actions are taken from Alerts.</p>
-    <div class="note" *ngFor="let note of app.notes">
-      <strong>{{ note.author }}</strong>
-      <span>{{ note.time }}</span>
-      <p>{{ note.text }}</p>
-    </div>
-  </article>
-</section>
+<div class="loan-workflow">
+  <header class="ai-page-hero compact"><div><span class="ai-eyebrow">APPLICATION / CREDIT INTELLIGENCE</span><h2>Application dossier</h2><p>A connected view of the customer, model outlook, lending policy and review history.</p></div><div class="ai-hero-aside"><span class="ai-mode"><i></i>Demo environment</span><a class="ai-hero-link" routerLink="/applications">← Back to applications</a></div></header>
+  <article class="loan-panel" *ngIf="!application && !legacy"><div class="ai-empty"><span>◎</span><h3>Assessment not found</h3><p>Check the reference or return to the saved application workspace.</p><a class="btn-primary" routerLink="/applications">View applications</a></div></article>
+  <article class="loan-panel" *ngIf="legacy as original"><span class="ai-eyebrow">EARLIER SOURCE APPLICATION</span><h3>{{ original.applicant }}</h3><p>{{ original.id }} · {{ original.product }} · {{ workflow.money(original.amount) }}</p><p class="wf-muted">This earlier source record has no saved assessment in the current workflow. Start a new assessment to create its model and policy analysis.</p><a class="btn-primary" routerLink="/applications/new">Create an assessment →</a></article>
+  <ng-container *ngIf="application as app">
+    <article class="loan-panel"><div class="ai-customer-heading"><span class="ai-avatar large">{{ workflow.initials(app.customerName) }}</span><div><span class="ai-eyebrow">APPLICATION DOSSIER</span><h3>{{ app.customerName }}</h3><p class="ai-id-wrap">{{ app.id }} · {{ app.nationalId }}</p></div><span class="ai-status" [class.final]="!workflow.pending(app)" [attr.data-status]="app.status">{{ app.status }}</span></div><div class="ai-detail-actions"><div class="form-actions"><a class="btn-primary" *ngIf="workflow.pending(app)" routerLink="/decision-queue" [queryParams]="{id: app.id}">Open decision review →</a><a class="btn-ghost" *ngIf="workflow.pending(app)" routerLink="/applications/new" [queryParams]="{reassess: app.id}">↻ Reassess</a><button type="button" class="btn-ghost" (click)="workflow.downloadAssessment(app)">↓ Assessment JSON</button></div><label>Assessment version<select [(ngModel)]="selectedVersion"><option *ngFor="let item of app.assessments" [ngValue]="item.version">v{{ item.version }} · {{ item.assessedAt | date:'dd MMM, HH:mm':'+0300' }} EAT</option></select></label></div><div class="ai-legacy-note" *ngIf="selectedVersion !== app.assessments.length">You are viewing a previous assessment snapshot. The officer status above is current; decisions use the latest assessment version.</div></article>
+    <app-loan-assessment class="wf-section" *ngIf="assessment as result" [assessment]="result"></app-loan-assessment>
+    <article class="loan-panel wf-section"><div class="loan-panel-heading"><div><span class="ai-eyebrow">DECISION JOURNEY</span><h3>The full review history</h3></div><span>{{ app.history.length }} recorded events</span></div><ol class="ai-timeline"><li *ngFor="let event of app.history"><span class="ai-timeline-mark" [class.completed]="event.action === 'Approve' || event.action === 'Decline'"></span><div><div class="ai-timeline-title"><h4>{{ event.action }}</h4><span>{{ event.timestamp | date:'dd MMM y, HH:mm:ss':'+0300' }} EAT</span></div><p>{{ event.reason }}</p><p *ngIf="event.approvedAmount !== undefined"><b>Approved amount:</b> {{ workflow.money(event.approvedAmount!) }} · {{ event.approvedTenorMonths }} months · {{ event.approvalBasis }}</p><small>{{ event.officer }} · {{ event.previousStatus }} → {{ event.status }} · assessment v{{ event.assessmentVersion }}</small><p *ngIf="event.informationRequested"><b>Information requested:</b> {{ event.informationRequested }}</p><span class="ai-small-tag" *ngIf="event.policyOverride">Officer acknowledged recommendation override</span></div></li></ol><p class="ai-footnote">History is stored with this application in the current browser. It is not a server-authenticated audit log.</p></article>
+  </ng-container>
+</div>

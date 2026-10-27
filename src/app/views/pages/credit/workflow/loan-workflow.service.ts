@@ -11,9 +11,6 @@ import { KENYA_LOAN_CUSTOMERS } from './loan-customers.data';
 import { LoanIntegrationService } from './loan-integration.service';
 
 function copy<T>(value: T): T { return JSON.parse(JSON.stringify(value)); }
-export function formatLoanDisplayText(value: string): string {
-  return value.replace(/\bsimulated\b[ \t]*/gi, '').replace(/\bensemble simulation\b/gi, 'ensemble');
-}
 export function loanId(prefix: string): string {
   const suffix = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
   return prefix + '-' + suffix;
@@ -59,7 +56,8 @@ export class LoanWorkflowService implements OnDestroy {
   latest = latestAssessment;
   pending = isPending;
   money(value: number): string { return this.credit.money(value); }
-  displayText(value: string): string { return formatLoanDisplayText(value); }
+  // Format generated copy only; saved assessments and numerical model outputs stay unchanged.
+  displayText(value: string): string { return value.replace(/\bsimulated\b[ \t]*/gi, '').replace(/\bensemble simulation\b/gi, 'ensemble'); }
   advice(assessment: LoanAssessment): CreditDecision { return combineLoanDecisions(combineLoanDecisions(assessment.ai?.advice || assessment.recommendation, assessment.eligibility?.decision || 'Approved'), assessment.integration?.decision || 'Approved'); }
   customerRisk(customer: LoanCustomer): string { return simulatedRisk(simulatedLoanProbability(customer.profile)); }
   bureauLabel(a: LoanAssessment): string { return a.eligibility?.customer.crbBlacklisted === true ? 'Blacklisted' : a.eligibility?.customer.crbDefaulter === true ? 'Defaulter listed' : a.input.bureau; }
@@ -154,12 +152,7 @@ export class LoanWorkflowService implements OnDestroy {
   }
   private restore(): void {
     try { this.subject.next(copy(this.readStored())); this.storageError = ''; }
-    catch {
-      // Records written by the stand-in engines fail these checks and would disable new intake.
-      try { localStorage.removeItem(LOAN_STORAGE_KEY); } catch { /* storage may be unavailable */ }
-      this.subject.next([]);
-      this.storageError = '';
-    }
+    catch (error) { this.storageError = 'Saved workflow could not be read. Existing data was retained. ' + this.errorMessage(error); }
   }
   private commit(next: LoanRecord[]): void {
     try { localStorage.setItem(LOAN_STORAGE_KEY, JSON.stringify({ schema: 1, applications: next })); }
@@ -276,7 +269,7 @@ export class LoanWorkflowService implements OnDestroy {
         'Ensemble risk bands are below 12% / below 30% / otherwise high, using illustrative likelihoods without a validated default horizon. Agreement is the proportion of model risk votes matching the ensemble, not predictive accuracy.',
         'Copilot briefings are composed from the actual assessment inputs and checks using templates. Combined advice describes the original request; a smaller recommended offer is assessed separately. Officer review remains required.',
         'New risk-adjusted limits use 100% / 65% / 35% of principal-only repayment capacity for Low / Medium / High requested-risk bands, capped by the configured amount ceiling. Candidate likelihood ceilings are 12% / 30% / 50%. These are demonstration risk-appetite settings. Medium and High proposals always need officer review and explicit override acknowledgement before approval.',
-        'Eight fictional Kenyan profiles are used for new intake. Existing saved customer identities and assessment histories are retained. Connector availability is illustrative; no external identity, CRB, SMS, sanctions or payout service is called.'
+        'Eight fictional Kenyan profiles are used for new intake. Existing saved customer identities and assessment histories are retained. Connector availability is simulated; no external identity, CRB, SMS, sanctions or payout service is called.'
       ] };
   }
   private policyChecks(input: ApplicationDraft, score: number, dti: number, policy: PolicySettings, rules: DecisionRule[]): LoanCheck[] {

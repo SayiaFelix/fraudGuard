@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import { ApplicationDraft } from '../credit-data.service';
 import { readLoanUpload, BULK_COLUMNS } from '../workflow/loan-bulk';
 import { BulkApplicationRow, LoanCustomer, LoanRecord } from '../workflow/loan-workflow.models';
-import { formatLoanDisplayText, LoanWorkflowService, loanId } from '../workflow/loan-workflow.service';
+import { LoanWorkflowService, loanId } from '../workflow/loan-workflow.service';
 import { customerFacts } from '../workflow/loan-eligibility.engine';
 import { LoanConnector, LoanConnectorResult } from '../workflow/loan-integration.service';
 
@@ -51,7 +51,6 @@ export class NewApplicationComponent implements OnInit, OnDestroy {
     })
   });
   constructor(private fb: FormBuilder, private route: ActivatedRoute, public workflow: LoanWorkflowService) {}
-  displayText(value: string): string { return formatLoanDisplayText(value); }
   ngOnInit(): void {
     this.subscription.add(this.route.queryParamMap.subscribe(params => {
       if (this.busy || this.processing || this.integrationBusy) { return; }

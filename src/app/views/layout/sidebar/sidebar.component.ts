@@ -1,4 +1,15 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, Renderer2, Inject, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  Renderer2,
+  Inject,
+  Output,
+  EventEmitter
+} from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import MetisMenu from 'metismenujs';
 import { MENU } from './menu';
@@ -7,9 +18,26 @@ import { Router, NavigationEnd } from '@angular/router';
 import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
 import { NotificationService } from '../../../shared/services/NotificationService';
-import { InboxItem } from '../../pages/mobile-banking/requests/list-requests/list-requests.component'; // Adjust this path if your inbox component is in a different folder
+import { InboxItem } from '../../pages/mobile-banking/requests/list-requests/list-requests.component';
 import { AuthService } from 'src/app/shared/services/auth.service';
 import { CreditDataService } from '../../pages/credit/credit-data.service';
+import { LoanWorkflowService } from '../../pages/credit/workflow/loan-workflow.service';
+
+interface SidebarMenuGroup {
+  label: string;
+  open: boolean;
+  items: MenuItem[];
+}
+
+interface SidebarAiMessage {
+  from: 'you' | 'ai';
+  text: string;
+}
+
+type SidebarMenuEntry = MenuItem & {
+  isTitle?: boolean;
+  isLogout?: boolean;
+};
 
 @Component({
   selector: 'app-sidebar',
@@ -17,139 +45,129 @@ import { CreditDataService } from '../../pages/credit/credit-data.service';
   styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
-
-  
-  @ViewChild('sidebarToggler') sidebarToggler: ElementRef;
+  @ViewChild('sidebarToggler') sidebarToggler!: ElementRef;
+  @ViewChild('sidebarMenu') sidebarMenu!: ElementRef;
   @Output() helpCenterToggled = new EventEmitter<MouseEvent>();
+
   menuItems: MenuItem[] = [];
-  menuGroups: SidebarGroup[] = [];
-  logoutItem: MenuItem | null = null;
+  menuGroups: SidebarMenuGroup[] = [];
+  logoutItem?: MenuItem;
+
+  aiOpen = false;
+  aiMessages: SidebarAiMessage[] = [];
+
   userDisplayName = '';
   userTitle = '';
   userInitials = '';
-  @ViewChild('sidebarMenu') sidebarMenu: ElementRef;
   isSettingsModalVisible = false;
-  aiOpen = false;
-  aiDraft = '';
-  aiMessages: Array<{ from: 'ai' | 'you'; text: string }> = [
-    { from: 'ai', text: 'I can walk through an alert, a case status, or how a standing score moves. This assistant is a demo and stays on this page.' }
-  ];
-  showSubItems: boolean = true;
-  logo: string = '\\assets\\images\\TRA_Logo.png';
-  showingClass = "d-none";
+  showSubItems = true;
+  logo = '\\assets\\images\\TRA_Logo.png';
+  showingClass = 'd-none';
   selectedParent: string | undefined;
-  private notificationSub: Subscription;
+
+  private subscriptions = new Subscription();
+  private desktopMedium?: MediaQueryList;
+
+  private readonly onDesktopMediumChange = (): void => {
+    if (this.desktopMedium) {
+      this.iconSidebar(this.desktopMedium);
+    }
+  };
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private renderer: Renderer2,
     private router: Router,
-     private authservice: AuthService,
+    private authservice: AuthService,
     private notificationService: NotificationService,
-    private creditData: CreditDataService
+    private creditData: CreditDataService,
+    private loanWorkflow: LoanWorkflowService
   ) {
-    
-    router.events.forEach((event) => {
-      if (event instanceof NavigationEnd) {
-        this.openActiveGroup();
-        this._activateMenuDropdown();
-        if (window.matchMedia('(max-width: 991px)').matches) {
-          this.document.body.classList.remove('sidebar-open');
+    this.subscriptions.add(
+      this.router.events.subscribe(event => {
+        if (event instanceof NavigationEnd) {
+          this._activateMenuDropdown();
+
+          if (window.matchMedia('(max-width: 991px)').matches) {
+            this.document.body.classList.remove('sidebar-open');
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   ngOnInit(): void {
-    
     const role = localStorage.getItem('userRole');
-    this.menuItems = MENU.filter(item => 
+
+    this.menuItems = MENU.filter(item =>
       !item.roles || item.roles.includes(role!)
     );
-    this.buildGroups();
+
+    this.buildMenuGroups();
 
     this.userDisplayName = this.authservice.getUserDisplayName();
     this.userTitle = this.authservice.getUserTitle();
     this.userInitials = this.getInitials(this.userDisplayName);
 
-    const desktopMedium = window.matchMedia('(min-width:992px) and (max-width: 1199px)');
-    desktopMedium.addEventListener('change', () => this.iconSidebar(desktopMedium));
-    this.iconSidebar(desktopMedium);
+    this.desktopMedium = window.matchMedia(
+      '(min-width: 992px) and (max-width: 1199px)'
+    );
+    this.desktopMedium.addEventListener('change', this.onDesktopMediumChange);
+    this.iconSidebar(this.desktopMedium);
 
-    
-    this.notificationSub = this.notificationService.currentNotifications.subscribe((notifications: InboxItem[]) => {
-      this.updateInboxBadge(notifications);
-    });
+    this.subscriptions.add(
+      this.notificationService.currentNotifications.subscribe(
+        (notifications: InboxItem[]) => this.updateInboxBadge(notifications)
+      )
+    );
 
-    this.creditData.summary$.subscribe(summary => {
-      const applications = this.menuItems.find(item => item.link === '/applications');
-      if (applications) {
-        applications.badge = { text: summary.openApplications, variant: 'uba' };
-      }
-    });
+    this.subscriptions.add(
+      this.loanWorkflow.applications$.subscribe(apps => {
+        const applications = this.menuItems.find(
+          item => item.link === '/applications'
+        );
+        const queue = this.menuItems.find(
+          item => item.link === '/decision-queue'
+        );
 
-    this.creditData.applications$.subscribe(apps => {
-      const open = apps.filter(item => item.decision === 'Refer' && item.caseStatus !== 'Closed').length;
-      ['/alerts', '/decision-queue'].forEach(link => {
-        const item = this.menuItems.find(entry => entry.link === link);
-        if (item) {
-          item.badge = { text: open, variant: 'uba' };
+        if (applications) {
+          applications.badge = { text: apps.length, variant: 'uba' };
         }
-      });
-    });
+
+        if (queue) {
+          queue.badge = {
+            text: apps.filter(item => this.loanWorkflow.pending(item)).length,
+            variant: 'uba'
+          };
+        }
+      })
+    );
+
+    this.subscriptions.add(
+      this.creditData.applications$.subscribe(apps => {
+        const open = apps.filter(
+          item => item.decision === 'Refer' && item.caseStatus !== 'Closed'
+        ).length;
+        const alerts = this.menuItems.find(item => item.link === '/alerts');
+
+        if (alerts) {
+          alerts.badge = { text: open, variant: 'uba' };
+        }
+      })
+    );
   }
 
-  
+  ngAfterViewInit(): void {
+    new MetisMenu(this.sidebarMenu.nativeElement);
+    this._activateMenuDropdown();
+  }
+
   ngOnDestroy(): void {
-    if (this.notificationSub) {
-      this.notificationSub.unsubscribe();
-    }
-  }
-
-  
-  toggleGroup(group: SidebarGroup): void {
-    group.open = !group.open;
-  }
-
-  private buildGroups(): void {
-    const groups: SidebarGroup[] = [];
-    let current: SidebarGroup | null = null;
-    this.logoutItem = null;
-    this.menuItems.forEach(item => {
-      if (item.isLogout) {
-        this.logoutItem = item;
-        return;
-      }
-      if (item.isTitle) {
-        current = { label: item.label || '', items: [], open: false };
-        groups.push(current);
-        return;
-      }
-      if (!current) {
-        current = { label: null, items: [], open: true };
-        groups.push(current);
-      }
-      current.items.push(item);
-    });
-    this.menuGroups = groups;
-    this.openActiveGroup();
-  }
-
-  private openActiveGroup(): void {
-    const url = this.router.url.split('?')[0];
-    this.menuGroups.forEach(group => {
-      if (!group.label) {
-        return;
-      }
-      const active = group.items.some(item => !!item.link && (url === item.link || url.startsWith(item.link + '/')));
-      if (active) {
-        group.open = true;
-      }
-    });
-  }
-
-  private updateInboxBadge(_notifications: InboxItem[]): void {
-    // The Alerts badge follows the open credit cases, not the legacy inbox.
+    this.subscriptions.unsubscribe();
+    this.desktopMedium?.removeEventListener(
+      'change',
+      this.onDesktopMediumChange
+    );
   }
 
   toggleAi(event: Event): void {
@@ -157,24 +175,79 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.aiOpen = !this.aiOpen;
   }
 
-  askAi(prompt?: string): void {
-    const text = (prompt || this.aiDraft).trim();
+  askAi(question: string): void {
+    const text = question.trim();
     if (!text) return;
-    this.aiMessages = [...this.aiMessages, { from: 'you', text }];
-    this.aiDraft = '';
-    const lower = text.toLowerCase();
-    let reply = 'I can help with alerts, case statuses, repayment scores, reports, and the audit trail. Try one of the suggestions.';
-    if (/score|repay|limit|default|late/.test(lower)) {
-      reply = 'On-time repayment raises the standing score by 4, and every third on-time cycle adds another 6. A late payment cuts 6. A default cuts 28. The case decision still uses the origination score.';
-    } else if (/alert|case|escalat|review/.test(lower)) {
-      reply = 'Alerts and cases are one desk. Open a row, then approve, decline, request information, assign, or escalate. Statuses are Open, In review, Escalated, and Resolved.';
-    } else if (/report|audit|export|csv/.test(lower)) {
-      reply = 'Reports and the audit trail use the same applications as the alerts desk. You can export CSV or print a report, and every case action is written to the trail.';
-    }
-    this.aiMessages = [...this.aiMessages, { from: 'ai', text: reply }];
+
+    this.aiOpen = true;
+    this.aiMessages = [
+      ...this.aiMessages,
+      { from: 'you', text },
+      {
+        from: 'ai',
+        // Replace this reply with the assistant service response when available.
+        text: 'The AI assistant is not available yet.'
+      }
+    ];
   }
 
-  
+  toggleGroup(group: SidebarMenuGroup): void {
+    group.open = !group.open;
+  }
+
+  private buildMenuGroups(): void {
+    this.logoutItem = undefined;
+
+    let group: SidebarMenuGroup = {
+      label: '',
+      open: true,
+      items: []
+    };
+
+    this.menuGroups = [group];
+
+    for (const item of this.menuItems) {
+      const entry = item as SidebarMenuEntry;
+
+      if (entry.isLogout) {
+        this.logoutItem = item;
+        continue;
+      }
+
+      if (entry.isTitle) {
+        group = {
+          label: entry.label || '',
+          open: true,
+          items: []
+        };
+        this.menuGroups.push(group);
+        continue;
+      }
+
+      group.items.push(item);
+    }
+
+    this.menuGroups = this.menuGroups.filter(
+      section => section.items.length > 0
+    );
+  }
+
+  private updateInboxBadge(notifications: InboxItem[]): void {
+    const inboxMenuItem = this.menuItems.find(item => item.label === 'Alerts');
+    if (!inboxMenuItem) return;
+
+    const unreadCount = notifications.length;
+
+    if (unreadCount > 0) {
+      inboxMenuItem.badge = {
+        text: unreadCount.toString(),
+        variant: 'danger'
+      };
+    } else {
+      delete inboxMenuItem.badge;
+    }
+  }
+
   onSettingsClick(event: MouseEvent): void {
     event.preventDefault();
     this.isSettingsModalVisible = true;
@@ -189,115 +262,96 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isSettingsModalVisible = false;
   }
 
-  ngAfterViewInit() {
-    new MetisMenu(this.sidebarMenu.nativeElement);
-    this._activateMenuDropdown();
-  }
+  toggleSidebar(event: Event): void {
+    event.preventDefault();
 
-  toggleSidebar(e: Event) {
     this.sidebarToggler.nativeElement.classList.toggle('active');
     this.sidebarToggler.nativeElement.classList.toggle('not-active');
+
     if (window.matchMedia('(min-width: 992px)').matches) {
-      e.preventDefault();
       this.document.body.classList.toggle('sidebar-folded');
-    } else if (window.matchMedia('(max-width: 991px)').matches) {
-      e.preventDefault();
+    } else {
       this.document.body.classList.toggle('sidebar-open');
     }
   }
 
-  toggleSettingsSidebar(e: Event) {
-    e.preventDefault();
+  toggleSettingsSidebar(event: Event): void {
+    event.preventDefault();
     this.document.body.classList.toggle('settings-open');
   }
 
-  operSidebarFolded() {
-    if (this.document.body.classList.contains('sidebar-folded')){
-      this.document.body.classList.add("open-sidebar-folded");
+  operSidebarFolded(): void {
+    if (this.document.body.classList.contains('sidebar-folded')) {
+      this.document.body.classList.add('open-sidebar-folded');
     }
   }
 
-  closeSidebarFolded() {
-    if (this.document.body.classList.contains('sidebar-folded')){
-      this.document.body.classList.remove("open-sidebar-folded");
-    }
+  closeSidebarFolded(): void {
+    this.document.body.classList.remove('open-sidebar-folded');
   }
 
-  iconSidebar(mq: MediaQueryList) {
-    // Credit workspace keeps the labelled navigation open.
-    // if (mq.matches) {
-    //   this.document.body.classList.add('sidebar-folded');
-    // } else {
-    this.document.body.classList.remove('sidebar-folded');
-    // }
+  iconSidebar(_mq: MediaQueryList): void {
+    // Keep labelled navigation visible in the credit workspace.
+    this.renderer.removeClass(this.document.body, 'sidebar-folded');
   }
 
-  onSidebarThemeChange(event: Event) {
+  onSidebarThemeChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+
     this.document.body.classList.remove('sidebar-light', 'sidebar-dark');
-    this.document.body.classList.add((<HTMLInputElement>event.target).value);
+    this.document.body.classList.add(target.value);
     this.document.body.classList.remove('settings-open');
-    this.logo = this.logo == '\\assets\\images\\MicrosoftTeams-image (1).png'? '\\assets\\images\\MicrosoftTeams-image (2).png' : '\\assets\\images\\MicrosoftTeams-image (1).png'
+
+    this.logo = this.logo === '\\assets\\images\\MicrosoftTeams-image (1).png'
+      ? '\\assets\\images\\MicrosoftTeams-image (2).png'
+      : '\\assets\\images\\MicrosoftTeams-image (1).png';
   }
-  
-onLogout(e: Event) {
-  e.preventDefault();
-  
-  Swal.fire({
-    width: 500,
-    title: 'Are you sure?',
-    text: "You will be logged out of your session.",
-    icon: 'warning',
-    iconColor: '#f5c28d',
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, log me out!',
-    cancelButtonText: 'Cancel',
-    backdrop: true,
-    allowOutsideClick: false
-  }).then((result) => {
-    if (result.isConfirmed) {
+
+  onLogout(event: Event): void {
+    event.preventDefault();
+
+    Swal.fire({
+      width: 500,
+      title: 'Are you sure?',
+      text: 'You will be logged out of your session.',
+      icon: 'warning',
+      iconColor: '#f5c28d',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, log me out!',
+      cancelButtonText: 'Cancel',
+      backdrop: true,
+      allowOutsideClick: false
+    }).then(result => {
+      if (!result.isConfirmed) return;
 
       Swal.fire({
         title: 'Logging out...',
         text: 'Please wait',
         allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
+        didOpen: () => Swal.showLoading()
       });
-      
-      try {
-      
-        this.authservice.logout();
-      
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('current_user');
-        localStorage.removeItem('userRole');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('userDisplayName');
-        localStorage.removeItem('userTitle');
-        localStorage.removeItem('isLoggedin');
-        sessionStorage.removeItem('uba_demo_mode');
-        sessionStorage.removeItem('uba_demo_user');
-        sessionStorage.removeItem('uba_demo_display_name');
 
-        this.router.navigate(['/auth/login']);
-      
+      try {
+        this.authservice.logout();
+
+        [
+          'access_token',
+          'refresh_token',
+          'current_user',
+          'userRole',
+          'userEmail',
+          'userName',
+          'userDisplayName',
+          'userTitle'
+        ].forEach(key => localStorage.removeItem(key));
+
+        this.router.navigate(['/dashboard']);
         Swal.close();
-        
-        // Swal.fire({
-        //   icon: 'success',
-        //   title: 'Logged Out',
-        //   text: 'You have been successfully logged out.',
-        //   timer: 700,
-        //   showConfirmButton: false
-        // });
-        
       } catch (error) {
         console.error('Logout error:', error);
+
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -305,116 +359,72 @@ onLogout(e: Event) {
           confirmButtonColor: '#3085d6'
         });
       }
-    }
-  });
-}
-
-  hasItems(item: MenuItem) {
-    return item.subItems !== undefined ? item.subItems.length > 0 : false;
+    });
   }
 
-  _activateMenuDropdown() {
+  hasItems(item: MenuItem): boolean {
+    return !!item.subItems?.length;
+  }
+
+  _activateMenuDropdown(): void {
     this.resetMenuItems();
     this.activateMenuItems();
   }
 
-  resetMenuItems() {
-    const links = document.getElementsByClassName('nav-link-ref');
+  resetMenuItems(): void {
+    const links = this.document.getElementsByClassName('nav-link-ref');
+
     for (let i = 0; i < links.length; i++) {
       const menuItemEl = links[i];
       menuItemEl.classList.remove('mm-active');
-      const parentEl = menuItemEl.parentElement;
-      if (parentEl) {
-          parentEl.classList.remove('mm-active');
-          const parent2El = parentEl.parentElement;
-          if (parent2El) {
-            parent2El.classList.remove('mm-show');
-          }
-          const parent3El = parent2El?.parentElement;
-          if (parent3El) {
-            parent3El.classList.remove('mm-active');
-            if (parent3El.classList.contains('side-nav-item')) {
-              const firstAnchor = parent3El.querySelector('.side-nav-link-a-ref');
-              if (firstAnchor) {
-                firstAnchor.classList.remove('mm-active');
-              }
-            }
-            const parent4El = parent3El.parentElement;
-            if (parent4El) {
-              parent4El.classList.remove('mm-show');
-              const parent5El = parent4El.parentElement;
-              if (parent5El) {
-                parent5El.classList.remove('mm-active');
-              }
-            }
-          }
+
+      let parent = menuItemEl.parentElement;
+      while (parent && parent !== this.sidebarMenu?.nativeElement) {
+        parent.classList.remove('mm-active', 'mm-show');
+        parent = parent.parentElement;
       }
     }
-  };
+  }
 
-  activateMenuItems() {
-    const links: any = document.getElementsByClassName('nav-link-ref');
-    let menuItemEl = null;
+  activateMenuItems(): void {
+    const links = this.document.getElementsByClassName('nav-link-ref');
+
     for (let i = 0; i < links.length; i++) {
-        if (window.location.pathname === links[i]['pathname']) {
-            menuItemEl = links[i];
-            break;
-        }
-    }
-    if (menuItemEl) {
-        menuItemEl.classList.add('mm-active');
-        const parentEl = menuItemEl.parentElement;
-        if (parentEl) {
-            parentEl.classList.add('mm-active');
-            const parent2El = parentEl.parentElement;
-            if (parent2El) {
-                parent2El.classList.add('mm-show');
-            }
-            const parent3El = parent2El.parentElement;
-            if (parent3El) {
-                parent3El.classList.add('mm-active');
-                if (parent3El.classList.contains('side-nav-item')) {
-                    const firstAnchor = parent3El.querySelector('.side-nav-link-a-ref');
-                    if (firstAnchor) {
-                        firstAnchor.classList.add('mm-active');
-                    }
-                }
-                const parent4El = parent3El.parentElement;
-                if (parent4El) {
-                    parent4El.classList.add('mm-show');
-                    const parent5El = parent4El.parentElement;
-                    if (parent5El) {
-                        parent5El.classList.add('mm-active');
-                    }
-                }
-            }
-        }
-    }
-  };
+      const link = links[i] as HTMLAnchorElement;
+      if (window.location.pathname !== link.pathname) continue;
 
-  showMenuItem(profiles: any) { 
-    let assignedProfile = JSON.parse(localStorage.getItem('profile')!);
-    let found = profiles.find((allowedProfile: string) => {
-      return allowedProfile === assignedProfile;
-    })
-    if (found) {
-      return true;
-    } else
-    return false;
+      link.classList.add('mm-active');
+
+      let parent = link.parentElement;
+      while (parent && parent !== this.sidebarMenu?.nativeElement) {
+        if (parent.tagName === 'UL') {
+          parent.classList.add('mm-show');
+        } else if (parent.tagName === 'LI') {
+          parent.classList.add('mm-active');
+        }
+        parent = parent.parentElement;
+      }
+
+      break;
+    }
+  }
+
+  showMenuItem(profiles: any): boolean {
+    const assignedProfile = JSON.parse(localStorage.getItem('profile')!);
+    return !!profiles.find(
+      (allowedProfile: string) => allowedProfile === assignedProfile
+    );
   }
 
   private getInitials(name: string): string {
-    if (!name) return 'U';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  }
-}
+    const parts = (name || '').trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return 'U';
 
-interface SidebarGroup {
-  label: string | null;
-  items: MenuItem[];
-  open: boolean;
+    if (parts.length >= 2) {
+      return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0))
+        .toUpperCase();
+    }
+
+    return parts[0].substring(0, 2).toUpperCase();
+  }
 }

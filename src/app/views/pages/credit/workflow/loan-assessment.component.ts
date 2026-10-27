@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnChanges, OnDestroy, ViewChild } from '@angular/core';
 import { LoanAssessment, LoanCheck, LoanRiskDriver, LoanScenario } from './loan-workflow.models';
-import { formatLoanDisplayText, LoanWorkflowService } from './loan-workflow.service';
+import { LoanWorkflowService } from './loan-workflow.service';
 
 let nextDriverPopoverId = 0;
 
@@ -24,7 +24,6 @@ export class LoanAssessmentComponent implements OnChanges, OnDestroy {
     if (!this.driverPopover?.nativeElement.contains(event.target as Node)) { this.queueDriverPosition(); }
   };
   constructor(public workflow: LoanWorkflowService, private changeDetector?: ChangeDetectorRef) {}
-  displayText(value: string): string { return formatLoanDisplayText(value); }
   readonly MathAbs = Math.abs;
   ngOnChanges(): void { this.hideDriver(); this.resetScenario(); this.activeTab = 'insights'; }
   ngOnDestroy(): void { this.hideDriver(); }

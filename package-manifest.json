@@ -1,0 +1,188 @@
+{
+  "consolidated": true,
+  "modules": [
+    "New Application",
+    "Applications",
+    "Decision Queue"
+  ],
+  "code_configuration_files": 25,
+  "main_files": 23,
+  "optional_support_files": 2,
+  "files": [
+    {
+      "package_path": "optional-support/angular.json",
+      "project_path": "angular.json",
+      "optional": true,
+      "source_package": "Loan_Workflow_Update_Files_Only.zip",
+      "sha256": "c402f42cdba0c8f8442346ff935093e1212215bc4ca8deb1f6f560bad45bd57e"
+    },
+    {
+      "package_path": "scripts/check-loan-workflow.mjs",
+      "project_path": "scripts/check-loan-workflow.mjs",
+      "optional": false,
+      "source_package": "Loan_Workflow_Integration_Kenya_Risk_Update_Files.zip",
+      "sha256": "0be997df4a8efb2176bb4b8b49c2b8de1ee4ca88ff231f805fd2feebe595c1dc"
+    },
+    {
+      "package_path": "src/app/views/layout/sidebar/sidebar.component.ts",
+      "project_path": "src/app/views/layout/sidebar/sidebar.component.ts",
+      "optional": false,
+      "source_package": "Loan_Workflow_Update_Files_Only.zip",
+      "sha256": "7405c3491987d607e1ee555b5e1fcb5ac35b1f41b04cfd67887b3e501d8e1f1b"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/applications/application-detail.component.html",
+      "project_path": "src/app/views/pages/credit/applications/application-detail.component.html",
+      "optional": false,
+      "source_package": "Loan_Workflow_Modern_UI_Decision_Fix_Files.zip",
+      "sha256": "1152ab17c9334b8a3d217fd5af4a4d1787a2e197e240fca1e6415c74f19cfb8e"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/applications/application-detail.component.ts",
+      "project_path": "src/app/views/pages/credit/applications/application-detail.component.ts",
+      "optional": false,
+      "source_package": "Loan_Workflow_Update_Files_Only.zip",
+      "sha256": "610631cc16b4bd3044cfd5065b6f0e3b2488c3bdd4ba9e7c97cf7707153964aa"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/applications/applications.component.html",
+      "project_path": "src/app/views/pages/credit/applications/applications.component.html",
+      "optional": false,
+      "source_package": "Loan_Workflow_Clean_Wording_Update_Files.zip",
+      "sha256": "a644a6c465ab56928a0df9781bcae3a97dcfb1022c8e18e86147c8f5c9fa93b8"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/applications/applications.component.ts",
+      "project_path": "src/app/views/pages/credit/applications/applications.component.ts",
+      "optional": false,
+      "source_package": "Loan_Workflow_AI_Limits_Update_Files.zip",
+      "sha256": "1acca47dcf977efc91f598e4e265dc12a11a53402d680f2571304d4018debc67"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/credit.module.ts",
+      "project_path": "src/app/views/pages/credit/credit.module.ts",
+      "optional": false,
+      "source_package": "Loan_Workflow_Update_Files_Only.zip",
+      "sha256": "f89d5de42ab62786a194ce259f710a32e5885b01e14ec4e5c05cfaecbf659fb7"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/decision-queue/loan-decision-queue.component.html",
+      "project_path": "src/app/views/pages/credit/decision-queue/loan-decision-queue.component.html",
+      "optional": false,
+      "source_package": "Loan_Workflow_Modern_UI_Decision_Fix_Files.zip",
+      "sha256": "aedc48ffcbe0a39a0c0fad9a86b5a9875dca77ced83471a82fb315646ba238c8"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/decision-queue/loan-decision-queue.component.ts",
+      "project_path": "src/app/views/pages/credit/decision-queue/loan-decision-queue.component.ts",
+      "optional": false,
+      "source_package": "Loan_Workflow_Modern_UI_Decision_Fix_Files.zip",
+      "sha256": "330e3537a3a4b00bc7e83a1712ea6a25c316acdaf8ba9cd781b0c21692c068e9"
+    },
+    {
+      "package_path": "optional-support/src/app/views/pages/credit/decision-rules/decision-rules.component.ts",
+      "project_path": "src/app/views/pages/credit/decision-rules/decision-rules.component.ts",
+      "optional": true,
+      "source_package": "Loan_Workflow_Update_Files_Only.zip",
+      "sha256": "45f95cb587a32e9c01443d9a6178e65bcc53b6ff9cd405bbd32874921d88795f"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/new-application/loan-intake-integration.scss",
+      "project_path": "src/app/views/pages/credit/new-application/loan-intake-integration.scss",
+      "optional": false,
+      "source_package": "Loan_Workflow_Integration_Kenya_Risk_Update_Files.zip",
+      "sha256": "b4010f0f7250eb01f49bd4ceaa802c4c836abb62c6b81f36114431c030f759d3"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/new-application/new-application.component.html",
+      "project_path": "src/app/views/pages/credit/new-application/new-application.component.html",
+      "optional": false,
+      "source_package": "Loan_Workflow_Clean_Wording_Update_Files.zip",
+      "sha256": "54c47fee08d61e2df8cb6d6c87bd9ce9b3f31c867e38fe3a5c4950e63335cffd"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/new-application/new-application.component.ts",
+      "project_path": "src/app/views/pages/credit/new-application/new-application.component.ts",
+      "optional": false,
+      "source_package": "Loan_Workflow_Integration_Kenya_Risk_Update_Files.zip",
+      "sha256": "ba4ce4e357a508a54812d178373b723abcc579611808496260055f77ad40bdfa"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/workflow/loan-ai.engine.ts",
+      "project_path": "src/app/views/pages/credit/workflow/loan-ai.engine.ts",
+      "optional": false,
+      "source_package": "Loan_Workflow_AI_Limits_Update_Files.zip",
+      "sha256": "62210a873b713da3130861ddb57be09aa01cca1ec674d335cf3d62be17819b23"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/workflow/loan-assessment.component.html",
+      "project_path": "src/app/views/pages/credit/workflow/loan-assessment.component.html",
+      "optional": false,
+      "source_package": "Loan_Workflow_Clean_Wording_Update_Files.zip",
+      "sha256": "6c00db7c80969ddc2c00ccee4221727009ebc5ee2fc550e5a039d59a8824a037"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/workflow/loan-assessment.component.ts",
+      "project_path": "src/app/views/pages/credit/workflow/loan-assessment.component.ts",
+      "optional": false,
+      "source_package": "Loan_Workflow_Hover_Popout_Update_Files.zip",
+      "sha256": "6adbca2096271a1fb8d73c57f6fa84e4b8c0fd142c2cdc2ddfb1e8a0aaf22610"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/workflow/loan-bulk.ts",
+      "project_path": "src/app/views/pages/credit/workflow/loan-bulk.ts",
+      "optional": false,
+      "source_package": "Loan_Workflow_Update_Files_Only.zip",
+      "sha256": "3b6686113e5a8911699805c06ee0646a2a95e94d776f49bcbf346e7d8cb742fc"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/workflow/loan-customers.data.ts",
+      "project_path": "src/app/views/pages/credit/workflow/loan-customers.data.ts",
+      "optional": false,
+      "source_package": "Loan_Workflow_Integration_Kenya_Risk_Update_Files.zip",
+      "sha256": "f2075041875f7bafeccc18d5310961009753a122d0960c41eed5768e436432f5"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/workflow/loan-eligibility.engine.ts",
+      "project_path": "src/app/views/pages/credit/workflow/loan-eligibility.engine.ts",
+      "optional": false,
+      "source_package": "Loan_Workflow_Policy_Customer_Update_Files.zip",
+      "sha256": "07d2b40088e6e0a91833a98b45b0ba938eea42e2c7c0eaa2695e2f9e827051ac"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/workflow/loan-integration.service.ts",
+      "project_path": "src/app/views/pages/credit/workflow/loan-integration.service.ts",
+      "optional": false,
+      "source_package": "Loan_Workflow_Integration_Kenya_Risk_Update_Files.zip",
+      "sha256": "b71227df28748658a1faa53284a48e4d5f9a7399d9d21fd70af726dcbb612a02"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/workflow/loan-limit.engine.ts",
+      "project_path": "src/app/views/pages/credit/workflow/loan-limit.engine.ts",
+      "optional": false,
+      "source_package": "Loan_Workflow_Integration_Kenya_Risk_Update_Files.zip",
+      "sha256": "c72d26471dd43f71fdabfbb278e4f1e85c044c59d452ba6b7758400e9a4e9b0b"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/workflow/loan-workflow.models.ts",
+      "project_path": "src/app/views/pages/credit/workflow/loan-workflow.models.ts",
+      "optional": false,
+      "source_package": "Loan_Workflow_Integration_Kenya_Risk_Update_Files.zip",
+      "sha256": "3a36920aa76c682109e825a6c64327b1b1a34df73662639253ffd0189660895c"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/workflow/loan-workflow.scss",
+      "project_path": "src/app/views/pages/credit/workflow/loan-workflow.scss",
+      "optional": false,
+      "source_package": "Loan_Workflow_Hover_Popout_Update_Files.zip",
+      "sha256": "dfd3709384122c579424c16342aed83942453c5ddd88e66a2e148cbab7794416"
+    },
+    {
+      "package_path": "src/app/views/pages/credit/workflow/loan-workflow.service.ts",
+      "project_path": "src/app/views/pages/credit/workflow/loan-workflow.service.ts",
+      "optional": false,
+      "source_package": "Loan_Workflow_Clean_Wording_Update_Files.zip",
+      "sha256": "c194d4ff71b2e4b41a1d6f14ca12238a20763cd6d739de4d45edf4a6d0167941"
+    }
+  ]
+}
