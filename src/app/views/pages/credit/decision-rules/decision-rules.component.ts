@@ -1,40 +1,20 @@
 
 import { Component, OnInit } from '@angular/core';
 
-type RuleCategory =
-  | 'Credit Score'
-  | 'Affordability'
-  | 'Credit History'
-  | 'Loan Eligibility'
-  | 'Customer Profile';
+type Operator = 'lt' | 'lte' | 'gt' | 'gte' | 'eq' | 'neq';
+type Action = 'Decline' | 'Manual Review';
+type Severity = 'Critical' | 'High' | 'Medium' | 'Low';
+type Decision = 'Approved' | 'Refer' | 'Declined' | 'Incomplete';
+type Tab = 'rules' | 'applications' | 'batch' | 'copilot';
+type Insight = 'explanation' | 'factors' | 'actions' | 'summary';
 
-type RuleOperator =
-  | 'lt'
-  | 'lte'
-  | 'gt'
-  | 'gte'
-  | 'eq'
-  | 'neq';
-
-type RuleAction = 'Decline' | 'Manual Review';
-
-type RuleSeverity = 'Critical' | 'High' | 'Medium' | 'Low';
-
-type DecisionOutcome =
-  | 'Approve'
-  | 'Decline'
-  | 'Manual Review'
-  | 'Incomplete Information'
-  | 'Not Evaluated';
-
-interface RuleField {
+interface PolicyField {
   key: string;
-  label: string;
-  category: RuleCategory;
-  unit: string;
+  name: string;
+  category: string;
   min: number;
   max: number;
-  step: number;
+  initial: number;
 }
 
 interface LendingRule {
@@ -42,35 +22,46 @@ interface LendingRule {
   code: string;
   name: string;
   description: string;
-  category: RuleCategory;
+  category: string;
   field: string;
-  operator: RuleOperator;
+  operator: Operator;
   value: number;
-  action: RuleAction;
-  severity: RuleSeverity;
+  action: Action;
+  severity: Severity;
   priority: number;
   enabled: boolean;
-  createdAt: string;
-  updatedAt: string;
 }
 
-interface ApplicantData {
-  creditScore: number | null;
-  monthlyIncome: number | null;
-  monthlyDebt: number | null;
-  requestedAmount: number | null;
-  loanTenure: number | null;
+interface LoanApplication {
+  id: string;
+  name: string;
+  product: string;
+  country: string;
+  amount: number;
+  score: number | null;
+  income: number | null;
+  debt: number | null;
   age: number | null;
+  employmentMonths: number | null;
   overdueLoans: number | null;
   existingLoans: number | null;
-  employmentMonths: number | null;
+  tenure: number | null;
+  submitted: string;
 }
 
-interface RuleEvaluation {
+interface RuleResult {
   rule: LendingRule;
   actual: number | null;
-  matched: boolean;
+  triggered: boolean;
   missing: boolean;
+}
+
+interface Evaluation {
+  application: LoanApplication;
+  decision: Decision;
+  results: RuleResult[];
+  reasons: string[];
+  evaluatedAt: string;
 }
 
 @Component({
@@ -80,9 +71,13 @@ interface RuleEvaluation {
 })
 export class DecisionRulesComponent implements OnInit {
 
-  private readonly STORAGE_KEY = 'uba_credit_decision_rules_v1';
+  private readonly RULES_KEY = 'uba_credit_decision_rules_v1';
+  private readonly APPLICATIONS_KEY = 'eclectics_decision_applications_v2';
 
-  readonly categories: RuleCategory[] = [
+  activeTab: Tab = 'rules';
+  activeInsight: Insight = 'explanation';
+
+  readonly categories = [
     'Credit Score',
     'Affordability',
     'Credit History',
@@ -90,897 +85,911 @@ export class DecisionRulesComponent implements OnInit {
     'Customer Profile'
   ];
 
-  readonly actions: RuleAction[] = [
-    'Decline',
-    'Manual Review'
+  readonly actions: Action[] = ['Decline', 'Manual Review'];
+  readonly severities: Severity[] = [
+    'Critical', 'High', 'Medium', 'Low'
   ];
 
-  readonly severities: RuleSeverity[] = [
-    'Critical',
-    'High',
-    'Medium',
-    'Low'
-  ];
-
-  readonly operators = [
+  readonly operators: Array<{ value: Operator; label: string }> = [
     { value: 'lt', label: 'Less than (<)' },
-    { value: 'lte', label: 'Less than or equal to (≤)' },
+    { value: 'lte', label: 'Less or equal (≤)' },
     { value: 'gt', label: 'Greater than (>)' },
-    { value: 'gte', label: 'Greater than or equal to (≥)' },
-    { value: 'eq', label: 'Equal to (=)' },
-    { value: 'neq', label: 'Not equal to (≠)' }
+    { value: 'gte', label: 'Greater or equal (≥)' },
+    { value: 'eq', label: 'Equal (=)' },
+    { value: 'neq', label: 'Not equal (≠)' }
   ];
 
-  readonly fields: RuleField[] = [
-    {
-      key: 'creditScore',
-      label: 'Credit Score',
-      category: 'Credit Score',
-      unit: 'points',
-      min: 300,
-      max: 850,
-      step: 1
-    },
-    {
-      key: 'monthlyIncome',
-      label: 'Monthly Income',
-      category: 'Affordability',
-      unit: 'KES',
-      min: 0,
-      max: 100000000,
-      step: 1000
-    },
-    {
-      key: 'monthlyDebt',
-      label: 'Monthly Debt Repayments',
-      category: 'Affordability',
-      unit: 'KES',
-      min: 0,
-      max: 100000000,
-      step: 1000
-    },
-    {
-      key: 'dti',
-      label: 'Debt-to-Income Ratio',
-      category: 'Affordability',
-      unit: '%',
-      min: 0,
-      max: 100,
-      step: 1
-    },
-    {
-      key: 'requestedAmount',
-      label: 'Requested Loan Amount',
-      category: 'Loan Eligibility',
-      unit: 'KES',
-      min: 0,
-      max: 100000000,
-      step: 1000
-    },
-    {
-      key: 'loanTenure',
-      label: 'Loan Tenure',
-      category: 'Loan Eligibility',
-      unit: 'months',
-      min: 1,
-      max: 120,
-      step: 1
-    },
-    {
-      key: 'age',
-      label: 'Applicant Age',
-      category: 'Customer Profile',
-      unit: 'years',
-      min: 0,
-      max: 120,
-      step: 1
-    },
-    {
-      key: 'overdueLoans',
-      label: 'Overdue Loans',
-      category: 'Credit History',
-      unit: 'loans',
-      min: 0,
-      max: 1000,
-      step: 1
-    },
-    {
-      key: 'existingLoans',
-      label: 'Existing Active Loans',
-      category: 'Credit History',
-      unit: 'loans',
-      min: 0,
-      max: 1000,
-      step: 1
-    },
-    {
-      key: 'employmentMonths',
-      label: 'Employment Duration',
-      category: 'Customer Profile',
-      unit: 'months',
-      min: 0,
-      max: 600,
-      step: 1
-    }
+  readonly fields: PolicyField[] = [
+    { key: 'score', name: 'Credit Score', category: 'Credit Score',
+      min: 300, max: 850, initial: 650 },
+    { key: 'income', name: 'Monthly Income', category: 'Affordability',
+      min: 0, max: 100000000, initial: 20000 },
+    { key: 'debt', name: 'Monthly Debt', category: 'Affordability',
+      min: 0, max: 100000000, initial: 20000 },
+    { key: 'dti', name: 'Debt-to-Income Ratio', category: 'Affordability',
+      min: 0, max: 100, initial: 45 },
+    { key: 'amount', name: 'Requested Amount', category: 'Loan Eligibility',
+      min: 0, max: 100000000, initial: 500000 },
+    { key: 'tenure', name: 'Loan Tenure', category: 'Loan Eligibility',
+      min: 1, max: 120, initial: 36 },
+    { key: 'overdueLoans', name: 'Overdue Loans', category: 'Credit History',
+      min: 0, max: 100, initial: 0 },
+    { key: 'existingLoans', name: 'Active Loans', category: 'Credit History',
+      min: 0, max: 100, initial: 4 },
+    { key: 'age', name: 'Applicant Age', category: 'Customer Profile',
+      min: 0, max: 120, initial: 18 },
+    { key: 'employmentMonths', name: 'Employment Duration',
+      category: 'Customer Profile', min: 0, max: 600, initial: 6 }
   ];
+
+  readonly products = [
+    'Personal Loan',
+    'SME Working Capital',
+    'Salary Advance',
+    'School Fees',
+    'Asset Finance',
+    'Device Finance'
+  ];
+
+  readonly countries = ['Kenya', 'Uganda', 'Tanzania', 'Rwanda', 'Ghana'];
 
   rules: LendingRule[] = [];
+  applications: LoanApplication[] = [];
 
-  searchTerm = '';
-  categoryFilter = 'All';
-  statusFilter = 'All';
-  actionFilter = 'All';
+  ruleSearch = '';
+  ruleCategory = 'All';
+  ruleStatus = 'All';
 
-  activeTab: 'rules' | 'tester' = 'rules';
+  applicationSearch = '';
+  applicationFilter = 'All';
+  applicationProduct = 'All';
+
+  batchResults: Evaluation[] = [];
+  batchCompleted = false;
+  batchSearch = '';
+  batchFilter = 'All';
+
+  selectedEvaluation: Evaluation | null = null;
+  selectedApplication: LoanApplication | null = null;
+  evaluationHistory: Evaluation[] = [];
 
   showRuleModal = false;
-  editingRuleId: string | null = null;
-
-  ruleForm: LendingRule = this.emptyRule();
-  formError = '';
-
-  toastMessage = '';
-  toastType: 'success' | 'error' = 'success';
-
   showDeleteModal = false;
+  showNewApplication = false;
+  showPolicyHealth = false;
+  showTrace = false;
+
+  editingRuleId: string | null = null;
   deletingRule: LendingRule | null = null;
 
-  applicant: ApplicantData = this.emptyApplicant();
+  ruleError = '';
+  applicationError = '';
 
-  evaluation: RuleEvaluation[] = [];
-  outcome: DecisionOutcome = 'Not Evaluated';
-  evaluated = false;
-  evaluationTime = '';
+  toastMessage = '';
+  toastError = false;
+
+  ruleForm: LendingRule = this.emptyRule();
+  applicationForm: LoanApplication = this.emptyApplication();
 
   ngOnInit(): void {
     this.loadRules();
+    this.loadApplications();
   }
 
-  // --------------------------------------------------
-  // DEFAULT POLICY
-  // --------------------------------------------------
+  // -------------------------------------------------------
+  // DEMO DATA
+  // -------------------------------------------------------
 
   private defaultRules(): LendingRule[] {
-    const now = new Date().toISOString();
-
     return [
-      {
-        id: 'rule-001',
-        code: 'CR-001',
-        name: 'Minimum Credit Score',
-        description: 'Refer applicants with a credit score below the minimum acceptable threshold.',
-        category: 'Credit Score',
-        field: 'creditScore',
-        operator: 'lt',
-        value: 650,
-        action: 'Manual Review',
-        severity: 'High',
-        priority: 10,
-        enabled: true,
-        createdAt: now,
-        updatedAt: now
-      },
-      {
-        id: 'rule-002',
-        code: 'CR-002',
-        name: 'High Debt-to-Income Ratio',
-        description: 'Refer applicants whose monthly debt obligations exceed the configured affordability limit.',
-        category: 'Affordability',
-        field: 'dti',
-        operator: 'gt',
-        value: 45,
-        action: 'Manual Review',
-        severity: 'High',
-        priority: 20,
-        enabled: true,
-        createdAt: now,
-        updatedAt: now
-      },
-      {
-        id: 'rule-003',
-        code: 'CR-003',
-        name: 'Outstanding Loan Arrears',
-        description: 'Decline applications where overdue loans are reported.',
-        category: 'Credit History',
-        field: 'overdueLoans',
-        operator: 'gt',
-        value: 0,
-        action: 'Decline',
-        severity: 'Critical',
-        priority: 30,
-        enabled: true,
-        createdAt: now,
-        updatedAt: now
-      },
-      {
-        id: 'rule-004',
-        code: 'CR-004',
-        name: 'Maximum Loan Amount',
-        description: 'Refer applications above the permitted lending amount.',
-        category: 'Loan Eligibility',
-        field: 'requestedAmount',
-        operator: 'gt',
-        value: 500000,
-        action: 'Manual Review',
-        severity: 'Medium',
-        priority: 40,
-        enabled: true,
-        createdAt: now,
-        updatedAt: now
-      },
-      {
-        id: 'rule-005',
-        code: 'CR-005',
-        name: 'Minimum Applicant Age',
-        description: 'Decline applications from applicants below the minimum age.',
-        category: 'Customer Profile',
-        field: 'age',
-        operator: 'lt',
-        value: 18,
-        action: 'Decline',
-        severity: 'Critical',
-        priority: 50,
-        enabled: true,
-        createdAt: now,
-        updatedAt: now
-      },
-      {
-        id: 'rule-006',
-        code: 'CR-006',
-        name: 'Minimum Employment Duration',
-        description: 'Refer applicants with limited employment history.',
-        category: 'Customer Profile',
-        field: 'employmentMonths',
-        operator: 'lt',
-        value: 6,
-        action: 'Manual Review',
-        severity: 'Medium',
-        priority: 60,
-        enabled: true,
-        createdAt: now,
-        updatedAt: now
-      },
-      {
-        id: 'rule-007',
-        code: 'CR-007',
-        name: 'Multiple Existing Loans',
-        description: 'Refer applicants with several existing credit facilities.',
-        category: 'Credit History',
-        field: 'existingLoans',
-        operator: 'gt',
-        value: 4,
-        action: 'Manual Review',
-        severity: 'Medium',
-        priority: 70,
-        enabled: false,
-        createdAt: now,
-        updatedAt: now
-      }
+      this.makeRule(1, 'Minimum Credit Score', 'Credit Score',
+        'creditScore', 'lt', 650, 'Manual Review', 'High', 10),
+      this.makeRule(2, 'Debt-to-Income Limit', 'Affordability',
+        'dti', 'gt', 45, 'Manual Review', 'High', 20),
+      this.makeRule(3, 'Outstanding Loan Arrears', 'Credit History',
+        'overdueLoans', 'gt', 0, 'Decline', 'Critical', 30),
+      this.makeRule(4, 'Maximum Loan Amount', 'Loan Eligibility',
+        'requestedAmount', 'gt', 500000, 'Manual Review', 'Medium', 40),
+      this.makeRule(5, 'Minimum Applicant Age', 'Customer Profile',
+        'age', 'lt', 18, 'Decline', 'Critical', 50),
+      this.makeRule(6, 'Employment Stability', 'Customer Profile',
+        'employmentMonths', 'lt', 6, 'Manual Review', 'Medium', 60),
+      this.makeRule(7, 'Multiple Active Loans', 'Credit History',
+        'existingLoans', 'gt', 4, 'Manual Review', 'Medium', 70, false)
     ];
   }
 
-  // --------------------------------------------------
+  private makeRule(
+    n: number, name: string, category: string, field: string,
+    operator: Operator, value: number, action: Action,
+    severity: Severity, priority: number, enabled = true
+  ): LendingRule {
+    return {
+      id: `default-${n}`,
+      code: `CR-${String(n).padStart(3, '0')}`,
+      name,
+      description: `Evaluate ${name.toLowerCase()} against the policy threshold.`,
+      category, field, operator, value, action,
+      severity, priority, enabled
+    };
+  }
+
+  private emptyRule(): LendingRule {
+    return {
+      id: '', code: '', name: '', description: '',
+      category: 'Credit Score', field: 'creditScore',
+      operator: 'lt', value: 650, action: 'Manual Review',
+      severity: 'Medium', priority: 100, enabled: true
+    };
+  }
+
+  private emptyApplication(): LoanApplication {
+    return {
+      id: '', name: '', product: 'Personal Loan',
+      country: 'Kenya', amount: 150000,
+      score: 680, income: 80000, debt: 20000,
+      age: 30, employmentMonths: 24,
+      overdueLoans: 0, existingLoans: 1,
+      tenure: 12, submitted: ''
+    };
+  }
+
+  private generateApplications(count = 480): LoanApplication[] {
+    const firstNames = [
+      'Grace', 'Brian', 'Mary', 'Peter', 'David',
+      'Faith', 'James', 'Amina', 'Daniel', 'Sarah',
+      'Samuel', 'Joy', 'Kevin', 'Linda', 'Robert'
+    ];
+
+    const lastNames = [
+      'Wanjiku', 'Otieno', 'Mwangi', 'Achieng',
+      'Kiptoo', 'Njeri', 'Omondi', 'Kamau',
+      'Muthoni', 'Maina', 'Okello', 'Munya'
+    ];
+
+    const list: LoanApplication[] = [];
+
+    for (let i = 0; i < count; i++) {
+      const x = i + 1;
+      const income = 30000 + (x * 1793 % 210000);
+      const debtRatio = 0.09 + (x * 13 % 69) / 100;
+      const submitted = new Date(
+        Date.now() - x * 37 * 60000
+      ).toISOString();
+
+      list.push({
+        id: `APP-${String(11000 + x).padStart(5, '0')}`,
+        name: `${firstNames[i % firstNames.length]} ${
+          lastNames[(i * 7 + Math.floor(i / 12)) % lastNames.length]
+        }`,
+        product: this.products[(i * 3 + Math.floor(i / 7)) % this.products.length],
+        country: this.countries[Math.floor(i / 11) % this.countries.length],
+        amount: 50000 + (x * 53 % 41) * 25000,
+        score: 480 + (x * 47 % 361),
+        income,
+        debt: Math.round(income * debtRatio),
+        age: 21 + (x * 11 % 44),
+        employmentMonths: x * 7 % 97,
+        overdueLoans: x % 19 === 0 ? 2 : x % 11 === 0 ? 1 : 0,
+        existingLoans: x * 3 % 7,
+        tenure: [6, 12, 18, 24, 36, 48][i % 6],
+        submitted
+      });
+    }
+
+    return list;
+  }
+
+  // -------------------------------------------------------
   // STORAGE
-  // --------------------------------------------------
+  // -------------------------------------------------------
 
   private loadRules(): void {
     try {
-      const saved = localStorage.getItem(this.STORAGE_KEY);
+      const saved = localStorage.getItem(this.RULES_KEY);
 
-      if (saved !== null) {
-        const parsed: unknown = JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
 
-        if (
-          Array.isArray(parsed) &&
-          parsed.every(item =>
-            item !== null &&
-            typeof item === 'object' &&
-            typeof item.id === 'string' &&
-            typeof item.code === 'string' &&
-            typeof item.enabled === 'boolean'
-          )
-        ) {
-          this.rules = parsed as LendingRule[];
-          return;
+        if (Array.isArray(parsed)) {
+          // Map rules from the earlier Decision Rules version
+          // into the current field names.
+          const map: Record<string, string> = {
+            creditScore: 'creditScore',
+            monthlyIncome: 'monthlyIncome',
+            monthlyDebt: 'monthlyDebt',
+            requestedAmount: 'requestedAmount',
+            loanTenure: 'loanTenure'
+          };
+
+          this.rules = parsed
+            .filter((r: any) =>
+              r && typeof r.field === 'string' &&
+              typeof r.name === 'string'
+            )
+            .map((r: any) => ({
+              ...r,
+              field: map[r.field] || r.field
+            }));
+
+          if (this.rules.length) return;
         }
       }
     } catch (error) {
-      console.error('Failed to load lending rules', error);
+      console.warn('Saved rules could not be loaded.', error);
     }
 
     this.rules = this.defaultRules();
-    this.persistRules();
+    this.saveRules();
   }
 
-  private persistRules(): void {
+  private saveRules(): void {
     try {
       localStorage.setItem(
-        this.STORAGE_KEY,
-        JSON.stringify(this.rules)
+        this.RULES_KEY, JSON.stringify(this.rules)
       );
     } catch (error) {
-      console.error('Failed to save lending rules', error);
-      this.notify('Unable to save rules in this browser.', 'error');
+      console.warn('Rule storage unavailable.', error);
     }
   }
 
-  // --------------------------------------------------
-  // STATISTICS
-  // --------------------------------------------------
+  private loadApplications(): void {
+    try {
+      const saved = localStorage.getItem(this.APPLICATIONS_KEY);
+      const custom = saved ? JSON.parse(saved) : [];
 
-  get totalRules(): number {
-    return this.rules.length;
+      this.applications = [
+        ...(Array.isArray(custom) ? custom : []),
+        ...this.generateApplications()
+      ];
+    } catch {
+      this.applications = this.generateApplications();
+    }
   }
 
+  private saveCustomApplications(): void {
+    try {
+      const custom = this.applications.filter(
+        app => app.id.startsWith('NEW-')
+      );
+
+      localStorage.setItem(
+        this.APPLICATIONS_KEY, JSON.stringify(custom)
+      );
+    } catch {
+      this.notify('Application could not be saved locally.', true);
+    }
+  }
+
+  // -------------------------------------------------------
+  // TABS / GENERAL
+  // -------------------------------------------------------
+
+  setTab(tab: Tab): void {
+    this.activeTab = tab;
+  }
+
+  get totalRules(): number { return this.rules.length; }
   get activeRules(): number {
-    return this.rules.filter(rule => rule.enabled).length;
+    return this.rules.filter(r => r.enabled).length;
   }
-
-  get inactiveRules(): number {
-    return this.rules.filter(rule => !rule.enabled).length;
-  }
-
   get criticalRules(): number {
     return this.rules.filter(
-      rule => rule.enabled && rule.severity === 'Critical'
+      r => r.enabled && r.severity === 'Critical'
     ).length;
   }
 
   get filteredRules(): LendingRule[] {
-    const search = this.searchTerm.trim().toLowerCase();
+    const s = this.ruleSearch.trim().toLowerCase();
 
-    return this.rules
-      .filter(rule => {
-        const matchesSearch =
-          !search ||
-          rule.name.toLowerCase().includes(search) ||
-          rule.code.toLowerCase().includes(search) ||
-          rule.description.toLowerCase().includes(search);
-
-        const matchesCategory =
-          this.categoryFilter === 'All' ||
-          rule.category === this.categoryFilter;
-
-        const matchesStatus =
-          this.statusFilter === 'All' ||
-          (this.statusFilter === 'Active' && rule.enabled) ||
-          (this.statusFilter === 'Inactive' && !rule.enabled);
-
-        const matchesAction =
-          this.actionFilter === 'All' ||
-          rule.action === this.actionFilter;
-
-        return (
-          matchesSearch &&
-          matchesCategory &&
-          matchesStatus &&
-          matchesAction
-        );
-      })
-      .sort((a, b) => a.priority - b.priority);
+    return this.rules.filter(r =>
+      (!s || `${r.name} ${r.code} ${r.description}`.toLowerCase().includes(s)) &&
+      (this.ruleCategory === 'All' || r.category === this.ruleCategory) &&
+      (this.ruleStatus === 'All' ||
+        (this.ruleStatus === 'Active' ? r.enabled : !r.enabled))
+    ).sort((a, b) => a.priority - b.priority);
   }
 
-  get availableFields(): RuleField[] {
-    return this.fields.filter(
-      field => field.category === this.ruleForm.category
-    );
+  get availableFields(): PolicyField[] {
+    return this.fields.filter(f => f.category === this.ruleForm.category);
   }
 
-  get triggeredRules(): RuleEvaluation[] {
-    return this.evaluation.filter(
-      result => result.matched
-    );
+  getFieldName(field: string): string {
+    return this.fields.find(f => f.key === field)?.name || field;
   }
 
-  get passedRules(): RuleEvaluation[] {
-    return this.evaluation.filter(
-      result => !result.matched && !result.missing
-    );
-  }
-
-  get missingRules(): RuleEvaluation[] {
-    return this.evaluation.filter(
-      result => result.missing
-    );
-  }
-
-  // --------------------------------------------------
-  // FORM HELPERS
-  // --------------------------------------------------
-
-  private emptyRule(): LendingRule {
-    const now = new Date().toISOString();
-
-    return {
-      id: '',
-      code: '',
-      name: '',
-      description: '',
-      category: 'Credit Score',
-      field: 'creditScore',
-      operator: 'lt',
-      value: 650,
-      action: 'Manual Review',
-      severity: 'Medium',
-      priority: 100,
-      enabled: true,
-      createdAt: now,
-      updatedAt: now
-    };
-  }
-
-  private emptyApplicant(): ApplicantData {
-    return {
-      creditScore: 680,
-      monthlyIncome: 85000,
-      monthlyDebt: 25000,
-      requestedAmount: 150000,
-      loanTenure: 12,
-      age: 32,
-      overdueLoans: 0,
-      existingLoans: 2,
-      employmentMonths: 24
-    };
-  }
-
-  private nextCode(): string {
-    const highest = this.rules.reduce((max, rule) => {
-      const number = Number(rule.code.replace('CR-', ''));
-      return Number.isFinite(number)
-        ? Math.max(max, number)
-        : max;
-    }, 0);
-
-    return `CR-${String(highest + 1).padStart(3, '0')}`;
-  }
-
-  onCategoryChange(): void {
-    const firstField = this.availableFields[0];
-
-    if (firstField) {
-      this.ruleForm.field = firstField.key;
-      this.ruleForm.value = firstField.min;
-    }
-  }
-
-  getFieldLabel(field: string): string {
-    return this.fields.find(item => item.key === field)?.label || field;
-  }
-
-  getFieldUnit(field: string): string {
-    return this.fields.find(item => item.key === field)?.unit || '';
-  }
-
-  getOperatorLabel(operator: RuleOperator): string {
-    return this.operators.find(
-      item => item.value === operator
-    )?.label || operator;
-  }
-
-  getOperatorSymbol(operator: RuleOperator): string {
-    const symbols: Record<RuleOperator, string> = {
-      lt: '<',
-      lte: '≤',
-      gt: '>',
-      gte: '≥',
-      eq: '=',
-      neq: '≠'
-    };
-
-    return symbols[operator];
-  }
-
-  formatValue(value: number, field: string): string {
-    const unit = this.getFieldUnit(field);
-
-    const formatted = value.toLocaleString('en-KE', {
-      maximumFractionDigits: 2
-    });
-
-    if (unit === 'KES') {
-      return `KES ${formatted}`;
-    }
-
-    if (unit === '%') {
-      return `${formatted}%`;
-    }
-
-    return `${formatted} ${unit}`.trim();
+  getOperatorSymbol(operator: Operator): string {
+    return ({
+      lt: '<', lte: '≤', gt: '>',
+      gte: '≥', eq: '=', neq: '≠'
+    } as Record<Operator, string>)[operator];
   }
 
   getCondition(rule: LendingRule): string {
-    return (
-      `${this.getFieldLabel(rule.field)} ` +
-      `${this.getOperatorSymbol(rule.operator)} ` +
-      `${this.formatValue(rule.value, rule.field)}`
-    );
+    const suffix = rule.field === 'dti' ? '%' :
+      ['monthlyIncome', 'monthlyDebt', 'requestedAmount'].includes(rule.field)
+        ? ' KES' : '';
+
+    return `${this.getFieldName(rule.field)} ${
+      this.getOperatorSymbol(rule.operator)
+    } ${rule.value.toLocaleString('en-KE')}${suffix}`;
   }
 
-  // --------------------------------------------------
-  // CREATE AND EDIT
-  // --------------------------------------------------
+  onRuleCategoryChange(): void {
+    const field = this.availableFields[0];
+    if (field) {
+      this.ruleForm.field = field.key;
+      this.ruleForm.value = field.initial;
+    }
+  }
 
-  openCreateModal(): void {
+  // -------------------------------------------------------
+  // POLICY MANAGEMENT
+  // -------------------------------------------------------
+
+  openCreateRule(): void {
     this.editingRuleId = null;
+    this.ruleError = '';
     this.ruleForm = this.emptyRule();
-    this.ruleForm.code = this.nextCode();
-    this.formError = '';
+
+    const next = this.rules.reduce((max, r) => {
+      const match = /^CR-(\d+)$/.exec(r.code);
+      return match ? Math.max(max, Number(match[1])) : max;
+    }, 0) + 1;
+
+    this.ruleForm.code = `CR-${String(next).padStart(3, '0')}`;
     this.showRuleModal = true;
   }
 
-  openEditModal(rule: LendingRule): void {
+  editRule(rule: LendingRule): void {
     this.editingRuleId = rule.id;
     this.ruleForm = { ...rule };
-    this.formError = '';
+    this.ruleError = '';
     this.showRuleModal = true;
-  }
-
-  closeRuleModal(): void {
-    this.showRuleModal = false;
-    this.editingRuleId = null;
-    this.formError = '';
-  }
-
-  private validateRule(): string {
-    const rule = this.ruleForm;
-
-    if (!rule.name.trim()) {
-      return 'Rule name is required.';
-    }
-
-    if (rule.name.trim().length < 4) {
-      return 'Rule name must contain at least 4 characters.';
-    }
-
-    if (!rule.field) {
-      return 'Select a rule attribute.';
-    }
-
-    if (!Number.isFinite(Number(rule.value))) {
-      return 'Enter a valid threshold.';
-    }
-
-    const field = this.fields.find(
-      item => item.key === rule.field
-    );
-
-    if (!field) {
-      return 'Invalid rule attribute.';
-    }
-
-    if (
-      Number(rule.value) < field.min ||
-      Number(rule.value) > field.max
-    ) {
-      return (
-        `Threshold must be between ` +
-        `${field.min} and ${field.max}.`
-      );
-    }
-
-    if (!Number.isInteger(Number(rule.priority)) ||
-        Number(rule.priority) < 1) {
-      return 'Priority must be a positive whole number.';
-    }
-
-    const duplicate = this.rules.some(
-      existing =>
-        existing.name.trim().toLowerCase() ===
-          rule.name.trim().toLowerCase() &&
-        existing.id !== this.editingRuleId
-    );
-
-    if (duplicate) {
-      return 'A rule with this name already exists.';
-    }
-
-    return '';
   }
 
   saveRule(): void {
-    this.formError = this.validateRule();
+    const r = this.ruleForm;
+    const field = this.fields.find(f => f.key === r.field);
 
-    if (this.formError) {
+    if (!r.name.trim() || r.name.trim().length < 4) {
+      this.ruleError = 'Enter a rule name of at least 4 characters.';
       return;
     }
 
-    const now = new Date().toISOString();
+    if (!field || field.category !== r.category) {
+      this.ruleError = 'Select a valid policy attribute.';
+      return;
+    }
 
-    const updatedRule: LendingRule = {
-      ...this.ruleForm,
-      name: this.ruleForm.name.trim(),
-      description: this.ruleForm.description.trim(),
-      value: Number(this.ruleForm.value),
-      priority: Number(this.ruleForm.priority),
-      updatedAt: now
+    if (!Number.isFinite(Number(r.value)) ||
+        Number(r.value) < field.min ||
+        Number(r.value) > field.max) {
+      this.ruleError = `Threshold must be between ${field.min} and ${field.max}.`;
+      return;
+    }
+
+    if (!Number.isInteger(Number(r.priority)) || Number(r.priority) < 1) {
+      this.ruleError = 'Priority must be a positive whole number.';
+      return;
+    }
+
+    if (this.rules.some(item =>
+      item.id !== this.editingRuleId &&
+      item.name.trim().toLowerCase() === r.name.trim().toLowerCase()
+    )) {
+      this.ruleError = 'Another rule already uses that name.';
+      return;
+    }
+
+    const updated = {
+      ...r,
+      name: r.name.trim(),
+      description: r.description.trim(),
+      value: Number(r.value),
+      priority: Number(r.priority)
     };
 
     if (this.editingRuleId) {
-      this.rules = this.rules.map(rule =>
-        rule.id === this.editingRuleId
-          ? updatedRule
-          : rule
+      this.rules = this.rules.map(item =>
+        item.id === this.editingRuleId ? updated : item
       );
-
-      this.notify('Lending rule updated successfully.');
     } else {
-      updatedRule.id =
-        `rule-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
-
-      updatedRule.createdAt = now;
-
-      this.rules = [...this.rules, updatedRule];
-
-      this.notify('Lending rule created successfully.');
+      updated.id = `custom-${Date.now()}`;
+      this.rules = [...this.rules, updated];
     }
 
-    this.persistRules();
-    this.invalidateEvaluation();
-    this.closeRuleModal();
+    this.saveRules();
+    this.invalidateBatch();
+    this.showRuleModal = false;
+    this.notify('Lending policy rule saved.');
   }
-
-  // --------------------------------------------------
-  // ACTIVATE / DEACTIVATE
-  // --------------------------------------------------
 
   toggleRule(rule: LendingRule): void {
-    this.rules = this.rules.map(item =>
-      item.id === rule.id
-        ? {
-            ...item,
-            enabled: !item.enabled,
-            updatedAt: new Date().toISOString()
-          }
-        : item
-    );
-
-    this.persistRules();
-    this.invalidateEvaluation();
-
-    this.notify(
-      rule.enabled
-        ? 'Lending rule deactivated.'
-        : 'Lending rule activated.'
-    );
+    rule.enabled = !rule.enabled;
+    this.saveRules();
+    this.invalidateBatch();
+    this.notify(rule.enabled ? 'Rule activated.' : 'Rule deactivated.');
   }
 
-  // --------------------------------------------------
-  // DELETE
-  // --------------------------------------------------
-
-  requestDelete(rule: LendingRule): void {
+  askDeleteRule(rule: LendingRule): void {
     this.deletingRule = rule;
     this.showDeleteModal = true;
   }
 
-  cancelDelete(): void {
-    this.deletingRule = null;
+  deleteRule(): void {
+    if (!this.deletingRule) return;
+
+    this.rules = this.rules.filter(r => r.id !== this.deletingRule?.id);
+    this.saveRules();
+    this.invalidateBatch();
     this.showDeleteModal = false;
+    this.deletingRule = null;
+    this.notify('Rule deleted.');
   }
 
-  confirmDelete(): void {
-    if (!this.deletingRule) {
+  restoreRules(): void {
+    if (!window.confirm('Restore demo policy rules? Existing custom rules will be lost.')) {
       return;
     }
 
-    this.rules = this.rules.filter(
-      rule => rule.id !== this.deletingRule?.id
+    this.rules = this.defaultRules();
+    this.saveRules();
+    this.invalidateBatch();
+    this.notify('Default rules restored.');
+  }
+
+  get policyFindings(): string[] {
+    const findings: string[] = [];
+    const active = this.rules.filter(r => r.enabled);
+
+    if (!active.length) {
+      return ['No active lending rules are configured.'];
+    }
+
+    for (const category of this.categories) {
+      if (!active.some(r => r.category === category)) {
+        findings.push(`No active coverage for ${category}.`);
+      }
+    }
+
+    for (let i = 0; i < active.length; i++) {
+      for (let j = i + 1; j < active.length; j++) {
+        const a = active[i], b = active[j];
+
+        if (a.field === b.field &&
+            a.operator === b.operator &&
+            a.value === b.value) {
+          findings.push(
+            a.action === b.action
+              ? `Possible duplicate: ${a.code} and ${b.code}.`
+              : `Conflicting actions: ${a.code} and ${b.code}.`
+          );
+        }
+      }
+    }
+
+    return findings;
+  }
+
+  get policyCoverage(): number {
+    return Math.round(
+      this.categories.filter(c =>
+        this.rules.some(r => r.enabled && r.category === c)
+      ).length / this.categories.length * 100
     );
-
-    this.persistRules();
-    this.invalidateEvaluation();
-    this.cancelDelete();
-
-    this.notify('Lending rule deleted successfully.');
   }
 
-  // --------------------------------------------------
-  // POLICY EVALUATION
-  // --------------------------------------------------
+  // -------------------------------------------------------
+  // SHARED DECISION ENGINE
+  // -------------------------------------------------------
 
-  get applicantDti(): number | null {
-    const income = this.applicant.monthlyIncome;
-    const debt = this.applicant.monthlyDebt;
-
-    if (
-      income === null ||
-      debt === null ||
-      !Number.isFinite(income) ||
-      !Number.isFinite(debt) ||
-      income <= 0 ||
-      debt < 0
-    ) {
+  getDti(app: LoanApplication): number | null {
+    if (app.income === null || app.debt === null ||
+        !Number.isFinite(app.income) || !Number.isFinite(app.debt) ||
+        app.income <= 0 || app.debt < 0) {
       return null;
     }
 
-    return (debt / income) * 100;
+    return app.debt / app.income * 100;
   }
 
-  private getApplicantValue(field: string): number | null {
-    if (field === 'dti') {
-      return this.applicantDti;
-    }
+  private getValue(app: LoanApplication, field: string): number | null {
+    if (field === 'dti') return this.getDti(app);
 
-    const key = field as keyof ApplicantData;
-    const value = this.applicant[key];
+    const mapping: Record<string, keyof LoanApplication> = {
+      creditScore: 'score',
+      monthlyIncome: 'income',
+      monthlyDebt: 'debt',
+      requestedAmount: 'amount',
+      loanTenure: 'tenure',
+      age: 'age',
+      overdueLoans: 'overdueLoans',
+      existingLoans: 'existingLoans',
+      employmentMonths: 'employmentMonths'
+    };
 
-    if (
-      value === null ||
-      value === undefined ||
-      !Number.isFinite(value)
-    ) {
-      return null;
-    }
+    const key = mapping[field];
+    if (!key) return null;
 
-    return value;
+    const value = app[key];
+
+    return typeof value === 'number' &&
+      Number.isFinite(value) ? value : null;
   }
 
-  private matches(
-    actual: number,
-    operator: RuleOperator,
-    expected: number
+  private compare(
+    actual: number, operator: Operator, threshold: number
   ): boolean {
     switch (operator) {
-      case 'lt':
-        return actual < expected;
-
-      case 'lte':
-        return actual <= expected;
-
-      case 'gt':
-        return actual > expected;
-
-      case 'gte':
-        return actual >= expected;
-
-      case 'eq':
-        return actual === expected;
-
-      case 'neq':
-        return actual !== expected;
-
-      default:
-        return false;
+      case 'lt': return actual < threshold;
+      case 'lte': return actual <= threshold;
+      case 'gt': return actual > threshold;
+      case 'gte': return actual >= threshold;
+      case 'eq': return actual === threshold;
+      case 'neq': return actual !== threshold;
     }
   }
 
-  private invalidateEvaluation(): void {
-    this.evaluated = false;
-    this.evaluation = [];
-    this.outcome = 'Not Evaluated';
-    this.evaluationTime = '';
-  }
-
-  onApplicantChange(): void {
-    this.invalidateEvaluation();
-  }
-
-  evaluateApplicant(): void {
+  evaluate(app: LoanApplication): Evaluation {
     const active = this.rules
-      .filter(rule => rule.enabled)
+      .filter(r => r.enabled)
       .sort((a, b) => a.priority - b.priority);
 
-    this.evaluation = active.map((rule): RuleEvaluation => {
-      const actual = this.getApplicantValue(rule.field);
-
-      const missing =
-        actual === null ||
-        !Number.isFinite(actual);
+    const results: RuleResult[] = active.map(rule => {
+      const actual = this.getValue(app, rule.field);
+      const definition = this.fields.find(f => f.key === rule.field);
+      const missing = actual === null ||
+        (definition !== undefined &&
+          (actual < definition.min || actual > definition.max));
 
       return {
         rule,
         actual,
         missing,
-        matched: !missing &&
-          this.matches(
-            actual as number,
-            rule.operator,
-            rule.value
-          )
+        triggered: !missing &&
+          this.compare(actual as number, rule.operator, rule.value)
       };
     });
 
-    if (active.length === 0) {
-      this.outcome = 'Not Evaluated';
-    } else if (this.evaluation.some(item => item.missing)) {
-      this.outcome = 'Incomplete Information';
-    } else if (
-      this.evaluation.some(
-        item => item.matched && item.rule.action === 'Decline'
-      )
-    ) {
-      this.outcome = 'Decline';
-    } else if (
-      this.evaluation.some(
-        item =>
-          item.matched &&
-          item.rule.action === 'Manual Review'
-      )
-    ) {
-      this.outcome = 'Manual Review';
-    } else {
-      this.outcome = 'Approve';
+    let decision: Decision = 'Approved';
+
+    if (!active.length || results.some(r => r.missing)) {
+      decision = 'Incomplete';
+    } else if (results.some(r =>
+      r.triggered && r.rule.action === 'Decline'
+    )) {
+      decision = 'Declined';
+    } else if (results.some(r => r.triggered)) {
+      decision = 'Refer';
     }
 
-    this.evaluated = true;
-    this.evaluationTime = new Date().toLocaleString('en-KE');
+    const reasons = results
+      .filter(r => r.triggered || r.missing)
+      .map(r => r.missing
+        ? `${r.rule.name}: required information is unavailable or invalid.`
+        : `${r.rule.name}: ${this.getCondition(r.rule)}.`
+      );
+
+    return {
+      application: app,
+      decision,
+      results,
+      reasons,
+      evaluatedAt: new Date().toISOString()
+    };
   }
 
-  resetApplicant(): void {
-    this.applicant = this.emptyApplicant();
-    this.invalidateEvaluation();
+  decisionFor(app: LoanApplication): Decision {
+    return this.evaluate(app).decision;
   }
 
-  // --------------------------------------------------
-  // RESTORE POLICY
-  // --------------------------------------------------
+  getDecisionClass(decision: Decision): string {
+    switch (decision) {
+      case 'Approved': return 'approved';
+      case 'Declined': return 'declined';
+      case 'Refer': return 'refer';
+      default: return 'incomplete';
+    }
+  }
 
-  resetPolicies(): void {
-    const confirmed = window.confirm(
-      'Restore the original lending rules? ' +
-      'All custom rules and policy changes will be lost.'
+  // -------------------------------------------------------
+  // APPLICATION EXPLORER
+  // -------------------------------------------------------
+
+  get filteredApplications(): LoanApplication[] {
+    const s = this.applicationSearch.trim().toLowerCase();
+
+    return this.applications.filter(app =>
+      (!s || `${app.name} ${app.id} ${app.product}`.toLowerCase().includes(s)) &&
+      (this.applicationProduct === 'All' || app.product === this.applicationProduct) &&
+      (this.applicationFilter === 'All' ||
+        this.decisionFor(app) === this.applicationFilter)
     );
+  }
 
-    if (!confirmed) {
+  openApplication(app: LoanApplication): void {
+    this.selectedApplication = app;
+    this.selectedEvaluation = this.evaluate(app);
+    this.showTrace = false;
+
+    this.evaluationHistory = [
+      this.selectedEvaluation,
+      ...this.evaluationHistory
+    ].slice(0, 10);
+  }
+
+  closeApplication(): void {
+    this.selectedApplication = null;
+  }
+
+  newApplication(): void {
+    this.applicationForm = this.emptyApplication();
+    this.applicationError = '';
+    this.showNewApplication = true;
+  }
+
+  saveApplication(): void {
+    const a = this.applicationForm;
+
+    if (!a.name.trim() || a.name.trim().length < 3) {
+      this.applicationError = 'Enter a valid applicant name.';
       return;
     }
 
-    this.rules = this.defaultRules();
-    this.persistRules();
-    this.invalidateEvaluation();
+    if (a.amount === null || !Number.isFinite(Number(a.amount)) ||
+        Number(a.amount) <= 0) {
+      this.applicationError = 'Requested amount must be greater than zero.';
+      return;
+    }
 
-    this.notify('Lending rules restored successfully.');
+    const app: LoanApplication = {
+      ...a,
+      id: `NEW-${Date.now()}`,
+      name: a.name.trim(),
+      amount: Number(a.amount),
+      submitted: new Date().toISOString()
+    };
+
+    this.applications = [app, ...this.applications];
+    this.saveCustomApplications();
+    this.invalidateBatch();
+    this.showNewApplication = false;
+    this.applicationSearch = '';
+    this.applicationFilter = 'All';
+    this.applicationProduct = 'All';
+    this.openApplication(app);
+    this.notify('New application created and evaluated.');
   }
 
-  // --------------------------------------------------
-  // UI UTILITIES
-  // --------------------------------------------------
+  // -------------------------------------------------------
+  // BATCH INTELLIGENCE
+  // -------------------------------------------------------
 
-  setTab(tab: 'rules' | 'tester'): void {
-    this.activeTab = tab;
+  runBatch(): void {
+    this.batchResults = this.applications.map(app => this.evaluate(app));
+    this.batchCompleted = true;
+    this.notify(`${this.batchResults.length} synthetic applications evaluated.`);
   }
 
-  clearFilters(): void {
-    this.searchTerm = '';
-    this.categoryFilter = 'All';
-    this.statusFilter = 'All';
-    this.actionFilter = 'All';
+  private invalidateBatch(): void {
+    this.batchResults = [];
+    this.batchCompleted = false;
+    this.selectedEvaluation = null;
+    this.selectedApplication = null;
   }
 
-  notify(
-    message: string,
-    type: 'success' | 'error' = 'success'
-  ): void {
+  get batchApproved(): number {
+    return this.batchResults.filter(r => r.decision === 'Approved').length;
+  }
+
+  get batchReferred(): number {
+    return this.batchResults.filter(r => r.decision === 'Refer').length;
+  }
+
+  get batchDeclined(): number {
+    return this.batchResults.filter(r => r.decision === 'Declined').length;
+  }
+
+  get batchIncomplete(): number {
+    return this.batchResults.filter(r => r.decision === 'Incomplete').length;
+  }
+
+  get batchFilteredResults(): Evaluation[] {
+    const s = this.batchSearch.trim().toLowerCase();
+
+    return this.batchResults.filter(r =>
+      (!s || `${r.application.name} ${r.application.id} ${
+        r.application.product
+      }`.toLowerCase().includes(s)) &&
+      (this.batchFilter === 'All' || r.decision === this.batchFilter)
+    );
+  }
+
+  batchPercentage(value: number): number {
+    return this.batchResults.length
+      ? value / this.batchResults.length * 100 : 0;
+  }
+
+  inspectBatch(result: Evaluation): void {
+    this.selectedEvaluation = result;
+    this.selectedApplication = result.application;
+    this.showTrace = false;
+    this.activeTab = 'applications';
+  }
+
+  // -------------------------------------------------------
+  // COPILOT
+  // -------------------------------------------------------
+
+  openCopilot(): void {
+    if (!this.selectedEvaluation) {
+      this.notify('Select an application to generate its insights.', true);
+      this.activeTab = 'applications';
+      return;
+    }
+
+    this.activeTab = 'copilot';
+    this.activeInsight = 'explanation';
+  }
+
+  get copilotExplanation(): string {
+    const e = this.selectedEvaluation;
+    if (!e) return 'Select an application to begin.';
+
+    if (e.decision === 'Incomplete') {
+      return 'The application cannot receive a complete policy recommendation because one or more required inputs are missing or invalid. Review the flagged fields before proceeding.';
+    }
+
+    if (e.decision === 'Approved') {
+      return `${e.application.name} satisfies all ${
+        e.results.length
+      } active lending policy checks. No configured decline or referral condition was triggered. The next authorized lending checks should still be completed.`;
+    }
+
+    if (e.decision === 'Declined') {
+      const declines = e.results.filter(
+        r => r.triggered && r.rule.action === 'Decline'
+      );
+
+      return `The application triggered ${declines.length} decline condition(s), including ${
+        declines.map(r => r.rule.name).join(', ')
+      }. These rules take precedence over referral conditions under the current policy.`;
+    }
+
+    return `${e.application.name} triggered ${
+      e.results.filter(r => r.triggered).length
+    } referral condition(s). The application requires human assessment rather than automatic approval.`;
+  }
+
+  get copilotFactors(): string[] {
+    const e = this.selectedEvaluation;
+    if (!e) return [];
+
+    return e.reasons.length
+      ? e.reasons
+      : ['No active policy exceptions were identified.'];
+  }
+
+  get copilotActions(): string[] {
+    const e = this.selectedEvaluation;
+    if (!e) return [];
+
+    const triggered = e.results
+      .filter(r => r.triggered)
+      .map(r => r.rule.field);
+
+    const actions: string[] = [];
+
+    if (e.decision === 'Incomplete') {
+      actions.push('Obtain and verify incomplete application information.');
+    }
+
+    if (triggered.includes('dti') ||
+        triggered.includes('monthlyDebt') ||
+        triggered.includes('monthlyIncome')) {
+      actions.push('Review documented income and existing repayment commitments.');
+    }
+
+    if (triggered.includes('creditScore')) {
+      actions.push('Review the customer credit report and repayment history.');
+    }
+
+    if (triggered.includes('overdueLoans')) {
+      actions.push('Verify outstanding arrears and follow the bank arrears policy.');
+    }
+
+    if (triggered.includes('requestedAmount')) {
+      actions.push('Confirm requested amount against applicable product limits.');
+    }
+
+    if (triggered.includes('employmentMonths')) {
+      actions.push('Verify employment or income-stability documentation.');
+    }
+
+    if (triggered.includes('existingLoans')) {
+      actions.push('Assess the applicant total outstanding credit exposure.');
+    }
+
+    if (triggered.includes('age')) {
+      actions.push('Verify identity and age eligibility.');
+    }
+
+    if (e.decision === 'Approved') {
+      actions.push('Proceed to the next authorized underwriting stage.');
+    } else if (e.decision === 'Refer') {
+      actions.push('Route the application to a credit officer for manual review.');
+    } else if (e.decision === 'Declined') {
+      actions.push('Record the decline reasons and follow the bank notification procedure.');
+    }
+
+    return [...new Set(actions)];
+  }
+
+  get assessmentReport(): string {
+    const e = this.selectedEvaluation;
+    if (!e) return '';
+
+    const a = e.application;
+    const dti = this.getDti(a);
+
+    return [
+      'ECLECTICS CREDIT INTELLIGENCE',
+      'SIMULATED CREDIT ASSESSMENT',
+      '-------------------------------------------',
+      `Application: ${a.id}`,
+      `Applicant: ${a.name}`,
+      `Product: ${a.product}`,
+      `Amount: KES ${a.amount.toLocaleString('en-KE')}`,
+      `Credit score: ${a.score ?? 'Unavailable'}`,
+      `Debt-to-income: ${dti === null ? 'Unavailable' : dti.toFixed(1) + '%'}`,
+      `Policy recommendation: ${e.decision}`,
+      '',
+      'DECISION EXPLANATION',
+      this.copilotExplanation,
+      '',
+      'KEY OBSERVATIONS',
+      ...this.copilotFactors.map(x => `- ${x}`),
+      '',
+      'SUGGESTED NEXT ACTIONS',
+      ...this.copilotActions.map(x => `- ${x}`),
+      '',
+      'This is a synthetic, rule-based demonstration.',
+      'It is not a production ML credit decision.'
+    ].join('\n');
+  }
+
+  copyReport(): void {
+    if (!this.selectedEvaluation) return;
+
+    if (!navigator.clipboard?.writeText) {
+      this.notify('Clipboard is unavailable.', true);
+      return;
+    }
+
+    navigator.clipboard.writeText(this.assessmentReport)
+      .then(() => this.notify('Assessment copied.'))
+      .catch(() => this.notify('Unable to copy assessment.', true));
+  }
+
+  // -------------------------------------------------------
+  // FEEDBACK
+  // -------------------------------------------------------
+
+  notify(message: string, error = false): void {
     this.toastMessage = message;
-    this.toastType = type;
+    this.toastError = error;
   }
 
   dismissToast(): void {
     this.toastMessage = '';
   }
 
-  trackByRule(index: number, rule: LendingRule): string {
+  trackRule(_index: number, rule: LendingRule): string {
     return rule.id;
   }
 
-  getSeverityClass(severity: RuleSeverity): string {
-    return severity.toLowerCase();
-  }
-
-  getActionClass(action: RuleAction): string {
-    return action === 'Decline' ? 'decline' : 'review';
-  }
-
-  getOutcomeClass(): string {
-    switch (this.outcome) {
-      case 'Approve':
-        return 'approve';
-      case 'Decline':
-        return 'decline';
-      case 'Manual Review':
-        return 'review';
-      default:
-        return 'neutral';
-    }
+  trackApplication(_index: number, app: LoanApplication): string {
+    return app.id;
   }
 }
