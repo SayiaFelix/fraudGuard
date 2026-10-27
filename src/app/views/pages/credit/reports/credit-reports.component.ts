@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { CreditApplication, DEFAULT_POLICY, PolicySettings, PortfolioSummary, PORTFOLIO_SUMMARY } from '../credit-demo.data';
 import { CreditDataService } from '../credit-data.service';
@@ -16,6 +16,8 @@ interface ExceptionCard { name: string; detail: string; count: number; amount: n
   templateUrl: './credit-reports.component.html'
 })
 export class CreditReportsComponent implements OnInit, OnDestroy {
+  @Input() embedded = false;
+
   readonly reports: Array<{ id: ReportId; name: string }> = [
     { id: 'summary', name: 'Summary' },
     { id: 'distribution', name: 'Distribution' },
