@@ -8,17 +8,47 @@ import {
   SimulationResult
 } from '../credit-data.service';
 
-type DecisionType = 'approved' | 'referred' | 'declined';
+type StudioTab =
+  | 'scenario'
+  | 'impact'
+  | 'migration'
+  | 'risk'
+  | 'advisor';
 
-interface DecisionSummary {
-  key: DecisionType;
+type StrategyName = 'Conservative' | 'Balanced' | 'Growth' | 'Custom';
+type DecisionKey = 'approved' | 'referred' | 'declined';
+type ApprovalState =
+  | 'Draft'
+  | 'Simulated'
+  | 'Submitted'
+  | 'Approved'
+  | 'Activated';
+
+interface DecisionComparison {
+  key: DecisionKey;
   label: string;
   current: number;
   proposed: number;
   currentPct: number;
   proposedPct: number;
   difference: number;
-  colorClass: string;
+}
+
+interface StrategyComparison {
+  name: StrategyName;
+  policy: PolicySettings;
+  result: SimulationResult;
+  approvalRate: number;
+  referralRate: number;
+  changed: number;
+}
+
+interface MigrationRecord {
+  id: string;
+  applicant: string;
+  from: string;
+  to: string;
+  explanation: string;
 }
 
 @Component({
@@ -26,11 +56,11 @@ interface DecisionSummary {
   templateUrl: './policy-simulator.component.html',
   styleUrls: ['./policy-simulator.component.scss']
 })
-export class PolicySimulatorComponent
-  implements OnInit, OnDestroy {
+export class PolicySimulatorComponent implements OnInit, OnDestroy {
 
-  // Current saved policy
-  currentPolicy: PolicySettings = {
+  private subscriptions = new Subscription();
+
+  private readonly initialPolicy: PolicySettings = {
     approveFrom: 700,
     declineBelow: 580,
     maxDti: 0.45,
@@ -43,134 +73,226 @@ export class PolicySimulatorComponent
     makerChecker: false
   };
 
-  // Editable scenario
-  draft: PolicySettings = {
-    approveFrom: 700,
-    declineBelow: 580,
-    maxDti: 0.45,
-    maxAmount: 2000000,
-    maxTenorMonths: 0,
-    bureauMaxAgeDays: 0,
-    salaryAdvanceSla: 0,
-    highRiskSla: 0,
-    standardSla: 0,
-    makerChecker: false
-  };
+  currentPolicy: PolicySettings = { ...this.initialPolicy };
+  draft: PolicySettings = { ...this.initialPolicy };
 
   result: SimulationResult | null = null;
 
-  saved = false;
-  loading = false;
+  activeTab: StudioTab = 'scenario';
+  selectedStrategy: StrategyName = 'Balanced';
 
   hasChanges = false;
+  loading = false;
+  saved = false;
   validationError = '';
+  simulationStale = false;
 
-  activeTab: 'overview' | 'applications' = 'overview';
+  approvalState: ApprovalState = 'Draft';
+  approvalNote = '';
+  showApprovalWorkflow = false;
 
   searchTerm = '';
-  decisionFilter = 'All';
-
-  pageSize = 10;
+  transitionFilter = 'All';
   currentPage = 1;
+  pageSize = 10;
 
-  private sub = new Subscription();
+  showStrategyBattle = false;
+  strategyComparisons: StrategyComparison[] = [];
 
-  constructor(
-    public credit: CreditDataService
-  ) {}
+  selectedMigration: MigrationRecord | null = null;
+  briefingCopied = false;
+
+  readonly tabs: Array<{
+    id: StudioTab;
+    label: string;
+    detail: string;
+    icon: string;
+  }> = [
+    {
+      id: 'scenario',
+      label: 'Scenario Builder',
+      detail: 'Design a strategy',
+      icon: 'fa-sliders-h'
+    },
+    {
+      id: 'impact',
+      label: 'Impact Analysis',
+      detail: 'Compare outcomes',
+      icon: 'fa-chart-bar'
+    },
+    {
+      id: 'migration',
+      label: 'Applicant Migration',
+      detail: 'Inspect changes',
+      icon: 'fa-exchange-alt'
+    },
+    {
+      id: 'risk',
+      label: 'Risk Intelligence',
+      detail: 'Review tradeoffs',
+      icon: 'fa-shield-alt'
+    },
+    {
+      id: 'advisor',
+      label: 'AI Strategy Advisor',
+      detail: 'Executive briefing',
+      icon: 'fa-brain'
+    }
+  ];
+
+  constructor(public credit: CreditDataService) {}
 
   ngOnInit(): void {
-    this.sub.add(
+    this.subscriptions.add(
       this.credit.policy$.subscribe(policy => {
         this.currentPolicy = { ...policy };
 
-        // Do not discard an unsaved scenario if the
-        // policy stream emits while the user is editing.
         if (!this.hasChanges) {
           this.draft = { ...policy };
+          this.runSimulation();
         }
-
-        this.run();
       })
     );
   }
 
   ngOnDestroy(): void {
-    this.sub.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 
-  // ----------------------------------------
-  // POLICY VALIDATION
-  // ----------------------------------------
+  // ====================================================
+  // NAVIGATION
+  // ====================================================
+
+  setTab(tab: StudioTab): void {
+    this.activeTab = tab;
+  }
+
+  // ====================================================
+  // PRESET STRATEGIES
+  // ====================================================
+
+  private strategyPolicy(name: StrategyName): PolicySettings {
+    const base = { ...this.currentPolicy };
+
+    switch (name) {
+      case 'Conservative':
+        return {
+          ...base,
+          approveFrom: 750,
+          declineBelow: 610,
+          maxDti: 0.35,
+          maxAmount: 1500000
+        };
+
+      case 'Growth':
+        return {
+          ...base,
+          approveFrom: 650,
+          declineBelow: 550,
+          maxDti: 0.60,
+          maxAmount: 3000000
+        };
+
+      case 'Balanced':
+        return {
+          ...base,
+          approveFrom: 700,
+          declineBelow: 580,
+          maxDti: 0.45,
+          maxAmount: 2000000
+        };
+
+      default:
+        return { ...this.draft };
+    }
+  }
+
+  chooseStrategy(name: StrategyName): void {
+    if (name === 'Custom') {
+      this.selectedStrategy = 'Custom';
+      return;
+    }
+
+    this.selectedStrategy = name;
+    this.draft = this.strategyPolicy(name);
+    this.policyEdited();
+  }
+
+  onPolicyChange(): void {
+    this.selectedStrategy = 'Custom';
+    this.policyEdited();
+  }
+
+  private policyEdited(): void {
+    this.hasChanges = this.isPolicyModified();
+    this.saved = false;
+    this.validationError = '';
+    this.simulationStale = true;
+    this.result = null;
+    this.approvalState = 'Draft';
+    this.approvalNote = '';
+  }
+
+  isPolicyModified(): boolean {
+    return (
+      Number(this.draft.approveFrom) !== this.currentPolicy.approveFrom ||
+      Number(this.draft.declineBelow) !== this.currentPolicy.declineBelow ||
+      Number(this.draft.maxDti) !== this.currentPolicy.maxDti ||
+      Number(this.draft.maxAmount) !== this.currentPolicy.maxAmount
+    );
+  }
+
+  reset(): void {
+    this.draft = { ...this.currentPolicy };
+    this.selectedStrategy = 'Custom';
+    this.hasChanges = false;
+    this.saved = false;
+    this.approvalState = 'Draft';
+    this.approvalNote = '';
+    this.runSimulation();
+  }
+
+  // ====================================================
+  // VALIDATION
+  // ====================================================
 
   validatePolicy(): boolean {
     const p = this.draft;
 
-    const values = [
-      p.approveFrom,
-      p.declineBelow,
-      p.maxDti,
-      p.maxAmount
-    ];
-
-    if (
-      values.some(value =>
-        !Number.isFinite(Number(value))
-      )
-    ) {
-      this.validationError =
-        'All policy parameters must contain valid numbers.';
-
+    if ([
+      p.approveFrom, p.declineBelow, p.maxDti, p.maxAmount
+    ].some(value => !Number.isFinite(Number(value)))) {
+      this.validationError = 'Enter valid numeric policy values.';
       return false;
     }
 
-    if (
-      p.approveFrom < 620 ||
-      p.approveFrom > 820
-    ) {
+    if (p.approveFrom < 620 || p.approveFrom > 820) {
       this.validationError =
-        'The approval threshold must be between 620 and 820.';
-
+        'Approval score must be between 620 and 820.';
       return false;
     }
 
-    if (
-      p.declineBelow < 450 ||
-      p.declineBelow > 680
-    ) {
+    if (p.declineBelow < 450 || p.declineBelow > 680) {
       this.validationError =
-        'The decline threshold must be between 450 and 680.';
-
+        'Decline score must be between 450 and 680.';
       return false;
     }
 
     if (p.declineBelow >= p.approveFrom) {
       this.validationError =
-        'The decline threshold must be lower than ' +
-        'the automatic approval threshold.';
-
+        'Decline score must be below the approval score.';
       return false;
     }
 
-    if (
-      p.maxDti < 0.25 ||
-      p.maxDti > 0.70
-    ) {
+    if (p.maxDti < 0.25 || p.maxDti > 0.70) {
       this.validationError =
-        'The maximum debt-to-income ratio ' +
-        'must be between 25% and 70%.';
-
+        'Maximum debt-to-income ratio must be between 25% and 70%.';
       return false;
     }
 
-    if (
-      p.maxAmount < 200000 ||
-      p.maxAmount > 5000000
-    ) {
+    if (p.maxAmount < 200000 || p.maxAmount > 5000000) {
       this.validationError =
-        'The maximum loan amount must be between ' +
-        'KES 200,000 and KES 5,000,000.';
-
+        'Maximum loan amount must be between KES 200,000 and 5,000,000.';
       return false;
     }
 
@@ -178,401 +300,523 @@ export class PolicySimulatorComponent
     return true;
   }
 
-  // ----------------------------------------
-  // HANDLE POLICY CHANGES
-  // ----------------------------------------
+  // ====================================================
+  // SIMULATION
+  // ====================================================
 
-  onPolicyChange(): void {
-    this.saved = false;
-
-    this.draft = {
-      ...this.draft,
-      approveFrom: Number(this.draft.approveFrom),
-      declineBelow: Number(this.draft.declineBelow),
-      maxDti: Number(this.draft.maxDti),
-      maxAmount: Number(this.draft.maxAmount)
-    };
-
-    this.hasChanges = this.isPolicyModified();
-
-    this.run();
-  }
-
-  isPolicyModified(): boolean {
-    return (
-      this.draft.approveFrom !==
-        this.currentPolicy.approveFrom ||
-
-      this.draft.declineBelow !==
-        this.currentPolicy.declineBelow ||
-
-      this.draft.maxDti !==
-        this.currentPolicy.maxDti ||
-
-      this.draft.maxAmount !==
-        this.currentPolicy.maxAmount
-    );
-  }
-
-  // ----------------------------------------
-  // RUN SIMULATION
-  // ----------------------------------------
-
-  run(): void {
+  runSimulation(): void {
     if (!this.validatePolicy()) {
       this.result = null;
+      this.simulationStale = true;
       return;
     }
 
+    this.loading = true;
+
     try {
-      this.loading = true;
-
-      // Use the existing shared simulation engine.
-      // Do not implement another scoring engine here.
-      this.result = this.credit.simulate({
-        ...this.draft
-      });
-
+      this.result = this.credit.simulate({ ...this.draft });
+      this.simulationStale = false;
       this.currentPage = 1;
+      this.approvalState = 'Simulated';
+      this.strategyComparisons = [];
+      this.briefingCopied = false;
     } catch (error) {
-      console.error(
-        'Policy simulation failed:',
-        error
-      );
-
-      this.validationError =
-        'Unable to evaluate the proposed policy.';
-
+      console.error('Simulation error:', error);
       this.result = null;
+      this.simulationStale = true;
+      this.validationError = 'Simulation could not be completed.';
     } finally {
       this.loading = false;
     }
   }
 
-  // ----------------------------------------
-  // APPLY POLICY
-  // ----------------------------------------
+  runAndViewImpact(): void {
+    this.runSimulation();
 
-  save(): void {
-    if (!this.validatePolicy()) {
-      return;
-    }
-
-    if (!this.hasChanges) {
-      return;
-    }
-
-    try {
-      const nextPolicy = {
-        ...this.draft
-      };
-
-      // Existing shared data service.
-      this.credit.updatePolicy(nextPolicy);
-
-      this.currentPolicy = {
-        ...nextPolicy
-      };
-
-      this.hasChanges = false;
-      this.saved = true;
-
-      this.run();
-    } catch (error) {
-      console.error(
-        'Failed to apply policy:',
-        error
-      );
-
-      this.validationError =
-        'Unable to apply the selected policy.';
+    if (this.result) {
+      this.activeTab = 'impact';
     }
   }
 
-  // ----------------------------------------
-  // RESET CHANGES
-  // ----------------------------------------
-
-  reset(): void {
-    this.draft = {
-      ...this.currentPolicy
-    };
-
-    this.saved = false;
-    this.hasChanges = false;
-    this.validationError = '';
-
-    this.run();
+  get ready(): boolean {
+    return this.result !== null && !this.simulationStale;
   }
-
-  // ----------------------------------------
-  // FORMATTING
-  // ----------------------------------------
-
-  share(count: number, total: number): string {
-    return this.credit.pct(count, total);
-  }
-
-  money(amount: number): string {
-    return this.credit.money(amount);
-  }
-
-  percentage(value: number): string {
-    return `${(value * 100).toFixed(0)}%`;
-  }
-
-  countPercentage(
-    count: number,
-    total: number
-  ): number {
-    if (!total || total <= 0) {
-      return 0;
-    }
-
-    return Number(
-      ((count / total) * 100).toFixed(1)
-    );
-  }
-
-  signedNumber(value: number): string {
-    if (value > 0) {
-      return `+${value}`;
-    }
-
-    return String(value);
-  }
-
-  getDifferenceClass(value: number): string {
-    if (value > 0) {
-      return 'positive';
-    }
-
-    if (value < 0) {
-      return 'negative';
-    }
-
-    return 'neutral';
-  }
-
-  getDecisionClass(
-    decision: string
-  ): string {
-    const value = decision.toLowerCase();
-
-    if (
-      value.includes('approve')
-    ) {
-      return 'approved';
-    }
-
-    if (
-      value.includes('refer') ||
-      value.includes('review')
-    ) {
-      return 'referred';
-    }
-
-    if (
-      value.includes('decline')
-    ) {
-      return 'declined';
-    }
-
-    return 'neutral';
-  }
-
-  // ----------------------------------------
-  // RESULTS AND SUMMARY
-  // ----------------------------------------
 
   get bookSize(): number {
-    return this.result?.bookSize || 0;
+    return this.result?.bookSize ?? 0;
   }
 
   get changedCount(): number {
-    return this.result?.changeCount || 0;
+    return this.result?.changeCount ?? 0;
   }
 
-  get unchangedCount(): number {
-    return Math.max(
-      0,
-      this.bookSize - this.changedCount
-    );
+  get stableCount(): number {
+    return Math.max(0, this.bookSize - this.changedCount);
   }
 
-  get changedPercentage(): number {
-    return this.countPercentage(
-      this.changedCount,
-      this.bookSize
-    );
+  get changedRate(): number {
+    return this.percentOf(this.changedCount, this.bookSize);
   }
 
-  get unchangedPercentage(): number {
-    return this.countPercentage(
-      this.unchangedCount,
-      this.bookSize
-    );
+  percentOf(value: number, total: number): number {
+    return total > 0
+      ? Number((value * 100 / total).toFixed(1))
+      : 0;
   }
 
-  get summary(): DecisionSummary[] {
-    if (!this.result) {
-      return [];
-    }
+  get comparisons(): DecisionComparison[] {
+    if (!this.ready || !this.result) return [];
 
-    const sim = this.result;
-    const total = sim.bookSize;
-
-    const values: {
-      key: DecisionType;
-      label: string;
-      colorClass: string;
-    }[] = [
-      {
-        key: 'approved',
-        label: 'Approved',
-        colorClass: 'approved'
-      },
-      {
-        key: 'referred',
-        label: 'Manual Review',
-        colorClass: 'referred'
-      },
-      {
-        key: 'declined',
-        label: 'Declined',
-        colorClass: 'declined'
-      }
-    ];
-
-    return values.map(item => {
-      const current = sim.current[item.key];
-      const proposed = sim.next[item.key];
+    return ([
+      ['approved', 'Approved'],
+      ['referred', 'Manual Review'],
+      ['declined', 'Declined']
+    ] as Array<[DecisionKey, string]>).map(([key, label]) => {
+      const current = this.result!.current[key];
+      const proposed = this.result!.next[key];
 
       return {
-        key: item.key,
-        label: item.label,
-        current,
-        proposed,
-        currentPct: this.countPercentage(
-          current,
-          total
-        ),
-        proposedPct: this.countPercentage(
-          proposed,
-          total
-        ),
-        difference: proposed - current,
-        colorClass: item.colorClass
+        key, label, current, proposed,
+        currentPct: this.percentOf(current, this.bookSize),
+        proposedPct: this.percentOf(proposed, this.bookSize),
+        difference: proposed - current
       };
     });
   }
 
-  get approvedDifference(): number {
-    if (!this.result) {
-      return 0;
-    }
-
-    return (
-      this.result.next.approved -
-      this.result.current.approved
-    );
+  get approvedDelta(): number {
+    return this.result
+      ? this.result.next.approved - this.result.current.approved
+      : 0;
   }
 
-  get referredDifference(): number {
-    if (!this.result) {
-      return 0;
-    }
-
-    return (
-      this.result.next.referred -
-      this.result.current.referred
-    );
+  get referredDelta(): number {
+    return this.result
+      ? this.result.next.referred - this.result.current.referred
+      : 0;
   }
 
-  get declinedDifference(): number {
-    if (!this.result) {
-      return 0;
-    }
-
-    return (
-      this.result.next.declined -
-      this.result.current.declined
-    );
+  get declinedDelta(): number {
+    return this.result
+      ? this.result.next.declined - this.result.current.declined
+      : 0;
   }
 
-  // ----------------------------------------
-  // APPLICATION FILTERING
-  // ----------------------------------------
+  get approvalRateDelta(): number {
+    return this.result
+      ? this.percentOf(this.result.next.approved, this.bookSize) -
+        this.percentOf(this.result.current.approved, this.bookSize)
+      : 0;
+  }
 
-  get filteredChanges() {
-    if (!this.result) {
-      return [];
+  // ====================================================
+  // APPLICATION MIGRATION
+  // ====================================================
+
+  get migrations(): MigrationRecord[] {
+    if (!this.ready || !this.result) return [];
+
+    return this.result.changes.map(row => ({
+      id: String(row.id),
+      applicant: String(row.applicant),
+      from: String(row.from),
+      to: String(row.to),
+      explanation: this.migrationExplanation(
+        String(row.from), String(row.to)
+      )
+    }));
+  }
+
+  private migrationExplanation(from: string, to: string): string {
+    const before = from.toLowerCase();
+    const after = to.toLowerCase();
+
+    if (before.includes('refer') && after.includes('approv')) {
+      return 'Applicant now meets the proposed automatic approval conditions.';
     }
 
-    const search =
-      this.searchTerm.trim().toLowerCase();
+    if (before.includes('approv') && after.includes('refer')) {
+      return 'Applicant requires review under the proposed thresholds.';
+    }
 
-    return this.result.changes.filter(row => {
-      const matchesSearch =
-        !search ||
-        String(row.id)
-          .toLowerCase()
-          .includes(search) ||
-        String(row.applicant)
-          .toLowerCase()
-          .includes(search);
+    if (after.includes('declin')) {
+      return 'Proposed policy produces a decline recommendation.';
+    }
 
-      const matchesDecision =
-        this.decisionFilter === 'All' ||
-        row.to === this.decisionFilter;
+    if (before.includes('declin') && after.includes('approv')) {
+      return 'Application becomes eligible under the proposed conditions.';
+    }
 
-      return matchesSearch && matchesDecision;
+    return 'One or more configured thresholds changed the recommendation.';
+  }
+
+  get filteredMigrations(): MigrationRecord[] {
+    const search = this.searchTerm.toLowerCase().trim();
+
+    return this.migrations.filter(row => {
+      const matchesSearch = !search ||
+        `${row.id} ${row.applicant}`.toLowerCase().includes(search);
+
+      const matchesTransition = this.transitionFilter === 'All' ||
+        row.to.toLowerCase().includes(this.transitionFilter.toLowerCase());
+
+      return matchesSearch && matchesTransition;
     });
   }
 
   get totalPages(): number {
     return Math.max(
       1,
-      Math.ceil(
-        this.filteredChanges.length /
-        this.pageSize
-      )
+      Math.ceil(this.filteredMigrations.length / this.pageSize)
     );
   }
 
-  get paginatedChanges() {
-    const start =
-      (this.currentPage - 1) * this.pageSize;
-
-    return this.filteredChanges.slice(
-      start,
-      start + this.pageSize
-    );
+  get paginatedMigrations(): MigrationRecord[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredMigrations.slice(start, start + this.pageSize);
   }
 
-  onFilterChange(): void {
+  onFiltersChanged(): void {
     this.currentPage = 1;
   }
 
   nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-    }
+    this.currentPage = Math.min(this.totalPages, this.currentPage + 1);
   }
 
   previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
+    this.currentPage = Math.max(1, this.currentPage - 1);
+  }
+
+  inspectMigration(row: MigrationRecord): void {
+    this.selectedMigration = row;
+  }
+
+  // ====================================================
+  // RISK INTELLIGENCE
+  // ====================================================
+
+  get scoreChange(): number {
+    return this.draft.approveFrom - this.currentPolicy.approveFrom;
+  }
+
+  get dtiChangePoints(): number {
+    return Math.round(
+      (this.draft.maxDti - this.currentPolicy.maxDti) * 100
+    );
+  }
+
+  get amountChange(): number {
+    return this.draft.maxAmount - this.currentPolicy.maxAmount;
+  }
+
+  get lowerScoreAllowed(): boolean {
+    return this.scoreChange < 0;
+  }
+
+  get higherDtiAllowed(): boolean {
+    return this.dtiChangePoints > 0;
+  }
+
+  get largerLoansAllowed(): boolean {
+    return this.amountChange > 0;
+  }
+
+  get loosenedControls(): number {
+    return [
+      this.lowerScoreAllowed,
+      this.higherDtiAllowed,
+      this.largerLoansAllowed,
+      this.draft.declineBelow < this.currentPolicy.declineBelow
+    ].filter(Boolean).length;
+  }
+
+  get tightenedControls(): number {
+    return [
+      this.scoreChange > 0,
+      this.dtiChangePoints < 0,
+      this.amountChange < 0,
+      this.draft.declineBelow > this.currentPolicy.declineBelow
+    ].filter(Boolean).length;
+  }
+
+  get riskObservations(): string[] {
+    if (!this.ready) return [];
+
+    const notes: string[] = [];
+
+    if (this.lowerScoreAllowed) {
+      notes.push(
+        'The proposed approval threshold admits applicants with lower ' +
+        'credit scores than the current policy.'
+      );
+    }
+
+    if (this.higherDtiAllowed) {
+      notes.push(
+        'The higher permitted DTI allows applicants with greater ' +
+        'existing debt commitments relative to income.'
+      );
+    }
+
+    if (this.largerLoansAllowed) {
+      notes.push(
+        'The increased maximum loan amount permits larger individual ' +
+        'loan requests under the proposed policy.'
+      );
+    }
+
+    if (this.tightenedControls > 0) {
+      notes.push(
+        `${this.tightenedControls} configured threshold(s) became more restrictive.`
+      );
+    }
+
+    if (this.approvedDelta > 0) {
+      notes.push(
+        `${this.approvedDelta} more applications receive approval ` +
+        'recommendations in the evaluated portfolio.'
+      );
+    } else if (this.approvedDelta < 0) {
+      notes.push(
+        `${Math.abs(this.approvedDelta)} fewer applications receive ` +
+        'approval recommendations.'
+      );
+    }
+
+    if (!notes.length) {
+      notes.push(
+        'No material difference was detected in the supported policy parameters.'
+      );
+    }
+
+    return notes;
+  }
+
+  get guardrailText(): string {
+    if (!this.ready) {
+      return 'Run a valid simulation to view policy guardrails.';
+    }
+
+    if (this.loosenedControls > 0) {
+      return (
+        'Some eligibility thresholds have been relaxed. Before deployment, ' +
+        'review underwriting guardrails, concentration limits and ' +
+        'approval authority for newly eligible applications.'
+      );
+    }
+
+    return (
+      'Review the effect of these thresholds on access to credit ' +
+      'and confirm that the revised settings match the bank risk appetite.'
+    );
+  }
+
+  // ====================================================
+  // THREE-STRATEGY COMPARISON
+  // ====================================================
+
+  compareStrategies(): void {
+    if (!this.ready) return;
+
+    const names: StrategyName[] = [
+      'Conservative', 'Balanced', 'Growth'
+    ];
+
+    try {
+      this.strategyComparisons = names.map(name => {
+        const policy = this.strategyPolicy(name);
+        const result = this.credit.simulate(policy);
+
+        return {
+          name,
+          policy,
+          result,
+          approvalRate: this.percentOf(result.next.approved, result.bookSize),
+          referralRate: this.percentOf(result.next.referred, result.bookSize),
+          changed: result.changeCount
+        };
+      });
+
+      this.showStrategyBattle = true;
+    } catch (error) {
+      console.error('Strategy comparison failed:', error);
+      this.validationError = 'Unable to compare preset strategies.';
     }
   }
 
-  // ----------------------------------------
-  // UI NAVIGATION
-  // ----------------------------------------
+  useComparedStrategy(name: StrategyName): void {
+    this.chooseStrategy(name);
+    this.showStrategyBattle = false;
+    this.activeTab = 'scenario';
+  }
 
-  setTab(
-    tab: 'overview' | 'applications'
-  ): void {
-    this.activeTab = tab;
+  // ====================================================
+  // EXECUTIVE AI-STYLE ADVISOR
+  // ====================================================
+
+  get executiveSummary(): string {
+    if (!this.ready || !this.result) {
+      return 'Run a simulation to generate the executive assessment.';
+    }
+
+    const movement = this.approvedDelta > 0
+      ? `${this.approvedDelta} additional applications qualify for approval`
+      : this.approvedDelta < 0
+        ? `${Math.abs(this.approvedDelta)} fewer applications qualify for approval`
+        : 'the approval volume remains unchanged';
+
+    return (
+      `The ${this.selectedStrategy.toLowerCase()} policy scenario ` +
+      `was evaluated against ${this.bookSize.toLocaleString('en-KE')} ` +
+      `applications. Under the proposed thresholds, ${movement}. ` +
+      `${this.changedCount} applications change their decision ` +
+      'recommendation. This comparison illustrates potential eligibility ' +
+      'impacts rather than actual future performance.'
+    );
+  }
+
+  get strategicRecommendation(): string {
+    if (!this.ready) {
+      return 'Complete a scenario evaluation first.';
+    }
+
+    if (this.loosenedControls > 0 && this.approvedDelta > 0) {
+      return (
+        'The scenario expands eligibility while relaxing one or more ' +
+        'risk-related controls. Consider a controlled pilot, documented ' +
+        'risk limits and monitoring of newly eligible applicants.'
+      );
+    }
+
+    if (this.tightenedControls > 0 && this.approvedDelta < 0) {
+      return (
+        'The scenario reduces approval access while tightening policy. ' +
+        'Review whether the expected risk-control benefit justifies ' +
+        'the reduction in eligible lending applications.'
+      );
+    }
+
+    return (
+      'The scenario should be assessed against the institution risk ' +
+      'appetite, product objectives and existing underwriting controls ' +
+      'before any policy activation.'
+    );
+  }
+
+  get executiveReport(): string {
+    if (!this.ready) return '';
+
+    return [
+      'ECLECTICS POLICY INTELLIGENCE',
+      'EXECUTIVE STRATEGY BRIEFING — DEMONSTRATION',
+      '',
+      `Scenario: ${this.selectedStrategy}`,
+      `Applications evaluated: ${this.bookSize}`,
+      `Decisions changed: ${this.changedCount}`,
+      `Approval difference: ${this.signed(this.approvedDelta)}`,
+      `Referral difference: ${this.signed(this.referredDelta)}`,
+      `Decline difference: ${this.signed(this.declinedDelta)}`,
+      '',
+      'EXECUTIVE SUMMARY',
+      this.executiveSummary,
+      '',
+      'RISK OBSERVATIONS',
+      ...this.riskObservations.map(note => `- ${note}`),
+      '',
+      'STRATEGIC RECOMMENDATION',
+      this.strategicRecommendation,
+      '',
+      'Simulation results are illustrative and based on the existing',
+      'credit demonstration dataset. No default-risk or profitability',
+      'forecast is implied without validated models and assumptions.'
+    ].join('\n');
+  }
+
+  copyBriefing(): void {
+    if (!this.ready || !navigator.clipboard?.writeText) return;
+
+    navigator.clipboard.writeText(this.executiveReport)
+      .then(() => {
+        this.briefingCopied = true;
+      })
+      .catch(() => {
+        this.briefingCopied = false;
+      });
+  }
+
+  // ====================================================
+  // GOVERNANCE — DEMONSTRATION WORKFLOW
+  // ====================================================
+
+  submitForApproval(): void {
+    if (!this.ready || !this.hasChanges) return;
+
+    this.approvalState = 'Submitted';
+    this.approvalNote =
+      'Simulation submitted for demonstration review.';
+  }
+
+  approveScenario(): void {
+    if (this.approvalState !== 'Submitted') return;
+
+    this.approvalState = 'Approved';
+    this.approvalNote =
+      'Demo policy approval recorded. No production authorization occurred.';
+  }
+
+  applyApprovedPolicy(): void {
+    if (this.approvalState !== 'Approved' || !this.ready) return;
+
+    try {
+      const policy = { ...this.draft };
+      this.credit.updatePolicy(policy);
+
+      this.currentPolicy = { ...policy };
+      this.hasChanges = false;
+      this.saved = true;
+      this.approvalState = 'Activated';
+      this.approvalNote =
+        'Policy updated in the existing demo data service.';
+      this.runSimulation();
+      this.approvalState = 'Activated';
+    } catch (error) {
+      console.error('Unable to apply demo policy:', error);
+      this.validationError = 'Policy could not be applied.';
+    }
+  }
+
+  // ====================================================
+  // FORMATTING
+  // ====================================================
+
+  money(value: number): string {
+    return this.credit.money(value);
+  }
+
+  pct(value: number): string {
+    return `${Math.round(value * 100)}%`;
+  }
+
+  signed(value: number): string {
+    return value > 0 ? `+${value}` : String(value);
+  }
+
+  differenceClass(value: number): string {
+    return value > 0 ? 'increase'
+      : value < 0 ? 'decrease'
+      : 'neutral';
+  }
+
+  decisionClass(value: string): string {
+    const normalized = value.toLowerCase();
+
+    if (normalized.includes('approv')) return 'approved';
+    if (normalized.includes('refer') || normalized.includes('review')) {
+      return 'referred';
+    }
+    if (normalized.includes('declin')) return 'declined';
+
+    return 'neutral';
   }
 }
