@@ -35,7 +35,7 @@ export const MENU: MenuItem[] = [
   { label: 'Decision Queue', icon: 'inbox', link: '/decision-queue', exact: true, badge: { text: 8, variant: 'uba' } },
 
   { isTitle: true, label: 'Risk & Decisioning' },
-  { label: 'Channels Simulator', icon: 'percent', link: '/credit-scoring', exact: true },
+  { label: 'Channel Simulator', icon: 'percent', link: '/credit-scoring', exact: true },
   { label: 'Decision Rules', icon: 'sliders', link: '/decision-rules', exact: true },
   { label: 'Policy Simulator', icon: 'shuffle', link: '/policy-simulator', exact: true },
 
@@ -45,7 +45,7 @@ export const MENU: MenuItem[] = [
   { isTitle: true, label: 'Administration' },
   { label: 'Alerts', icon: 'bell', link: '/alerts', exact: true, badge: { text: 8, variant: 'uba' } },
   { label: 'Audit Logs', icon: 'shield', link: '/audit-logs', exact: true },
-  { label: 'Integrations', icon: 'link', link: '/integrations', exact: true },
+  // { label: 'Integrations', icon: 'link', link: '/integrations', exact: true },
   { label: 'Model Monitoring', icon: 'activity', link: '/model-monitoring', exact: true },
   { label: 'Log out', icon: 'log-out', isLogout: true }
 ];

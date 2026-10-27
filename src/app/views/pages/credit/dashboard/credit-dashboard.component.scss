@@ -643,6 +643,7 @@ apx-chart {
 }
 
 .btn-brief {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -655,6 +656,41 @@ apx-chart {
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease;
+
+  .btn-tip {
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 8px);
+    transform: translateX(-50%) translateY(-4px);
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: #122033;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 5;
+  }
+
+  .btn-tip::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-bottom-color: #122033;
+  }
+
+  &:hover .btn-tip,
+  &:focus-visible .btn-tip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 
   svg {
     width: 16px;
