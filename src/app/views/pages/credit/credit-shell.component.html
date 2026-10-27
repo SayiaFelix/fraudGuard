@@ -35,12 +35,17 @@
 
       <div class="cd-pop-wrap">
         <button class="cd-user" type="button" (click)="showUser = !showUser; showNotes = false" title="Account">
-          <span>{{ initials }}</span>
+          <span class="cd-avatar" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="8" r="3.2"/>
+              <path d="M5.4 19.2c1-3.1 3.3-4.6 6.6-4.6s5.6 1.5 6.6 4.6"/>
+            </svg>
+          </span>
           <em>
             <strong>{{ displayName }}</strong>
             <small>{{ title }}</small>
           </em>
-          <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+          <svg class="cd-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="cd-pop cd-pop-user" *ngIf="showUser">
           <strong>{{ displayName }}</strong>
