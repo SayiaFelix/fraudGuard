@@ -11,6 +11,9 @@ import { KENYA_LOAN_CUSTOMERS } from './loan-customers.data';
 import { LoanIntegrationService } from './loan-integration.service';
 
 function copy<T>(value: T): T { return JSON.parse(JSON.stringify(value)); }
+export function formatLoanDisplayText(value: string): string {
+  return value.replace(/\bsimulated\b[ \t]*/gi, '').replace(/\bensemble simulation\b/gi, 'ensemble');
+}
 export function loanId(prefix: string): string {
   const suffix = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
   return prefix + '-' + suffix;
@@ -56,8 +59,7 @@ export class LoanWorkflowService implements OnDestroy {
   latest = latestAssessment;
   pending = isPending;
   money(value: number): string { return this.credit.money(value); }
-  // Format generated copy only; saved assessments and numerical model outputs stay unchanged.
-  displayText(value: string): string { return value.replace(/\bsimulated\b[ \t]*/gi, '').replace(/\bensemble simulation\b/gi, 'ensemble'); }
+  displayText(value: string): string { return formatLoanDisplayText(value); }
   advice(assessment: LoanAssessment): CreditDecision { return combineLoanDecisions(combineLoanDecisions(assessment.ai?.advice || assessment.recommendation, assessment.eligibility?.decision || 'Approved'), assessment.integration?.decision || 'Approved'); }
   customerRisk(customer: LoanCustomer): string { return simulatedRisk(simulatedLoanProbability(customer.profile)); }
   bureauLabel(a: LoanAssessment): string { return a.eligibility?.customer.crbBlacklisted === true ? 'Blacklisted' : a.eligibility?.customer.crbDefaulter === true ? 'Defaulter listed' : a.input.bureau; }
