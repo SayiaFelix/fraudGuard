@@ -26,7 +26,7 @@
 
     </div>
 
-    <div class="header-actions">
+    <div class="header-actions" *ngIf="activeTab !== 'reports'">
 
       <button
         type="button"
@@ -112,7 +112,19 @@
 
     </button>
 
+    <button
+      type="button"
+      [class.active]="activeTab === 'reports'"
+      (click)="setTab('reports')">
+
+      <i class="fas fa-file-alt"></i>
+      Reports
+
+    </button>
+
   </nav>
+
+  <div class="portfolio-analytics" [class.is-hidden]="activeTab === 'reports'">
 
   <!-- =====================================
        FILTERS
@@ -857,6 +869,12 @@
 
     </div>
 
+  </section>
+
+  </div>
+
+  <section class="portfolio-reports" *ngIf="activeTab === 'reports'">
+    <app-credit-reports [embedded]="true"></app-credit-reports>
   </section>
 
 </div>

@@ -1149,3 +1149,15 @@
     gap: 8px;
   }
 }
+
+.portfolio-analytics.is-hidden {
+  display: none;
+}
+
+.portfolio-reports {
+  margin-top: 8px;
+
+  .ops.command h1 {
+    font-size: 1.35rem;
+  }
+}

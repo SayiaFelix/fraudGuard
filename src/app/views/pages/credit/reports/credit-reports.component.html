@@ -1,8 +1,8 @@
 <div class="ops command">
   <header class="ops-head">
     <div>
-      <span class="eyebrow">Credit operations · Reporting</span>
-      <h1>Reports</h1>
+      <span class="eyebrow" *ngIf="!embedded">Credit operations · Reporting</span>
+      <h1>{{ embedded ? 'Operational reports' : 'Reports' }}</h1>
       <p>Book totals, distribution, and decision outcomes.</p>
     </div>
     <div class="ops-head-actions ops-no-print">
