@@ -22,10 +22,10 @@ body.uba-credit .sidebar .sidebar-toggler {
 
 body.uba-credit .sidebar .sidebar-header {
   width: 272px !important;
-  height: 96px !important;
-  min-height: 96px;
+  height: 68px !important;
+  min-height: 68px;
   margin: 0 !important;
-  padding: 0 14px 6px !important;
+  padding: 0 14px 4px !important;
   background: #ffffff !important;
   border: none !important;
   box-sizing: border-box;
@@ -249,9 +249,9 @@ body.uba-credit .navbar {
 }
 
 body.uba-credit .sidebar .eclectics-logo {
-  height: 68px;
+  height: 56px;
   width: auto;
-  max-width: 230px;
+  max-width: 200px;
   background: transparent;
   object-fit: contain;
   object-position: left bottom;
@@ -486,9 +486,9 @@ body.uba-credit .sidebar .eclectics-logo {
   display: flex;
   align-items: flex-end;
   gap: 18px;
-  height: 92px;
-  min-height: 92px;
-  padding: 0 28px 4px;
+  height: 64px;
+  min-height: 64px;
+  padding: 0 20px 0 0;
   box-sizing: border-box;
 }
 
@@ -504,11 +504,11 @@ body.uba-credit .sidebar .eclectics-logo {
 
 .cd-topbar h1 {
   margin: 0;
-  font-size: 34px;
+  font-size: 30px;
   font-weight: 800;
   color: #122033;
   letter-spacing: -0.03em;
-  line-height: 1.05;
+  line-height: 1;
   white-space: nowrap;
 }
 
@@ -722,7 +722,7 @@ body.uba-credit .sidebar .eclectics-logo {
 body.uba-credit .cd-body.cd-body-flush {
   padding: 0;
   background: #ffffff;
-  min-height: calc(100vh - 96px);
+  min-height: calc(100vh - 68px);
 }
 
 .cd-card {
