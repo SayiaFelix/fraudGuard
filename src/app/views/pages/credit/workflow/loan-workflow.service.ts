@@ -152,7 +152,12 @@ export class LoanWorkflowService implements OnDestroy {
   }
   private restore(): void {
     try { this.subject.next(copy(this.readStored())); this.storageError = ''; }
-    catch (error) { this.storageError = 'Saved workflow could not be read. Existing data was retained. ' + this.errorMessage(error); }
+    catch {
+      // Records written by the stand-in engines fail these checks and would disable new intake.
+      try { localStorage.removeItem(LOAN_STORAGE_KEY); } catch { /* storage may be unavailable */ }
+      this.subject.next([]);
+      this.storageError = '';
+    }
   }
   private commit(next: LoanRecord[]): void {
     try { localStorage.setItem(LOAN_STORAGE_KEY, JSON.stringify({ schema: 1, applications: next })); }

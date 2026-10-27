@@ -1,117 +1,102 @@
 import { ApplicationDraft } from '../credit-data.service';
 import { CreditDecision, PolicySettings, RiskBand } from '../credit-demo.data';
-import { LoanAiInsight, LoanAssessment, LoanModelOutput, LoanRiskDriver, LoanScenario } from './loan-workflow.models';
+import { LoanAiInsight, LoanAssessment, LoanRiskDriver, LoanScenario } from './loan-workflow.models';
 
-function debtService(input: Pick<ApplicationDraft, 'amount' | 'tenorMonths' | 'income' | 'obligations'>): number {
-  const income = Number(input.income);
-  if (!Number.isFinite(income) || income <= 0) { throw new Error('Income must be positive before a model outlook can be produced.'); }
-  const tenor = Math.max(1, Number(input.tenorMonths) || 1);
-  return (Number(input.obligations) + Number(input.amount) / tenor) / income;
-}
+// Deterministic surrogates for a presentation. No trained estimator, calibrated PD,
+// inference endpoint or generative model is executed. The UI identifies this ensemble as a simulation.
+type Signals = { burden: number; bureau: number; exposure: number; income: number; employment: number; term: number };
+const clamp = (value: number, low: number, high: number): number => Math.max(low, Math.min(high, value));
+const round = (value: number, precision = 4): number => Number(value.toFixed(precision));
+const sigmoid = (value: number): number => 1 / (1 + Math.exp(-value));
+export const MODEL_WEIGHTS = [0.35, 0.40, 0.25];
+export function simulatedRisk(probability: number): RiskBand { return probability < 0.12 ? 'Low' : probability < 0.30 ? 'Medium' : 'High'; }
 
-export function simulatedLoanProbability(input: Pick<ApplicationDraft, 'amount' | 'tenorMonths' | 'income' | 'obligations' | 'bureau' | 'employment'>): number {
-  const dti = debtService(input);
-  let probability = 0.04 + dti * 0.35;
-  if (input.bureau === 'Adverse') { probability += 0.25; }
-  else if (input.bureau === 'Thin file') { probability += 0.06; }
-  if (input.employment === 'Self employed') { probability += 0.04; }
-  else if (input.employment === 'Business owner') { probability += 0.02; }
-  return Math.min(0.95, Math.max(0.02, probability));
-}
-
-export function simulatedRisk(probability: number): RiskBand {
-  if (probability < 0.12) { return 'Low'; }
-  if (probability < 0.30) { return 'Medium'; }
-  return 'High';
-}
-
-function deltaPp(input: ApplicationDraft, patch: Partial<ApplicationDraft>): number {
-  const base = simulatedLoanProbability(input);
-  const next = simulatedLoanProbability({ ...input, ...patch });
-  return Math.round((next - base) * 1000) / 10;
-}
-
-function driversFor(input: ApplicationDraft): LoanRiskDriver[] {
-  return [
-    { label: 'Bureau outlook', deltaPp: input.bureau === 'Clean' ? 0 : deltaPp(input, { bureau: 'Clean' }), reference: 'Clean bureau file', explanation: 'How the saved bureau category moves the illustrative likelihood versus a clean file.' },
-    { label: 'Repayment burden', deltaPp: deltaPp(input, { obligations: 0 }), reference: 'No existing monthly obligations', explanation: 'How reported obligations change debt service in the illustrative ensemble.' },
-    { label: 'Loan-to-income exposure', deltaPp: deltaPp(input, { amount: Math.max(10000, input.amount * 0.5) }), reference: 'Half the requested principal', explanation: 'How the requested principal changes the illustrative likelihood.' },
-    { label: 'Employment profile', deltaPp: input.employment === 'Salaried' ? 0 : deltaPp(input, { employment: 'Salaried' }), reference: 'Salaried employment', explanation: 'How the employment category is treated in the demonstration ensemble.' },
-    { label: 'Income capacity', deltaPp: deltaPp(input, { income: input.income * 1.25 }), reference: 'Income 25% higher', explanation: 'How a higher reported income would move the illustrative likelihood.' },
-    { label: 'Repayment term', deltaPp: deltaPp(input, { tenorMonths: Math.min(60, input.tenorMonths + 6) }), reference: 'Six months longer', explanation: 'How a longer principal-only term changes the illustrative likelihood.' }
-  ];
-}
-
-export function simulateLoanAi(input: ApplicationDraft, policy: PolicySettings, decision: CreditDecision): LoanAiInsight {
-  const probability = simulatedLoanProbability(input);
-  const risk = simulatedRisk(probability);
-  const dti = debtService(input);
-  const weights = [0.4, 0.35, 0.25];
-  const first = Math.min(0.99, Math.max(0.01, probability - 0.02));
-  const second = Math.min(0.99, Math.max(0.01, probability + 0.01));
-  const third = (probability - weights[0] * first - weights[1] * second) / weights[2];
-  const models: LoanModelOutput[] = [
-    { id: 'model-1', name: 'Logistic surrogate', probability: first, risk: simulatedRisk(first), weight: weights[0] },
-    { id: 'model-2', name: 'Boosted-tree surrogate', probability: second, risk: simulatedRisk(second), weight: weights[1] },
-    { id: 'model-3', name: 'Forest surrogate', probability: third, risk: simulatedRisk(third), weight: weights[2] }
-  ];
-  const advice: CreditDecision = decision === 'Declined'
-    ? 'Declined'
-    : decision === 'Approved' && risk === 'Low' && dti <= policy.maxDti
-      ? 'Approved'
-      : 'Refer';
-  const matching = models.filter(model => model.risk === risk).length;
+function signals(input: ApplicationDraft): Signals {
+  if (![input.amount, input.income, input.obligations, input.tenorMonths].every(Number.isFinite) || input.amount < 10000 || input.income <= 0 || input.obligations < 0 || !Number.isInteger(input.tenorMonths) || input.tenorMonths < 1 || input.tenorMonths > 60) { throw new Error('Valid financial inputs are required for model simulation.'); }
+  if (!['Clean', 'Thin file', 'Adverse'].includes(input.bureau) || !['Salaried', 'Business owner', 'Self employed'].includes(input.employment)) { throw new Error('Bureau and employment inputs are required for model simulation.'); }
   return {
-    origin: 'SIMULATED',
-    engineVersion: 'ensemble-demo-1',
-    probability,
-    risk,
-    agreement: matching / models.length,
-    signals: models.length,
-    models,
-    drivers: driversFor(input),
-    advice,
-    summary: risk + ' illustrative outlook. The ensemble likelihood is ' + (probability * 100).toFixed(1) + '%.',
-    strengths: risk === 'High' ? [] : ['Debt service and bureau inputs are reflected in the illustrative ensemble.'],
-    concerns: advice === 'Approved' ? [] : ['Officer review is required before this illustrative outlook can support a decision.'],
-    actions: advice === 'Approved' ? ['Review the policy checks and record the officer decision.'] : ['Resolve the triggered findings before supporting an offer.']
+    burden: clamp((input.obligations + input.amount / input.tenorMonths) / input.income, 0, 2),
+    bureau: input.bureau === 'Clean' ? -0.6 : input.bureau === 'Thin file' ? 0.55 : 1.4,
+    exposure: clamp(input.amount / (input.income * 12), 0, 2),
+    income: clamp(Math.log1p(input.income / 100000), 0, 5),
+    employment: input.employment === 'Salaried' ? -0.2 : input.employment === 'Business owner' ? 0.1 : 0.2,
+    term: clamp((input.tenorMonths - 12) / 48, -0.25, 1)
   };
 }
+function modelProbabilities(s: Signals): number[] {
+  const linear = sigmoid(-2.1 + 2.6 * s.burden + s.bureau + 1.2 * s.exposure - 0.35 * s.income + s.employment + 0.25 * s.term);
+  const boosted = sigmoid(-2.25 + (s.burden > 0.55 ? 2.2 : s.burden > 0.35 ? 0.9 : 0.1)
+    + (s.bureau > 1 ? 2 : s.bureau > 0 ? 0.7 : -0.45) + (s.exposure > 0.6 ? 0.7 : 0.05)
+    - 0.25 * s.income + s.employment * 0.5 + (s.burden > 0.45 && s.bureau > 1 ? 0.8 : 0) + 0.2 * s.term);
+  const forest = (
+    sigmoid(-2.15 + 3 * s.burden + 0.8 * s.bureau + 0.8 * s.exposure - 0.3 * s.income + 0.3 * s.employment + 0.2 * s.term) +
+    sigmoid(-2.35 + 2.1 * s.burden + 1.1 * s.bureau + 1.1 * s.exposure - 0.25 * s.income + s.employment + 0.15 * s.term) +
+    sigmoid(-1.95 + 2.5 * s.burden + s.bureau + 0.9 * s.exposure - 0.4 * s.income + 0.6 * s.employment + 0.25 * s.term)
+  ) / 3;
+  return [linear, boosted, forest].map(x => round(x));
+}
+function ensemble(s: Signals): number { return round(modelProbabilities(s).reduce((sum, probability, i) => sum + probability * MODEL_WEIGHTS[i], 0)); }
+export function simulatedLoanProbability(input: ApplicationDraft): number { return ensemble(signals(input)); }
 
-export function validLoanAi(value: unknown): value is LoanAiInsight {
-  const insight = value as LoanAiInsight;
-  if (!insight || insight.origin !== 'SIMULATED' || insight.engineVersion !== 'ensemble-demo-1') { return false; }
-  if (!Number.isFinite(insight.probability) || insight.probability < 0 || insight.probability > 1) { return false; }
-  if (!['Low', 'Medium', 'High'].includes(insight.risk)) { return false; }
-  if (!Array.isArray(insight.models) || insight.models.length !== 3) { return false; }
-  if (!insight.models.every(model => Number.isFinite(model.probability) && model.probability >= 0 && model.probability <= 1 && Number.isFinite(model.weight))) { return false; }
-  const weighted = insight.models.reduce((sum, model) => sum + model.weight * model.probability, 0);
-  if (Math.abs(weighted - insight.probability) > 0.0001) { return false; }
-  return Array.isArray(insight.drivers) && insight.drivers.length > 0 && insight.drivers.every(driver => typeof driver.label === 'string' && Number.isFinite(driver.deltaPp));
+export function simulateLoanAi(input: ApplicationDraft, policy: PolicySettings, sourceRecommendation: CreditDecision): LoanAiInsight {
+  const actual = signals(input); const probability = ensemble(actual); const risk = simulatedRisk(probability);
+  const definitions: Array<{ key: keyof Signals; label: string; value: number; reference: string; explanation: string }> = [
+    { key: 'burden', label: 'Repayment burden', value: 0.35, reference: '35% debt service / income', explanation: 'Monthly obligations and the proposed principal instalment relative to income.' },
+    { key: 'bureau', label: 'Bureau outlook', value: -0.6, reference: 'Clean bureau record', explanation: 'The reported bureau category supplied with this application.' },
+    { key: 'exposure', label: 'Loan-to-income exposure', value: 0.1, reference: '10% of annualised income', explanation: 'Requested principal relative to twelve months of reported income.' },
+    { key: 'income', label: 'Income capacity', value: Math.log(2), reference: 'KSh 100,000 monthly income', explanation: 'The income-capacity signal used by the ensemble simulation.' },
+    { key: 'employment', label: 'Employment profile', value: -0.2, reference: 'Salaried employment', explanation: 'The reported employment category, held separate from identity attributes.' },
+    { key: 'term', label: 'Repayment term', value: 0, reference: '12-month term signal', explanation: 'Term sensitivity with the other derived signals held fixed.' }
+  ];
+  const drivers: LoanRiskDriver[] = definitions.map(item => ({ label: item.label,
+    deltaPp: round((probability - ensemble({ ...actual, [item.key]: item.value })) * 100, 2),
+    reference: item.reference, explanation: item.explanation
+  })).sort((a, b) => Math.abs(b.deltaPp) - Math.abs(a.deltaPp));
+  const probabilities = modelProbabilities(actual);
+  const names = ['Logistic regression', 'Gradient boosting', 'Random forest'];
+  const ids = ['linear-surrogate', 'boost-surrogate', 'forest-surrogate'];
+  const models = probabilities.map((p, i) => ({ id: ids[i], name: names[i], probability: p, risk: simulatedRisk(p), weight: MODEL_WEIGHTS[i] }));
+  const dti = (input.obligations + input.amount / input.tenorMonths) / input.income;
+  const advice: CreditDecision = sourceRecommendation === 'Declined' ? 'Declined'
+    : sourceRecommendation === 'Approved' && risk === 'Low' && dti <= policy.maxDti ? 'Approved' : 'Refer';
+  const strengths = drivers.filter(x => x.deltaPp < -0.05).slice(0, 3).map(x => x.label + ' lowers the simulated likelihood by ' + Math.abs(x.deltaPp).toFixed(1) + ' percentage points against its reference.');
+  const concerns = drivers.filter(x => x.deltaPp > 0.05).slice(0, 3).map(x => x.label + ' raises the simulated likelihood by ' + x.deltaPp.toFixed(1) + ' percentage points against its reference.');
+  const actions: string[] = [];
+  if (input.bureau === 'Adverse') { actions.push('Review the adverse bureau finding and supporting repayment evidence.'); }
+  if (dti > policy.maxDti) { actions.push('Explore a smaller principal and verify the existing monthly obligations.'); }
+  if (input.bureau === 'Thin file') { actions.push('Review additional repayment evidence for the limited bureau file.'); }
+  if (sourceRecommendation === 'Declined') { actions.push('Review the decisive policy finding before considering an exception.'); }
+  else if (advice === 'Refer') { actions.push('Review the scorecard and ensemble outlook together before recording a decision.'); }
+  actions.push('Confirm the financial evidence and record the credit officer decision.');
+  return { origin: 'SIMULATED', engineVersion: 'ensemble-demo-1', probability, risk,
+    agreement: round(models.filter(x => x.risk === risk).length / models.length), signals: 6, models, drivers, advice,
+    summary: 'The ensemble returns a ' + risk.toLowerCase() + '-risk outlook at ' + (probability * 100).toFixed(1) + '% default likelihood. Proposed debt service uses ' + (dti * 100).toFixed(1) + '% of reported income, ' + (dti <= policy.maxDti ? 'within' : 'above') + ' the configured ' + (policy.maxDti * 100).toFixed(0) + '% ceiling. ' + (advice === 'Approved' ? 'The combined recommendation supports approval, subject to officer review.' : advice === 'Declined' ? 'The configured policy recommends decline; inspect its decisive finding.' : 'The combined recommendation is to refer this application for review.'),
+    strengths, concerns, actions: actions.slice(0, 3) };
 }
 
 export function previewLoanScenario(assessment: LoanAssessment, amount: number, tenor: number): LoanScenario {
-  if (!Number.isFinite(amount) || !Number.isFinite(tenor) || amount < 10000 || tenor < 1 || tenor > 60) {
-    throw new Error('Valid financial inputs are required.');
-  }
-  const input = { ...assessment.input, amount, tenorMonths: Math.round(tenor) };
-  const probability = simulatedLoanProbability(input);
-  const installment = amount / input.tenorMonths;
-  const original = assessment.input.amount / Math.max(1, assessment.input.tenorMonths);
-  const income = Number(input.income) || 0;
-  const dti = income > 0 ? (Number(input.obligations) + installment) / income : 1;
-  const salaryBlocked = input.product === 'Salary Advance' && input.tenorMonths > 1;
-  const withinBudget = !salaryBlocked && dti <= assessment.policy.maxDti && amount <= assessment.policy.maxAmount;
-  const baseline = assessment.ai?.probability ?? simulatedLoanProbability(assessment.input);
-  return {
-    amount,
-    tenor: input.tenorMonths,
-    probability,
-    risk: simulatedRisk(probability),
-    installment,
-    dti,
-    withinBudget,
-    monthlySaving: original - installment,
-    deltaPp: Math.round((probability - baseline) * 1000) / 10
-  };
+  const input = { ...assessment.input, amount, tenorMonths: tenor };
+  const ai = simulateLoanAi(input, assessment.policy, assessment.recommendation);
+  const installment = amount / tenor; const dti = (input.obligations + installment) / input.income;
+  return { amount, tenor, probability: ai.probability, risk: ai.risk, installment, dti,
+    withinBudget: dti <= assessment.policy.maxDti && amount <= assessment.policy.maxAmount && !(input.product === 'Salary Advance' && tenor > 1),
+    monthlySaving: assessment.affordability.installment - installment,
+    deltaPp: round((ai.probability - (assessment.ai?.probability ?? simulateLoanAi(assessment.input, assessment.policy, assessment.recommendation).probability)) * 100, 2) };
+}
+
+export function validLoanAi(value: unknown): value is LoanAiInsight {
+  const a = value as LoanAiInsight;
+  const probability = (n: number): boolean => Number.isFinite(n) && n >= 0 && n <= 1;
+  const risk = (s: string): boolean => ['Low', 'Medium', 'High'].includes(s);
+  const textArray = (xs: unknown): boolean => Array.isArray(xs) && xs.every(x => typeof x === 'string');
+  return !!a && a.origin === 'SIMULATED' && a.engineVersion === 'ensemble-demo-1' && probability(a.probability)
+    && risk(a.risk) && a.risk === simulatedRisk(a.probability) && probability(a.agreement) && a.signals === 6
+    && ['Approved', 'Declined', 'Refer'].includes(a.advice) && typeof a.summary === 'string'
+    && Array.isArray(a.models) && a.models.length === 3 && a.models.every(m => !!m && typeof m.name === 'string' && typeof m.id === 'string' && probability(m.probability) && probability(m.weight) && risk(m.risk) && m.risk === simulatedRisk(m.probability))
+    && new Set(a.models.map(m => m.id)).size === 3
+    && Math.abs(a.models.reduce((sum, m) => sum + m.weight, 0) - 1) < 0.00001
+    && Math.abs(a.models.reduce((sum, m) => sum + m.weight * m.probability, 0) - a.probability) < 0.0001
+    && Math.abs(a.models.filter(m => m.risk === a.risk).length / 3 - a.agreement) < 0.0001
+    && Array.isArray(a.drivers) && a.drivers.length === 6 && a.drivers.every(d => !!d && typeof d.label === 'string' && typeof d.explanation === 'string' && typeof d.reference === 'string' && Number.isFinite(d.deltaPp))
+    && textArray(a.strengths) && textArray(a.concerns) && textArray(a.actions);
 }
