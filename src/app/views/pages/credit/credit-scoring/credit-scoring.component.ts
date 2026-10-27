@@ -54,7 +54,6 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
   constructor(public credit: CreditDataService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    // In a real app, fetch this by ID. Here we hardcode Felix for the demo.
     this.whatIfIncome = this.customer.income;
     this.whatIfDebt = this.customer.existingDebt;
     this.resetChat();
@@ -71,6 +70,11 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     if (!this.customer.hasDefaulted) score += 100;
     if (debt <= income * 0.15) score += 50;
 
+    // Determine Risk Category
+    let riskCategory = 'High';
+    if (score >= 700) riskCategory = 'Low';
+    else if (score >= 600) riskCategory = 'Medium';
+
     // 2. Calculate Repayment & DTI
     const monthlyRate = this.annualInterestRate / 100 / 12;
     const factor = Math.pow(1 + monthlyRate, this.loanTermMonths);
@@ -83,24 +87,37 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     const availableForRepayment = Math.max(0, income * 0.4 - debt);
     const maxLimit = Math.floor((availableForRepayment / repaymentFactor) / 1000) * 1000;
 
-    // 4. Decision
+    // 4. Decision & Next Action (AI Insights)
     let outcome: 'eligible' | 'review' | 'declined' = 'declined';
     let reason = '';
+    let nextAction = '';
+    let policyChecks: { label: string, passed: boolean }[] = [];
+
+    // Policy Checks
+    policyChecks.push({ label: `Minimum Score (650)`, passed: score >= 650 });
+    policyChecks.push({ label: `Max DTI (40%)`, passed: dti <= 40 });
+    policyChecks.push({ label: `Within Max Limit (${this.money(maxLimit)})`, passed: this.requestedAmount <= maxLimit });
 
     if (score >= 650 && dti <= 40 && this.requestedAmount <= maxLimit) {
       outcome = 'eligible';
       reason = 'Your income and credit score comfortably support this repayment.';
+      nextAction = 'Proceed to final loan agreement and disbursement setup.';
     } else if (score >= 550 && dti <= 50) {
       outcome = 'review';
       reason = 'Your debt-to-income ratio is slightly high. A credit officer will review this.';
+      nextAction = 'Request 3 months of bank statements to verify income consistency.';
     } else {
       outcome = 'declined';
       reason = this.requestedAmount > maxLimit 
         ? `The requested amount exceeds your maximum limit of ${this.money(maxLimit)}.`
         : 'Your profile does not meet our minimum criteria at this time.';
+      nextAction = 'Suggest a lower loan amount or request a co-signer.';
     }
 
-    return { score, dti, monthlyRepayment, maxLimit, outcome, reason };
+    return { 
+      score, dti, monthlyRepayment, maxLimit, outcome, reason, 
+      riskCategory, nextAction, policyChecks 
+    };
   }
 
   get assessment() {
@@ -135,7 +152,6 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
       this.applicationRef = 'DEMO-' + Math.floor(Math.random() * 900000 + 100000);
       this.journeyStep = 'success';
       
-      // Auto-notify the chatbot
       if (this.channel === 'chatbot') {
         this.addBotMessage(`Your application has been submitted! Reference: ${this.applicationRef}. You can track its status here.`);
       }
@@ -148,6 +164,7 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     this.showWhatIf = false;
     this.whatIfIncome = this.customer.income;
     this.whatIfDebt = this.customer.existingDebt;
+    this.applicationRef = ''; // Reset application so you can demo again
     this.resetChat();
   }
 
@@ -187,29 +204,84 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
   }
 
   private processBotResponse(prompt: string) {
-    const lower = prompt.toLowerCase();
+    const lower = prompt.toLowerCase().trim();
     const a = this.assessment;
     let reply = '';
 
-    if (lower.includes('limit') || lower.includes('how much')) {
-      reply = `Your indicative maximum limit is ${this.money(a.maxLimit)}.\n\nThis is based on your income of ${this.money(this.customer.income)} and existing monthly obligations of ${this.money(this.customer.existingDebt)}.`;
+    // 1. Handle Follow-up Confirmations
+    if (lower === 'yes' || lower === 'yeah' || lower === 'sure') {
+      reply = `Great! To increase your limit, you could:<br><br>` +
+              `• Reduce your existing monthly debt (currently <b>${this.money(this.customer.existingDebt)}</b>).<br>` +
+              `• Increase your verified income.<br>` +
+              `• Maintain a clean repayment history.<br><br>` +
+              `You can also try our <b>What-If Simulator</b> on the Mobile App to see exactly how paying off your car loan might increase your limit!`;
+    }
+    else if (lower === 'no' || lower === 'nope') {
+      reply = `Understood. If you change your mind, you can always ask me to explain your limit or help you apply for a loan.`;
+    }
+    // 2. Limit Queries
+    else if (lower.includes('limit') || lower.includes('how much')) {
+      reply = `Your indicative maximum limit is <b>${this.money(a.maxLimit)}</b>.<br><br>` +
+              `This is calculated based on your income of <b>${this.money(this.customer.income)}</b> and existing monthly obligations of <b>${this.money(this.customer.existingDebt)}</b>.`;
     } 
+    // 3. Explainability Queries
     else if (lower.includes('why') || lower.includes('explain')) {
-      reply = `Your limit is calculated using our Affordability Model. We reserve 40% of your income for debt repayment (${this.money(this.customer.income * 0.4)}). After subtracting your existing debt (${this.money(this.customer.existingDebt)}), you have ${this.money(this.customer.income * 0.4 - this.customer.existingDebt)} available. We then factor in the 18% interest rate to give you your max limit.`;
+      const passedChecks = a.policyChecks.filter(c => c.passed).length;
+      const failedChecks = a.policyChecks.filter(c => !c.passed).map(c => c.label).join(', ');
+      
+      reply = `Here is the detailed breakdown of your assessment, Felix:<br><br>` +
+              `📊 <b>Financial Health</b><br>` +
+              `• Credit Score: <b>${a.score}</b> (${a.riskCategory} Risk)<br>` +
+              `• Debt-to-Income (DTI): <b>${a.dti.toFixed(1)}%</b> (Max allowed: 40%)<br>` +
+              `• Passed <b>${passedChecks} of 3</b> automated policy checks.<br><br>` +
+              `🛡️ <b>Policy Engine</b><br>` +
+              (failedChecks ? `• The limiting factor was: <b>${failedChecks}</b>.<br><br>` : `• All policy thresholds were successfully met.<br><br>`) +
+              `🤖 <b>AI Next Action</b><br>` +
+              `• <b>${a.nextAction}</b><br><br>` +
+              `Would you like to explore how to increase this limit?`;
     }
-    else if (lower.includes('improve') || lower.includes('more')) {
-      reply = `To increase your limit, you could:\n1. Reduce your existing monthly debt.\n2. Increase your verified income.\n3. Maintain a clean repayment history.\n\nYou can also try our What-If Simulator on the Mobile App to see how paying off your car loan might increase your limit!`;
-    }
+    // 4. CHATBOT APPLICATION FLOW
     else if (lower.includes('apply')) {
-      reply = `You can apply for up to ${this.money(a.maxLimit)}. To submit a formal application, please switch to the Mobile Banking tab to review terms and confirm.`;
+      if (this.applicationRef) {
+        reply = `You already have a pending application: <b>${this.applicationRef}</b>. You can track its status anytime.`;
+      } else {
+        // Capture the intent and confirm the terms right in the chat!
+        reply = `I can process that for you right now.<br><br>` +
+                `Based on your limit, here are the demo terms:<br>` +
+                `• Amount: <b>${this.money(this.requestedAmount)}</b><br>` +
+                `• Term: <b>${this.loanTermMonths} Months</b><br>` +
+                `• Est. Monthly Repayment: <b>${this.money(a.monthlyRepayment)}</b><br><br>` +
+                `Shall I submit this application? Reply <b>"Confirm"</b> to proceed.`;
+      }
+    }
+    // 5. HANDLE CONFIRMATION FROM CHAT
+    else if (lower === 'confirm' || lower === 'proceed') {
+      this.isProcessing = true; // Trigger loading state
+      setTimeout(() => {
+        this.isProcessing = false;
+        this.applicationRef = 'DEMO-' + Math.floor(Math.random() * 900000 + 100000);
+        
+        // Auto-switch the view to success (optional, but good for demo)
+        this.journeyStep = 'success';
+        
+        this.addBotMessage(
+          `🎉 <b>Application Submitted Successfully!</b><br><br>` +
+          `• Reference: <b>${this.applicationRef}</b><br>` +
+          `• Amount: <b>${this.money(this.requestedAmount)}</b><br>` +
+          `• Status: <b>Pending Disbursement</b><br><br>` +
+          `You can view your new limit and application details by clicking the "Mobile Banking" tab.`
+        );
+      }, 1500);
+      return; // Exit here because we handle the response inside the setTimeout
     }
     else if (lower.includes('status') || lower.includes('track')) {
       reply = this.applicationRef 
-        ? `Your application ${this.applicationRef} is currently in status: Pending Disbursement.`
+        ? `Your application <b>${this.applicationRef}</b> is currently in status: <b>Pending Disbursement</b>.`
         : `You haven't submitted an application yet. Ask me to "Apply" to get started.`;
     }
+    // 6. Fallback
     else {
-      reply = `I can help you check your limit, explain how it's calculated, show you how to qualify for more, or track an application. What would you like to know?`;
+      reply = `I can help you check your limit, explain how it's calculated, show you how to qualify for more, or apply for a loan right here in chat. What would you like to do?`;
     }
 
     this.addBotMessage(reply);

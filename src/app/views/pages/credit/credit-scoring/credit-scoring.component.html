@@ -232,7 +232,7 @@
         <div class="message-row" *ngFor="let msg of chatMessages" [class.customer-row]="msg.sender === 'customer'">
           <div class="avatar" *ngIf="msg.sender === 'bot'">🤖</div>
           <div class="bubble" [class.customer-bubble]="msg.sender === 'customer'">
-            <p>{{ msg.text }}</p>
+            <p [innerHTML]="msg.text"></p>
             <span class="time">{{ msg.time }}</span>
           </div>
         </div>
@@ -246,6 +246,8 @@
         <button (click)="sendQuickReply('Why is my limit this amount?')">Why this limit?</button>
         <button (click)="sendQuickReply('How can I get more?')">Get more credit</button>
         <button (click)="sendQuickReply('Apply for a loan')">Apply now</button>
+        <!-- Added Confirm button for the demo flow -->
+        <button class="confirm-btn" (click)="sendQuickReply('Confirm')" *ngIf="!applicationRef">Confirm Application</button>
         <button (click)="sendQuickReply('Track my application')">Track status</button>
       </div>
 
@@ -258,12 +260,12 @@
   </main>
 
   <!-- ========================================== -->
-  <!-- RIGHT: SHARED ENGINE SIDEBAR               -->
+  <!-- RIGHT: INTELLIGENT APPLICATION ASSESSMENT  -->
   <!-- ========================================== -->
   <aside class="assessment-sidebar">
     <div class="sidebar-head">
-      <span class="eyebrow">LIVE DECISION ENGINE</span>
-      <h2>Assessment Details</h2>
+      <span class="eyebrow">INTELLIGENT ASSESSMENT</span>
+      <h2>Decision Workspace</h2>
     </div>
 
     <div class="profile-card">
@@ -271,25 +273,41 @@
       <div><strong>{{ customer.name }}</strong><small>{{ customer.id }}</small></div>
     </div>
 
-    <div class="score-box">
-      <div class="score">{{ assessment.score }}</div>
-      <div class="score-label">Demo Score<br><small>{{ assessment.score > 650 ? 'Low Risk' : 'Review' }}</small></div>
+    <!-- 1. Score & Risk Classification -->
+    <div class="assessment-grid">
+      <div class="assess-item">
+        <small>Credit Score</small>
+        <strong>{{ assessment.score }}</strong>
+      </div>
+      <div class="assess-item">
+        <small>Risk Classification</small>
+        <strong [ngClass]="'risk-' + assessment.riskCategory.toLowerCase()">{{ assessment.riskCategory }}</strong>
+      </div>
     </div>
 
-    <div class="stat"><span>Requested Amount</span> <strong>{{ money(requestedAmount) }}</strong></div>
-    <div class="stat"><span>Maximum Limit</span> <strong>{{ money(assessment.maxLimit) }}</strong></div>
-    <div class="stat"><span>Monthly Repayment</span> <strong>{{ money(assessment.monthlyRepayment) }}</strong></div>
-    <div class="stat"><span>Debt-to-Income (DTI)</span> <strong>{{ assessment.dti | number:'1.1-1' }}%</strong></div>
+    <!-- 2. Affordability & Policy Checks -->
+    <div class="policy-checks">
+      <h3>Policy Checks</h3>
+      <div class="check-item" *ngFor="let check of assessment.policyChecks">
+        <span class="icon" [ngClass]="check.passed ? 'pass' : 'fail'">{{ check.passed ? '✓' : '✕' }}</span>
+        <span [style.color]="check.passed ? '#475569' : '#dc2626'">{{ check.label }}</span>
+      </div>
+    </div>
 
+    <!-- 3. Proposed Outcome -->
     <div class="decision-box" [ngClass]="assessment.outcome">
-      <small>DEMO DECISION</small>
-      <h3>{{ assessment.outcome === 'eligible' ? 'Eligible' : assessment.outcome === 'review' ? 'Referred' : 'Declined' }}</h3>
+      <small>PROPOSED OUTCOME</small>
+      <h3>{{ assessment.outcome === 'eligible' ? 'Approve' : assessment.outcome === 'review' ? 'Refer for Review' : 'Decline' }}</h3>
       <p>{{ assessment.reason }}</p>
     </div>
 
-    <div class="consistency-box">
-      <strong>↔ Single Source of Truth</strong>
-      <p>Both the Mobile App and the Chatbot are reading from this exact same assessment object. Change the amount or income, and both channels update instantly.</p>
+    <!-- 4. Next Action (AI Recommendation) -->
+    <div class="next-action-box">
+      <div class="ai-icon">✨</div>
+      <div>
+        <strong>AI Recommended Next Action</strong>
+        <p>{{ assessment.nextAction }}</p>
+      </div>
     </div>
   </aside>
 

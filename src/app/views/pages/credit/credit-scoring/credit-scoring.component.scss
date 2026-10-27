@@ -119,52 +119,24 @@
 
 /* --- SEMI-CIRCLE GAUGE --- */
 .score-gauge-card {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 15px;
-  text-align: center;
-  
+  background: #fff; border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px; margin-bottom: 15px; text-align: center;
   h3 { margin: 0 0 10px; color: var(--navy); font-size: 15px; }
 }
 
 .gauge-container {
-  position: relative;
-  width: 200px;
-  height: 110px;
-  margin: 0 auto;
+  position: relative; width: 200px; height: 110px; margin: 0 auto;
 }
 
 .gauge-svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.gauge-svg path:nth-child(2) {
-  transition: stroke-dashoffset 1.5s ease-out, stroke 0.3s ease;
+  width: 100%; height: 100%; overflow: visible;
+  path:nth-child(2) { transition: stroke-dashoffset 1.5s ease-out, stroke 0.3s ease; }
 }
 
 .gauge-value {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  
-  strong {
-    display: block;
-    font-size: 32px;
-    font-weight: 800;
-    color: var(--navy);
-    line-height: 1;
-  }
-  span {
-    font-size: 11px;
-    color: var(--muted);
-    font-weight: 600;
-  }
+  position: absolute; bottom: 0; left: 0; width: 100%; text-align: center;
+  strong { display: block; font-size: 32px; font-weight: 800; color: var(--navy); line-height: 1; }
+  span { font-size: 11px; color: var(--muted); font-weight: 600; }
 }
 
 /* --- LIMIT & EXPLAIN --- */
@@ -183,53 +155,24 @@
 .explain-card {
   background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 15px;
   h3 { margin: 0 0 15px; color: var(--navy); font-size: 16px; }
-  
-  .sub-text {
-    font-size: 12px;
-    color: var(--muted);
-    margin: -10px 0 20px;
-    line-height: 1.5;
-  }
+  .sub-text { font-size: 12px; color: var(--muted); margin: -10px 0 20px; line-height: 1.5; }
 }
 
 /* --- EXPLAINABILITY BARS --- */
-.metric-bar {
-  margin-bottom: 20px;
-}
-
+.metric-bar { margin-bottom: 20px; }
 .metric-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 6px;
-  font-size: 12px;
-  
+  display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px;
   span { color: var(--muted); font-weight: 600; }
   strong { color: var(--navy); font-weight: 700; }
 }
-
-.bar-track {
-  height: 8px;
-  background: #f1f5f9;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 6px;
-}
-
+.bar-track { height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
 .bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.5s ease;
-  
+  height: 100%; border-radius: 4px; transition: width 0.5s ease;
   &.income { background: #3b82f6; }
   &.good { background: #10b981; }
   &.warning { background: #f59e0b; }
 }
-
-.metric-bar small {
-  display: block;
-  font-size: 10px;
-  color: #94a3b8;
-}
+.metric-bar small { display: block; font-size: 10px; color: #94a3b8; }
 
 /* --- WHAT IF SIMULATOR --- */
 .what-if {
@@ -299,49 +242,116 @@
 .message-row { display: flex; gap: 10px; max-width: 85%; }
 .message-row.customer-row { align-self: flex-end; justify-content: flex-end; }
 .avatar { width: 32px; height: 32px; background: #fce9ed; border-radius: 50%; display: grid; place-items: center; font-size: 16px; color: var(--uba-red); flex-shrink: 0; }
+
+/* Chat Bubble Fix */
 .bubble { background: #fff; padding: 12px 16px; border-radius: 12px 12px 12px 2px; border: 1px solid var(--border); }
-.bubble p { margin: 0; font-size: 13px; color: #334155; line-height: 1.5; white-space: pre-wrap; }
+.bubble p {
+  margin: 0;
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.6;
+  
+  b {
+    font-weight: 700;
+    color: #0f172a;
+  }
+  
+  br {
+    content: "";
+    display: block;
+    margin-bottom: 8px;
+  }
+}
+
 .customer-bubble { background: var(--navy); border-color: var(--navy); border-radius: 12px 12px 2px 12px; }
-.customer-bubble p { color: #fff; }
+.customer-bubble p { color: #fff; b { color: #fff; } }
+
 .bubble .time { display: block; font-size: 10px; color: #94a3b8; margin-top: 6px; text-align: right; }
 .typing { display: flex; gap: 4px; align-items: center; min-height: 20px; }
 .typing span { width: 6px; height: 6px; background: #94a3b8; border-radius: 50%; animation: bounce 1.4s infinite; }
 .typing span:nth-child(2) { animation-delay: 0.2s; }
 .typing span:nth-child(3) { animation-delay: 0.4s; }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
 .quick-replies { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; flex-wrap: wrap; }
-.quick-replies button { background: #fff; border: 1px solid var(--uba-red); color: var(--uba-red); padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; }
+.quick-replies button { 
+  background: #fff; border: 1px solid var(--uba-red); color: var(--uba-red); 
+  padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; 
+  transition: all 0.2s;
+}
 .quick-replies button:hover { background: #fff7f8; }
+
+/* The new Confirm Button highlight */
+.quick-replies button.confirm-btn {
+  background: #2f6bf5;
+  color: #fff;
+  border-color: #2f6bf5;
+}
+.quick-replies button.confirm-btn:hover {
+  background: #1e55d5;
+}
+
 .chat-input { display: flex; padding: 15px 20px; border-top: 1px solid var(--border); gap: 10px; }
 .chat-input input { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-size: 13px; }
 .chat-input input:focus { border-color: var(--uba-red); }
 .chat-input button { background: var(--uba-red); color: #fff; border: none; padding: 0 20px; border-radius: 8px; font-weight: 700; cursor: pointer; }
 
-/* --- SIDEBAR --- */
-.assessment-sidebar { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 20px; position: sticky; top: 20px; }
-.sidebar-head h2 { margin: 5px 0 15px; color: var(--navy); font-size: 18px; }
+/* --- UPGRADED SIDEBAR: INTELLIGENT ASSESSMENT --- */
+.assessment-sidebar {
+  background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 24px; position: sticky; top: 20px;
+}
+
+.sidebar-head h2 { margin: 5px 0 20px; color: var(--navy); font-size: 18px; }
 .profile-card { display: flex; gap: 12px; align-items: center; padding: 12px; background: #f8fafc; border-radius: 10px; margin-bottom: 20px; }
 .profile-card .avatar { width: 40px; height: 40px; }
 .profile-card strong { display: block; color: var(--navy); font-size: 14px; }
 .profile-card small { color: var(--muted); font-size: 11px; }
-.score-box { display: flex; align-items: center; gap: 15px; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-.score { font-size: 36px; font-weight: 800; color: var(--navy); }
-.score-label { font-size: 13px; color: var(--muted); line-height: 1.4; }
-.score-label small { font-weight: 700; color: #16a34a; }
-.stat { display: flex; justify-content: space-between; padding: 10px 0; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
-.stat span { color: var(--muted); }
-.stat strong { color: var(--navy); }
+
+.assessment-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;
+}
+
+.assess-item {
+  background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 12px;
+  small { display: block; font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+  strong { font-size: 20px; font-weight: 800; color: var(--navy); display: block; }
+  .risk-low { color: #16a34a; }
+  .risk-medium { color: #d97706; }
+  .risk-high { color: #dc2626; }
+}
+
+.policy-checks {
+  margin-bottom: 20px;
+  h3 { font-size: 12px; color: var(--navy); margin: 0 0 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+}
+
+.check-item {
+  display: flex; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 8px;
+  .icon {
+    width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; font-size: 10px; font-weight: bold;
+    &.pass { background: #dcfce7; color: #16a34a; }
+    &.fail { background: #fee2e2; color: #dc2626; }
+  }
+}
+
 .decision-box { margin-top: 20px; padding: 15px; border-radius: 10px; border: 1px solid; }
 .decision-box.eligible { background: #f0fdf4; border-color: #bbf7d0; }
 .decision-box.eligible h3 { color: #166534; }
 .decision-box.review { background: #fffbeb; border-color: #fde68a; }
 .decision-box.review h3 { color: #92400e; }
+.decision-box.declined { background: #fef2f2; border-color: #fecaca; }
+.decision-box.declined h3 { color: #991b1b; }
 .decision-box small { font-size: 10px; font-weight: 800; letter-spacing: 1px; opacity: 0.7; }
 .decision-box h3 { margin: 5px 0; font-size: 15px; }
 .decision-box p { margin: 0; font-size: 12px; line-height: 1.5; opacity: 0.9; }
-.consistency-box { margin-top: 20px; padding: 15px; background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; }
-.consistency-box strong { display: block; font-size: 12px; color: var(--navy); margin-bottom: 5px; }
-.consistency-box p { margin: 0; font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+/* Next Action Box (AI Insight) */
+.next-action-box {
+  display: flex; gap: 12px; padding: 15px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; margin-top: 20px;
+  .ai-icon { font-size: 20px; }
+  strong { display: block; font-size: 11px; color: #1d4ed8; text-transform: uppercase; margin-bottom: 4px; }
+  p { margin: 0; font-size: 12px; color: #1e3a8a; line-height: 1.5; font-weight: 500; }
+}
 
 @media (max-width: 900px) {
   .simulator-layout { grid-template-columns: 1fr; }
