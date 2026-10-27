@@ -1,0 +1,851 @@
+diff --git a/scripts/check-loan-workflow.mjs b/scripts/check-loan-workflow.mjs
+--- a/scripts/check-loan-workflow.mjs
++++ b/scripts/check-loan-workflow.mjs
+@@ -15,7 +15,7 @@
+ const credit = 'src/app/views/pages/credit/';
+ const names = [
+   'credit-demo.data.ts', 'credit-data.service.ts', 'workflow/loan-workflow.models.ts',
+-  'workflow/loan-workflow.service.ts', 'workflow/loan-bulk.ts', 'workflow/loan-ai.engine.ts', 'workflow/loan-limit.engine.ts', 'workflow/loan-eligibility.engine.ts', 'workflow/loan-assessment.component.ts',
++  'workflow/loan-workflow.service.ts', 'workflow/loan-bulk.ts', 'workflow/loan-ai.engine.ts', 'workflow/loan-limit.engine.ts', 'workflow/loan-eligibility.engine.ts', 'workflow/loan-customers.data.ts', 'workflow/loan-integration.service.ts', 'workflow/loan-assessment.component.ts',
+   'new-application/new-application.component.ts', 'applications/applications.component.ts',
+   'applications/application-detail.component.ts', 'decision-queue/loan-decision-queue.component.ts'
+ ];
+@@ -53,7 +53,7 @@
+   const original = new CreditDataService();
+   const auth = { getCurrentUser: () => ({ username: 'officer@example.test' }) };
+   const workflow = new LoanWorkflowService(original, auth);
+-  assert.equal(workflow.customers.length, 5); assert.equal(workflow.lookup('UNKNOWN'), null);
++  assert.equal(workflow.customers.length, 8); assert.equal(workflow.lookup('UNKNOWN'), null);
+   assert.equal(workflow.lookup('ke-3391208').profile.applicant, 'Joseph Mwangi');
+   const draft = workflow.customers[0].profile;
+   const clearFacts = { ...workflow.customers[0].facts };
+@@ -105,28 +105,29 @@
+   const adverseLimit = recommendLoanLimit({ ...limitDraft, bureau: 'Adverse' }, original.policy, scoreCandidate);
+   assert.equal(adverseLimit.outcome, 'Decline'); assert.equal(adverseLimit.maximumAmount, 0); assert.equal(adverseLimit.offer, null);
+   const referredLimit = recommendLoanLimit({ ...limitDraft, bureau: 'Thin file' }, original.policy, scoreCandidate);
+-  assert.equal(referredLimit.outcome, 'Refer for review'); assert.equal(referredLimit.maximumAmount, 0);
++  assert.equal(referredLimit.outcome, 'Refer for review'); assert(referredLimit.maximumAmount > 0); assert(referredLimit.offer); assert.equal(referredLimit.offer.policyDecision, 'Refer');
+   assert.equal(recommendLoanLimit({ ...limitDraft, product: 'Salary Advance', tenorMonths: 12 }, original.policy, scoreCandidate).outcome, 'Decline');
+   // An independent brute-force sweep checks the bisection maximum against the actual source engine.
+   let independentMaximum = 0;
+-  for (let amount = 10000; amount <= Math.min(original.policy.maxAmount, scoreBound.affordabilityCeiling); amount += 1000) {
++  for (let amount = 10000; amount <= Math.min(original.policy.maxAmount, scoreBound.affordabilityCeiling * scoreBound.riskMultiplier); amount += 1000) {
+     const candidate = { ...limitDraft, income: 800000, amount }; const scored = original.scoreDraft(candidate);
+-    if (scored.decision === 'Approved' && scored.score >= original.policy.approveFrom && scored.dti <= original.policy.maxDti && simulateLoanAi(candidate, original.policy, scored.decision).probability < 0.12) { independentMaximum = amount; }
++    if (scored.decision !== 'Declined' && scored.score >= original.policy.declineBelow && scored.dti <= original.policy.maxDti && simulateLoanAi(candidate, original.policy, scored.decision).probability < scoreBound.riskCeiling) { independentMaximum = amount; }
+   }
+   assert.equal(scoreBound.maximumAmount, independentMaximum);
+   assert(!validLoanLimit({ ...limit, recommendedAmount: limitDraft.amount }, limitDraft, original.policy));
++  const legacyLimit = { ...limit, version: 'limit-demo-1' }; delete legacyLimit.riskBand; delete legacyLimit.riskMultiplier;
++  assert(validLoanLimit(legacyLimit, limitDraft, original.policy));
+   const initialPolicy = { ...original.policy };
+   try {
+     original.updatePolicy({ ...initialPolicy, approveFrom: 630, maxDti: 0.8 });
+     const riskDraft = { ...limitDraft, income: 400000, obligations: 40000, amount: 2000000 };
+     const riskBound = recommendLoanLimit(riskDraft, original.policy, scoreCandidate);
+-    assert(riskBound.offer && riskBound.maximumAmount < Math.min(original.policy.maxAmount, riskBound.affordabilityCeiling));
++    assert(riskBound.offer && riskBound.maximumAmount <= Math.min(original.policy.maxAmount, riskBound.affordabilityCeiling * riskBound.riskMultiplier));
+     const beyondRisk = { ...riskDraft, amount: riskBound.maximumAmount + 1000 };
+-    assert.equal(original.scoreDraft(beyondRisk).decision, 'Approved');
+-    assert(simulateLoanAi(beyondRisk, original.policy, 'Approved').probability >= 0.12);
++    assert.equal(riskBound.riskBand, 'Medium'); assert.equal(riskBound.offer.policyDecision, 'Refer'); assert(riskBound.offer.probability < riskBound.riskCeiling);
+     original.updatePolicy({ ...initialPolicy, approveFrom: 630, maxDti: 0.15 });
+     const budgetBound = recommendLoanLimit({ ...limitDraft, obligations: 0, tenorMonths: 1 }, original.policy, scoreCandidate);
+-    assert.equal(budgetBound.maximumAmount, 300000); assert.equal(budgetBound.affordabilityCeiling, 300000);
++    assert.equal(budgetBound.maximumAmount, 105000); assert.equal(budgetBound.affordabilityCeiling, 300000);
+   } finally { original.updatePolicy(initialPolicy); }
+   const apps = new ApplicationsComponent(workflow); apps.ngOnInit();
+   const first = await workflow.submit(draft, { submissionKey: 'one' });
+@@ -169,6 +170,9 @@
+   assert.deepEqual(presenter.outlookDrivers.find(d => d.label === 'Bureau outlook').checks.map(c => c.code), ['EL-03', 'EL-05']);
+   assert.deepEqual(presenter.outlookDrivers.find(d => d.label === 'Repayment burden').checks.map(c => c.code), ['EL-06']);
+   assert.deepEqual(presenter.outlookDrivers.find(d => d.label === 'Employment profile').checks.map(c => c.code), ['EL-07']);
++  assert(Math.abs(presenter.rankedDrivers.reduce((sum, d) => sum + d.share, 0) - 100) < 0.00001);
++  assert(presenter.rankedDrivers.every((d, i, ds) => i === 0 || ds[i - 1].share >= d.share));
++  presenter.showDriver(presenter.rankedDrivers[0].label); assert.equal(presenter.activeGraphDriver.label, presenter.rankedDrivers[0].label);
+   assert.equal(new Set([...presenter.outlookDrivers.flatMap(d => d.checks), ...presenter.identityChecks].map(c => c.code)).size, 7);
+   for (const d of presenter.outlookDrivers) { assert.equal(d.deltaPp, insight.drivers.find(original => original.label === d.label).deltaPp); }
+   presenter.preset('smaller'); assert(presenter.scenario.monthlySaving > 0); presenter.resetScenario(); assert.equal(presenter.scenario, null);
+@@ -202,14 +206,24 @@
+   for (const invalid of [{ amount: 0 }, { income: 0 }, { amount: NaN }, { obligations: -1 }, { tenorMonths: 1.5 }, { product: 'Unknown' }, { nationalId: 'UNKNOWN' }]) {
+     await assert.rejects(workflow.submit({ ...draft, ...invalid }, { submissionKey: 'invalid' }));
+   }
+-  for (const customer of workflow.customers) {
++  const expectedBands = ['Low', 'Low', 'Low', 'Medium', 'Medium', 'Medium', 'High', 'High']; const bandFixtures = [];
++  for (const [i, customer] of workflow.customers.entries()) {
+     const saved = await workflow.submit(customer.profile, { submissionKey: customer.id });
+     const assessment = latestAssessment(saved); const reference = original.scoreDraft(customer.profile);
+     assert.equal(assessment.score, reference.score); assert.equal(assessment.risk, reference.risk);
+     assert.equal(assessment.recommendation, reference.decision); assert.equal(assessment.affordability.dti, reference.dti);
+     assert.equal(assessment.baseScore + assessment.contributions.reduce((sum, x) => sum + x.impact, 0), assessment.score);
+     assert.equal(saved.status, 'Awaiting decision');
++    assert.equal(customer.profile.country, 'Kenya'); assert.equal(assessment.ai.risk, expectedBands[i]); assert(assessment.limit.maximumAmount >= 10000);
++    assert(assessment.limit.offer && assessment.limit.recommendedAmount > 0); assert(validLoanLimit(assessment.limit, assessment.input, assessment.policy));
++    if (assessment.ai.risk !== 'Low') { assert.equal(assessment.limit.outcome, 'Refer for review'); assert.equal(workflow.approvalNeedsOverride(assessment, 'recommended'), true); }
++    bandFixtures.push({ name: customer.profile.applicant, id: customer.profile.nationalId, risk: assessment.ai.risk, likelihood: assessment.ai.probability, requested: customer.profile.amount, limit: assessment.limit.maximumAmount, proposed: assessment.limit.recommendedAmount, outcome: assessment.limit.outcome });
+   }
++  fs.writeFileSync(path.join(os.tmpdir(), 'loan-kenya-band-fixtures.json'), JSON.stringify(bandFixtures, null, 2));
++  const highCase = workflow.applications.find(x => latestAssessment(x).ai.risk === 'High');
++  assert.throws(() => workflow.decide(highCase.id, 'Approve', 'Reviewed the smaller high risk proposal.', 1, false, 'recommended'), /Acknowledge/);
++  const highApproved = workflow.decide(highCase.id, 'Approve', 'Verified repayment evidence and authorised the smaller high risk exception.', 1, true, 'recommended');
++  assert.equal(highApproved.approvedAmount, latestAssessment(highCase).limit.recommendedAmount); assert.equal(highApproved.history.at(-1).policyOverride, true);
+   const longTenor = await workflow.submit({ ...draft, tenorMonths: 60 }, { submissionKey: 'long-tenor' });
+   assert.equal(latestAssessment(longTenor).contributions.find(x => x.label === 'Tenor adjustment').impact, -15);
+   const storageReload = new LoanWorkflowService(original, auth);
+@@ -229,7 +243,7 @@
+   assert.equal(apps.apps.find(x => x.id === first.id).status, 'Approved');
+   assert.throws(() => workflow.decide(first.id, 'Decline', 'Another attempted decision.', 2), /finalised/);
+   await assert.rejects(workflow.submit(draft, { applicationId: first.id, submissionKey: 'closed-reassess', reassessmentNote: 'Should not reopen final decisions.' }), /undecided/);
+-  const adverse = await workflow.submit(workflow.customers[3].profile, { submissionKey: 'adverse' });
++  const adverse = await workflow.submit({ ...draft, bureau: 'Adverse' }, { submissionKey: 'adverse', customerFacts: { ...clearFacts, crbDefaulter: true } });
+   assert.notEqual(latestAssessment(adverse).recommendation, 'Approved');
+   assert.throws(() => workflow.decide(adverse.id, 'Approve', 'Cannot select an offer that is unavailable.', 1, true, 'recommended'), /No supported recommended offer/);
+   assert.throws(() => workflow.decide(adverse.id, 'Approve', 'Override with insufficient acknowledgement.', 1), /Acknowledge/);
+@@ -278,7 +292,21 @@
+   const detail = new ApplicationDetailComponent({ paramMap: new BehaviorSubject(convertToParamMap({ id: first.id })) }, workflow);
+   detail.ngOnInit(); assert.equal(detail.assessment.version, 2); detail.selectedVersion = 1; assert.equal(detail.assessment.input.amount, draft.amount);
+   const component = new NewApplicationComponent(new FormBuilder(), { queryParamMap: new BehaviorSubject(convertToParamMap({})) }, workflow);
++  const adapters = workflow.integration; assert.equal(adapters.connectors.length, 8); assert.equal(adapters.callsToday, 0);
++  assert.equal(adapters.availability().decision, 'Approved'); const beforePauseSnapshot = JSON.stringify(latestAssessment(first));
++  adapters.toggle('bureau'); assert.equal(adapters.find('bureau').status, 'Paused'); assert.equal(adapters.availability().decision, 'Refer');
++  const callsBeforeBlocked = adapters.callsToday; const blockedCheck = await adapters.runCheck('bureau', revised);
++  assert.equal(blockedCheck.tone, 'bad'); assert.equal(adapters.callsToday, callsBeforeBlocked); assert.equal(adapters.events[0].action, 'Check blocked');
++  const dataHeld = await workflow.submit(eligibilityDraft, { submissionKey: 'connector-held' });
++  assert.equal(latestAssessment(dataHeld).integration.decision, 'Refer'); assert.equal(latestAssessment(dataHeld).limit.offer, null);
++  assert.equal(JSON.stringify(latestAssessment(first)), beforePauseSnapshot);
++  adapters.toggle('bureau'); const bureauCheck = await adapters.runCheck('bureau', revised); assert.equal(bureauCheck.applicationId, revised.id); assert.equal(bureauCheck.assessmentVersion, 2); assert.equal(adapters.callsToday, callsBeforeBlocked + 1);
++  const recoveredData = await workflow.submit(eligibilityDraft, { submissionKey: 'connector-recovered' }); assert(latestAssessment(recoveredData).limit.offer);
++  const screening = await adapters.runCheck('screening', recoveredData); assert.equal(screening.tone, 'wait'); assert.match(screening.title, /not available/);
++  const beforePauseFailure = JSON.stringify(adapters.connectors); localStorage.fail = true; assert.throws(() => adapters.toggle('core'), /could not save/); localStorage.fail = false; assert.equal(JSON.stringify(adapters.connectors), beforePauseFailure);
++  assert(adapters.events.some(e => e.action === 'Paused')); assert(adapters.events.some(e => e.action === 'Resumed'));
+   component.ngOnInit(); component.nationalId = 'UNKNOWN'; await component.lookup(); assert.equal(component.customer, null); assert.match(component.error, /not found/);
++  component.setTab('integration'); assert.equal(component.tab, 'integration'); assert(component.integrationApplicantId); component.connectorId = 'identity'; await component.runIntegrationCheck(); assert.equal(component.integrationResult.connectorId, 'identity'); component.setTab('individual');
+   component.nationalId = draft.nationalId; await component.lookup(); const count = workflow.applications.length;
+   await Promise.all([component.submit(), component.submit()]); assert.equal(workflow.applications.length, count + 1);
+   assert.deepEqual(latestAssessment(component.created).eligibility.customer, clearFacts);
+@@ -364,11 +392,12 @@
+   assert.equal(localStorage.getItem(LOAN_STORAGE_KEY), '{bad json'); localStorage.setItem(LOAN_STORAGE_KEY, snapshot);
+   for (const item of [apps, queue, detail, component, workflow, storageReload, legacyStore, invalidModelStore, earlierAiStore, invalidLimitStore, invalidApprovalStore, invalidEligibilityStore, earlierLimitsStore, corrupt]) { item.ngOnDestroy(); }
+   console.log('PASS: seven eligibility checks, exact boundary/unknown/zero handling, downstream limits and approvals, verification reassessment and historical context.');
++  console.log('PASS: eight Kenyan profiles across all risk bands, positive band-adjusted limits, reviewed High-risk approval, integration controls/availability/activity and ranked graph shares.');
+   console.log('PASS: policy context alongside unchanged model sensitivities, actionable submission feedback, all officer actions, safe storage retry and override validation.');
+   console.log('PASS: full/reduced limits, independent maximum reconciliation, identity invariance, decline/referral, exact approved amount and legacy-state compatibility.');
+   console.log('PASS: deterministic three-model simulation, weighted reconciliation, identity-invariant financial inputs and directional sensitivities.');
+   console.log('PASS: scenario isolation, policy-constrained advice, old assessment compatibility and invalid ensemble-state rejection.');
+-  console.log('PASS: original scorecard reuse, five-customer lookup, unknown IDs and all draft validation guards.');
++  console.log('PASS: original scorecard reuse, eight-customer lookup, unknown IDs and all draft validation guards.');
+   console.log('PASS: individual and CSV/XLSX/XLS bulk submission, duplicate protection, partial invalid rows and retry.');
+   console.log('PASS: pending review, approve, decline, information request, policy override and final-status guards.');
+   console.log('PASS: reassessment version history, saved-state restoration, quota failure and corrupt-state preservation.');
+diff --git a/src/app/views/pages/credit/applications/applications.component.html b/src/app/views/pages/credit/applications/applications.component.html
+--- a/src/app/views/pages/credit/applications/applications.component.html
++++ b/src/app/views/pages/credit/applications/applications.component.html
+@@ -4,7 +4,7 @@
+   <article class="ai-panel"><div class="ai-panel-heading"><div><h3>Application workspace</h3><p class="wf-muted">Filter the evidence. Open the explanation. Move the decision forward.</p></div><button type="button" class="btn-ghost" [disabled]="!rows.length" (click)="workflow.exportApplications(rows)">↓ Export filtered CSV</button></div>
+     <div class="ai-risk-mix" *ngIf="apps.length"><span>Risk mix</span><div class="ai-mix-bar" aria-label="Risk mix"><i class="low" [style.width.%]="share('Low')"></i><i class="medium" [style.width.%]="share('Medium')"></i><i class="high" [style.width.%]="share('High')"></i></div><small><b>{{ riskCount('Low') }}</b> Low · <b>{{ riskCount('Medium') }}</b> Medium · <b>{{ riskCount('High') }}</b> High</small></div>
+     <div class="wf-controls"><label class="wf-search">Search applications<input type="search" [(ngModel)]="search" (ngModelChange)="page = 1" placeholder="Customer, national ID or application reference" /></label><label>Officer status<select [(ngModel)]="status" (ngModelChange)="page = 1"><option value="">All statuses</option><option *ngFor="let value of workflow.statuses">{{ value }}</option></select></label><label>Risk outlook<select [(ngModel)]="risk" (ngModelChange)="page = 1"><option value="">All risk bands</option><option>Low</option><option>Medium</option><option>High</option></select></label><label>Facility advice<select [(ngModel)]="recommendation" (ngModelChange)="page = 1"><option value="">All recommendations</option><option value="Approved">Full or reduced approval</option><option value="Reduced">Reduced amount only</option><option value="Declined">Recommend decline</option><option value="Refer">Refer for review</option></select></label><label>Sort<select [(ngModel)]="sort" (ngModelChange)="page = 1"><option value="newest">Newest first</option><option value="probability">Highest likelihood</option><option value="amount">Highest amount</option><option value="score">Lowest credit score</option></select></label><button type="button" class="ai-text-button" (click)="resetFilters()">Reset</button></div>
+-    <div class="table-scroll"><table class="cd-table wf-table ai-application-table"><thead><tr><th>Customer / application</th><th>Requested principal</th><th>Recommended limit / offer</th><th>Risk outlook</th><th>Facility recommendation</th><th>Officer status</th><th></th></tr></thead><tbody><tr *ngFor="let app of pageRows; trackBy: track"><td><div class="ai-table-person"><span class="ai-avatar">{{ workflow.initials(app.customerName) }}</span><div><a class="table-customer-link" [routerLink]="['/applications', app.id]">{{ app.customerName }}</a><small>{{ app.nationalId }}</small><small class="ai-truncate-id" [title]="app.id">{{ app.id }}</small><small>{{ app.submittedAt | date:'dd MMM, HH:mm':'+0300' }} EAT</small></div></div></td><td><strong>{{ workflow.money(latest(app).input.amount) }}</strong><small>{{ latest(app).input.tenorMonths }} months · {{ latest(app).input.product }}</small></td><td><ng-container *ngIf="latest(app).limit as limit; else noLimit"><strong>{{ limit.offer ? workflow.money(limit.maximumAmount) : '—' }}</strong><small>{{ limit.offer ? 'Offer ' + workflow.money(limit.recommendedAmount) : limit.outcome === 'Decline' ? 'No eligible amount' : 'Pending review' }}</small></ng-container><ng-template #noLimit><small>Reassess to calculate</small></ng-template></td><td><span class="pill" [ngClass]="workflow.credit.riskClass(workflow.riskFor(latest(app)))">{{ workflow.riskFor(latest(app)) }}</span><small>Score {{ latest(app).score }} · {{ latest(app).ai ? ((latest(app).ai?.probability || 0) | percent:'1.1-1') + ' likelihood' : 'Earlier scorecard assessment' }}</small></td><td>{{ workflow.recommendationLabel(latest(app)) }}</td><td><span class="ai-status" [class.final]="!workflow.pending(app)" [attr.data-status]="app.status">{{ app.status }}</span><small *ngIf="app.approvedAmount !== undefined">Approved {{ workflow.money(app.approvedAmount!) }}</small></td><td><a class="ai-open-button" [routerLink]="['/applications', app.id]" [attr.aria-label]="'Explore assessment for ' + app.customerName">Explore ↗</a></td></tr><tr *ngIf="!pageRows.length"><td colspan="7"><div class="ai-empty"><span>✦</span><h3>{{ apps.length ? 'No applications match this view.' : 'Your application workspace is ready.' }}</h3><p>{{ apps.length ? 'Adjust your search or filters to find an application.' : 'Run an individual or bulk assessment to build your application intelligence pipeline.' }}</p><a *ngIf="!apps.length" class="btn-primary" routerLink="/applications/new">Create an assessment →</a><button *ngIf="apps.length" type="button" class="btn-ghost" (click)="resetFilters()">Clear filters</button></div></td></tr></tbody></table></div>
++    <div class="table-scroll"><table class="cd-table wf-table ai-application-table"><thead><tr><th>Customer / application</th><th>Requested principal</th><th>Recommended limit / offer</th><th>Risk outlook</th><th>Facility recommendation</th><th>Officer status</th><th></th></tr></thead><tbody><tr *ngFor="let app of pageRows; trackBy: track"><td><div class="ai-table-person"><span class="ai-avatar">{{ workflow.initials(app.customerName) }}</span><div><a class="table-customer-link" [routerLink]="['/applications', app.id]">{{ app.customerName }}</a><small>{{ app.nationalId }}</small><small class="ai-truncate-id" [title]="app.id">{{ app.id }}</small><small>{{ app.submittedAt | date:'dd MMM, HH:mm':'+0300' }} EAT</small></div></div></td><td><strong>{{ workflow.money(latest(app).input.amount) }}</strong><small>{{ latest(app).input.tenorMonths }} months · {{ latest(app).input.product }}</small></td><td><ng-container *ngIf="latest(app).limit as limit; else noLimit"><strong>{{ limit.maximumAmount > 0 ? workflow.money(limit.maximumAmount) : '—' }}</strong><small>{{ limit.offer ? 'Offer ' + workflow.money(limit.recommendedAmount) : limit.outcome === 'Decline' ? 'No eligible amount' : 'Pending review' }}</small></ng-container><ng-template #noLimit><small>Reassess to calculate</small></ng-template></td><td><span class="pill" [ngClass]="workflow.credit.riskClass(workflow.riskFor(latest(app)))">{{ workflow.riskFor(latest(app)) }}</span><small>Score {{ latest(app).score }} · {{ latest(app).ai ? ((latest(app).ai?.probability || 0) | percent:'1.1-1') + ' likelihood' : 'Earlier scorecard assessment' }}</small></td><td>{{ workflow.recommendationLabel(latest(app)) }}</td><td><span class="ai-status" [class.final]="!workflow.pending(app)" [attr.data-status]="app.status">{{ app.status }}</span><small *ngIf="app.approvedAmount !== undefined">Approved {{ workflow.money(app.approvedAmount!) }}</small></td><td><a class="ai-open-button" [routerLink]="['/applications', app.id]" [attr.aria-label]="'Explore assessment for ' + app.customerName">Explore ↗</a></td></tr><tr *ngIf="!pageRows.length"><td colspan="7"><div class="ai-empty"><span>✦</span><h3>{{ apps.length ? 'No applications match this view.' : 'Your application workspace is ready.' }}</h3><p>{{ apps.length ? 'Adjust your search or filters to find an application.' : 'Run an individual or bulk assessment to build your application intelligence pipeline.' }}</p><a *ngIf="!apps.length" class="btn-primary" routerLink="/applications/new">Create an assessment →</a><button *ngIf="apps.length" type="button" class="btn-ghost" (click)="resetFilters()">Clear filters</button></div></td></tr></tbody></table></div>
+     <div class="wf-pagination"><label>Rows <select [(ngModel)]="pageSize" (ngModelChange)="page = 1"><option [ngValue]="10">10</option><option [ngValue]="25">25</option><option [ngValue]="50">50</option></select></label><span>{{ first }}–{{ last }} of {{ rows.length }} applications</span><div><button type="button" class="btn-ghost" [disabled]="page <= 1" (click)="page = page - 1">← Previous</button><button type="button" class="btn-ghost" [disabled]="page >= pages" (click)="page = page + 1">Next →</button></div></div>
+   </article>
+ </div>
+diff --git a/src/app/views/pages/credit/new-application/loan-intake-integration.scss b/src/app/views/pages/credit/new-application/loan-intake-integration.scss
+new file mode 100644
+--- /dev/null
++++ b/src/app/views/pages/credit/new-application/loan-intake-integration.scss
+@@ -0,0 +1,22 @@
++.loan-workflow {
++ .intake-mode-tabs { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 15px; margin: 24px 0; >button { display: flex; align-items: center; gap: 12px; padding: 18px; background: #fff; border: 1px solid #dfe7f2; border-radius: 12px; text-align: left; color: #385473; min-width: 0; box-shadow: 0 2px 6px #213d5f04; } strong, small { display: block; } strong { font-size: 14px; line-height: 1.5; } small { font-size: 11px; color: #7890aa; margin-top: 5px; line-height: 1.6; } .active { border-color: #6384d5; background: #f0f5ff; box-shadow: inset 0 -3px #5e7fce; .intake-mode-number { background: #355bd7; color: white; } } }
++ .intake-mode-number { display: grid; place-items: center; width: 34px; height: 34px; flex-shrink: 0; border-radius: 10px; background: #eaf0fa; color: #6c86ac; font-size: 11px; font-weight: 700; }
++ .intake-mode-arrow { margin-left: auto; color: #8aa1c6; } .customer-risk { margin-top: 7px; font-size: 9px; }
++ .connector-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin: 30px 0 23px; h2 { font-size: 25px; margin: 0 0 10px; letter-spacing: -.7px; } p { color: #657e99; font-size: 13px; line-height: 1.8; max-width: 660px; } }
++ .connector-kpis { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 15px; margin-bottom: 23px; article { display: flex; align-items: flex-start; gap: 13px; background: #fff; border: 1px solid #dfe7f2; border-radius: 12px; padding: 20px; } article>div { min-width: 0; } span:not(.connector-kpi-icon), strong, small { display: block; } article>div>span { font-size: 11px; color: #6e839c; } strong { color: #284666; font-size: 30px; margin: 9px 0 5px; line-height: 1.1; } small { color: #7e90a6; font-size: 10px; line-height: 1.8; } }
++ .connector-kpi-icon { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: #eaf0ff; color: #587bbd; flex-shrink: 0; &.live { background: #e7f5ed; color: #2e8b67; } &.degraded { background: #fff3da; color: #ac7b28; } &.paused { background: #fcecf0; color: #b6536c; } }
++ .connector-desk { display: grid; grid-template-columns: minmax(260px,.8fr) minmax(0,1.5fr); gap: 21px; align-items: start; }
++ .connector-list { padding: 19px; }
++ .connector-row { display: block; width: 100%; border: 1px solid #e4eaf4; border-radius: 10px; padding: 14px; margin-top: 10px; background: #fff; text-align: left; >small { display: block; margin-top: 7px; color: #7187a3; font-size: 11px; } &.selected { border-color: #91ade3; background: #f2f6ff; box-shadow: inset 3px 0 #6286cd; } }
++ .connector-row-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; strong { font-size: 12px; color: #3d597a; } }
++ .connector-row-metrics { display: block; font-size: 10px; color: #8095af; margin-top: 8px; }
++ .connector-status { display: inline-flex; padding: 4px 7px; border-radius: 6px; font-size: 10px; font-weight: 650; color: #2b7d61; background: #e7f5ee; &[data-status=Degraded] { color: #98702b; background: #fff2d5; } &[data-status=Paused] { color: #a64860; background: #fbeaf0; } }
++ .connector-metrics { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 15px; padding: 19px 0; margin: 20px 0; border-top: 1px solid #e4ebf4; border-bottom: 1px solid #e4ebf4; span { display: block; font-size: 10px; color: #7b8fa9; } strong { display: block; font-size: 13px; color: #426181; margin-top: 8px; line-height: 1.7; } }
++ .connector-control { display: flex; align-items: center; flex-wrap: wrap; gap: 17px; background: #f6f8fc; border: 1px solid #e2e9f4; border-radius: 10px; padding: 17px; >div { flex: 1 1 220px; } strong { color: #4f6a89; font-size: 12px; } p { color: #7890aa; margin: 6px 0 0; font-size: 11px; line-height: 1.85; } .pause-action { color: #a1556c; border-color: #eacbd6; background: #fff9fb; } }
++ .connector-check { margin-top: 25px; padding-top: 22px; border-top: 1px solid #e1e8f2; h4 { font-size: 16px; margin-bottom: 17px; } }
++ .connector-result { background: #edf8f3; border: 1px solid #cfe7dd; border-radius: 10px; padding: 20px; margin-top: 22px; h4 { color: #2e705b; font-size: 16px; } p { font-size: 12px; color: #5a8274; line-height: 1.9; margin: 9px 0; } small { color: #7a9a8c; font-size: 10px; overflow-wrap: anywhere; } &[data-tone=bad] { background: #fff1f4; border-color: #efcfd8; h4 { color: #a5435b; } p { color: #a16c7b; } } &[data-tone=wait] { background: #fff8e9; border-color: #eddfbf; h4 { color: #977130; } p { color: #9b8459; } } }
++ @media(max-width: 1150px) { .connector-kpis { grid-template-columns: repeat(2,minmax(0,1fr)); } .intake-mode-tabs>button { padding: 15px; gap: 9px; } .intake-mode-tabs strong { font-size: 12px; } }
++ @media(max-width: 900px) { .connector-desk { grid-template-columns: 1fr; } .connector-list { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; .ai-panel-heading { grid-column: 1/-1; } .connector-row { margin: 0; } } .intake-mode-number { display: none; } }
++ @media(max-width: 650px) { .intake-mode-tabs { grid-template-columns: 1fr; gap: 9px; >button { padding: 14px 16px; } .intake-mode-number { display: grid; } } .connector-header { flex-wrap: wrap; } .connector-kpis { gap: 9px; article { padding: 15px; } .connector-kpi-icon { display: none; } } .connector-metrics { grid-template-columns: 1fr; } }
++ @media(max-width: 450px) { .connector-list { grid-template-columns: 1fr; } }
++}
+diff --git a/src/app/views/pages/credit/new-application/new-application.component.html b/src/app/views/pages/credit/new-application/new-application.component.html
+--- a/src/app/views/pages/credit/new-application/new-application.component.html
++++ b/src/app/views/pages/credit/new-application/new-application.component.html
+@@ -1,14 +1,14 @@
+ <div class="loan-workflow">
+   <header class="ai-page-hero"><div><span class="ai-eyebrow">ECLECTICS / INTELLIGENT LENDING</span><h2>New loan application</h2><p>Bring customer insight, model perspectives and lending policy into one assessment.</p></div><div class="ai-hero-aside"><span class="ai-mode"><i></i>Demo environment</span><small>Profile → Model ensemble → Officer review</small></div></header>
+   <div class="wf-error" *ngIf="workflow.storageError" role="alert">{{ workflow.storageError }}</div>
+-  <div class="ai-flow-steps"><div [class.current]="!customer && !created"><b>01</b><span>Identify customer<small>Retrieve the financial profile</small></span></div><div [class.current]="!!customer && !created"><b>02</b><span>Shape the facility<small>Confirm terms and assess</small></span></div><div [class.current]="!!created"><b>03</b><span>Explore the insights<small>Review the recommended next step</small></span></div></div>
+-  <div class="ai-tabs" role="group" aria-label="Application method"><button type="button" [class.active]="tab === 'individual'" [disabled]="busy || processing || reading" (click)="tab = 'individual'; error = ''">Individual application</button><button type="button" [class.active]="tab === 'bulk'" [disabled]="busy || processing || reading || !!reassessmentId" (click)="tab = 'bulk'; error = ''">Bulk intelligence</button></div>
++  <div class="ai-flow-steps" *ngIf="tab === 'individual'"><div [class.current]="!customer && !created"><b>01</b><span>Identify customer<small>Retrieve the financial profile</small></span></div><div [class.current]="!!customer && !created"><b>02</b><span>Shape the facility<small>Confirm terms and assess</small></span></div><div [class.current]="!!created"><b>03</b><span>Explore the insights<small>Review the recommended next step</small></span></div></div>
++  <div class="intake-mode-tabs" role="tablist" aria-label="New application options"><button type="button" *ngFor="let mode of modes; let i = index" role="tab" [id]="'intake-tab-' + mode.id" [attr.aria-controls]="'intake-panel-' + mode.id" [attr.aria-selected]="tab === mode.id" [attr.tabindex]="tab === mode.id ? 0 : -1" [class.active]="tab === mode.id" [disabled]="busy || processing || reading || integrationBusy || (!!reassessmentId && mode.id !== 'individual')" (click)="setTab(mode.id)" (keydown)="modeKey($event, i)"><span class="intake-mode-number">{{ mode.icon }}</span><span><strong>{{ mode.label }}</strong><small>{{ mode.detail }}</small></span><span class="intake-mode-arrow">↗</span></button></div>
+   <div class="wf-error" *ngIf="error" role="alert">{{ error }}</div>
+-  <ng-container *ngIf="tab === 'individual'">
++  <section *ngIf="tab === 'individual'" role="tabpanel" id="intake-panel-individual" aria-labelledby="intake-tab-individual">
+     <article class="ai-panel" *ngIf="!created"><div class="ai-panel-heading"><div><span class="ai-eyebrow">CUSTOMER LOOKUP</span><h3>{{ reassessmentId ? 'Revisit this application' : 'Start with a national ID' }}</h3></div><span class="ai-small-tag">{{ reassessmentId ? 'New assessment version' : 'Customer profile' }}</span></div>
+       <p *ngIf="reassessmentId" class="wf-muted">{{ reassessmentId }} · Earlier results and review history will be retained.</p>
+       <div class="wf-lookup"><label>National ID<input [(ngModel)]="nationalId" (ngModelChange)="clearCustomer()" [disabled]="!!reassessmentId || busy || looking" (keyup.enter)="!reassessmentId && lookup()" placeholder="Enter the customer's national ID" /></label><button type="button" class="btn-primary" *ngIf="!reassessmentId" [disabled]="looking || busy || !nationalId.trim()" (click)="lookup()"><span class="ai-button-spinner" *ngIf="looking"></span>{{ looking ? 'Retrieving profile…' : 'Retrieve profile →' }}</button></div>
+-      <details class="ai-directory" *ngIf="!reassessmentId"><summary>Browse available customers</summary><div class="ai-directory-grid"><button type="button" *ngFor="let item of workflow.customers" (click)="chooseCustomer(item.profile.nationalId)" [disabled]="busy || looking"><span class="ai-avatar">{{ workflow.initials(item.profile.applicant) }}</span><span><strong>{{ item.profile.applicant }}</strong><small>{{ item.profile.nationalId }} · {{ item.profile.branch }}</small></span><b>↗</b></button></div></details>
++      <details class="ai-directory" *ngIf="!reassessmentId"><summary>Browse available customers</summary><div class="ai-directory-grid"><button type="button" *ngFor="let item of workflow.customers" (click)="chooseCustomer(item.profile.nationalId)" [disabled]="busy || looking"><span class="ai-avatar">{{ workflow.initials(item.profile.applicant) }}</span><span><strong>{{ item.profile.applicant }}</strong><small>{{ item.profile.nationalId }} · {{ item.profile.branch }}</small><span class="pill customer-risk" [ngClass]="workflow.credit.riskClass(workflow.customerRisk(item))">{{ workflow.customerRisk(item) }} risk</span></span><b>↗</b></button></div></details>
+     </article>
+     <form *ngIf="customer && !created" [formGroup]="form" (ngSubmit)="submit()" class="wf-section">
+       <div class="ai-form-layout"><article class="ai-panel"><div class="ai-customer-heading"><span class="ai-avatar large">{{ workflow.initials(customer.profile.applicant) }}</span><div><span class="ai-eyebrow">CUSTOMER PROFILE RETRIEVED</span><h3>{{ customer.profile.applicant }}</h3><p>{{ customer.profile.nationalId }} · {{ customer.profile.country }} / {{ customer.profile.branch }}</p></div><span class="ai-check">Profile ready</span></div>
+@@ -21,11 +21,27 @@
+       </article><aside class="ai-intelligence-preview"><span class="ai-eyebrow">YOUR ASSESSMENT WILL INCLUDE</span><h3>The right amount. A clearer decision.</h3><div class="ai-preview-item"><span>◈</span><div><strong>Three model perspectives</strong><p>Compare linear, boosted-tree and forest-style outputs in one simulation.</p></div></div><div class="ai-preview-item"><span>✦</span><div><strong>Credit copilot briefing</strong><p>Review strengths, concerns and the next best actions.</p></div></div><div class="ai-preview-item"><span>↔</span><div><strong>Explainability & scenarios</strong><p>See risk sensitivities and explore changes to amount and term.</p></div></div><div class="ai-preview-item"><span>↗</span><div><strong>Recommended lending limit</strong><p>See the supported limit and a smaller offer when the request is too high.</p></div></div><hr /><span class="ai-eyebrow">LIVE REPAYMENT VIEW</span><strong class="ai-preview-number">{{ workflow.money(liveInstallment) }}<small> / month</small></strong><div class="ai-budget-line"><span>Debt service / income</span><b>{{ liveDti | percent:'1.1-1' }}</b></div><p class="ai-footnote">Principal-only estimate from the inputs on the left. Review the completed assessment for configured policy checks.</p></aside></div>
+     </form>
+     <ng-container *ngIf="created as result"><article class="ai-success-panel wf-section" aria-live="polite"><span class="ai-success-icon">✓</span><div><span class="ai-eyebrow">ASSESSMENT COMPLETE</span><h3>Assessment completed.</h3><p>{{ result.customerName }} · assessment v{{ workflow.latest(result).version }} · awaiting officer decision</p></div><div class="form-actions"><a class="btn-primary" routerLink="/decision-queue" [queryParams]="{id: result.id}">Review decision →</a><a class="btn-ghost" [routerLink]="['/applications', result.id]">View saved assessment</a><a class="ai-text-button" routerLink="/applications/new" (click)="reset()">Start another</a></div></article><app-loan-assessment class="wf-section" [assessment]="workflow.latest(result)"></app-loan-assessment></ng-container>
+-  </ng-container>
+-  <ng-container *ngIf="tab === 'bulk'">
++  </section>
++  <section *ngIf="tab === 'bulk'" role="tabpanel" id="intake-panel-bulk" aria-labelledby="intake-tab-bulk">
+     <article class="ai-panel"><div class="ai-panel-heading"><div><span class="ai-eyebrow">PORTFOLIO INTAKE</span><h3>Assess applications in bulk</h3></div><button type="button" class="btn-ghost" (click)="downloadTemplate()">↓ Download template</button></div><p class="wf-muted">Upload CSV, XLSX or XLS files up to 2 MB / 500 applications. The same assessment workflow runs for each valid row.</p><label class="ai-dropzone"><span class="ai-upload-icon">↑</span><strong>Choose your application file</strong><span>Preview and validate before assessment</span><input type="file" accept=".csv,.xlsx,.xls" [disabled]="reading || processing" (change)="upload($event)" /></label><p class="wf-muted" *ngIf="reading" role="status">Preparing the file and validating customer applications…</p><details class="ai-directory"><summary>File columns and reassessment</summary><p class="wf-muted">Required: <code>national_id, requested_amount, tenor_months, product</code>. Optional: <code>application_id, reassessment_note</code>. Use an existing application ID to append a new assessment. Excel national IDs must be Text; the first worksheet is processed. Verification and credit-history facts are retrieved from the selected customer record for each row.</p></details></article>
+     <article class="ai-panel wf-section" *ngIf="rows.length"><div class="ai-panel-heading"><div><span class="ai-eyebrow">VALIDATION PREVIEW</span><h3>{{ fileName }}</h3></div><a class="ai-text-button" routerLink="/applications">View applications →</a></div><div class="ai-batch-counts"><span><b>{{ rows.length }}</b> total</span><span class="positive"><b>{{ readyCount }}</b> ready / retryable</span><span class="caution"><b>{{ invalidCount }}</b> invalid</span><span class="positive"><b>{{ savedCount }}</b> saved</span><span><b>{{ failedCount }}</b> failed</span></div><div class="form-actions"><button type="button" class="btn-primary" [disabled]="processing || !readyCount || !!workflow.storageError" (click)="processBulk()"><span class="ai-button-spinner" *ngIf="processing"></span>{{ processing ? 'Generating assessments…' : '✦ Assess valid / retry failed rows' }}</button><button type="button" class="btn-ghost" *ngIf="processing" (click)="bulkCancelled = true">Stop after current row</button></div><progress class="wf-progress" *ngIf="processing" [value]="bulkDone" [max]="rows.length" aria-label="Bulk assessment progress"></progress><p class="wf-muted" *ngIf="bulkCancelled">Processing paused. Resume to assess the remaining rows.</p>
+       <div class="table-scroll"><table class="cd-table wf-table"><thead><tr><th>Row</th><th>Customer</th><th>Product</th><th>Requested</th><th>Months</th><th>Readiness</th><th>Result / action</th></tr></thead><tbody><tr *ngFor="let row of rows"><td>{{ row.row }}</td><td>{{ customerName(row.nationalId) }}<small>{{ row.nationalId }}</small></td><td>{{ row.product }}</td><td>{{ workflow.money(row.amount) }}</td><td>{{ row.tenorMonths }}</td><td><span class="ai-check" [class.triggered]="row.state === 'Invalid' || row.state === 'Failed'">{{ row.state }}</span></td><td><div class="wf-row-error" *ngFor="let issue of row.errors">{{ issue }}</div><span>{{ row.message }}</span><a *ngIf="row.resultId" class="ai-text-button" [routerLink]="['/applications', row.resultId]">Explore insights →</a></td></tr></tbody></table></div>
+     </article>
+-  </ng-container>
++  </section>
++  <section *ngIf="tab === 'integration'" role="tabpanel" id="intake-panel-integration" aria-labelledby="intake-tab-integration" class="loan-connectors">
++    <header class="connector-header"><div><span class="ai-eyebrow">INTEGRATION DESK</span><h2>Connected credit decisions</h2><p>Inspect the data sources, pause a connector or run a check against a saved application.</p></div><span class="ai-mode"><i></i>Connector simulation</span></header>
++    <div class="connector-kpis"><article><span class="connector-kpi-icon live">✓</span><div><span>Live</span><strong>{{ workflow.integration.count('Live') }}</strong><small>Available for simulated checks</small></div></article><article><span class="connector-kpi-icon degraded">!</span><div><span>Degraded</span><strong>{{ workflow.integration.count('Degraded') }}</strong><small>Slow response / review</small></div></article><article><span class="connector-kpi-icon paused">Ⅱ</span><div><span>Paused</span><strong>{{ workflow.integration.count('Paused') }}</strong><small>No checks are called</small></div></article><article><span class="connector-kpi-icon">↗</span><div><span>Checks today</span><strong>{{ workflow.integration.callsToday }}</strong><small>Checks run from this desk · EAT</small></div></article></div>
++    <div class="wf-error" *ngIf="workflow.integration.storageError" role="alert">{{ workflow.integration.storageError }}</div>
++    <div class="wf-error" *ngIf="integrationError" role="alert">{{ integrationError }}</div>
++    <div class="connector-desk"><aside class="connector-list ai-panel"><div class="ai-panel-heading"><h3>Data connectors</h3><span>8 adapters</span></div><button type="button" *ngFor="let item of workflow.integration.connectors" class="connector-row" [class.selected]="item.id === connectorId" [attr.aria-pressed]="item.id === connectorId" [disabled]="integrationBusy" (click)="selectConnector(item)"><span class="connector-row-top"><strong>{{ item.name }}</strong><span class="connector-status" [attr.data-status]="item.status">{{ item.status }}</span></span><small>{{ item.system }}</small><span class="connector-row-metrics">{{ item.latencyMs ? item.latencyMs + ' ms simulated' : 'Not calling' }} · {{ item.callsToday }} checks today</span></button></aside>
++      <article class="ai-panel connector-detail" *ngIf="selectedConnector as item"><div class="ai-panel-heading"><div><span class="ai-eyebrow">{{ item.owner }} · {{ item.callsToday }} CHECKS TODAY</span><h3>{{ item.name }}</h3></div><span class="connector-status" [attr.data-status]="item.status">{{ item.status }}</span></div><p class="wf-muted">{{ item.purpose }}</p><div class="connector-metrics"><div><span>Used for</span><strong>{{ item.usedBy }}</strong></div><div><span>Response delivery</span><strong>{{ item.success === null ? 'No checks yet' : item.success + '%' }}</strong></div><div><span>Simulated latency</span><strong>{{ item.latencyMs ? item.latencyMs + ' ms' : '—' }}</strong></div></div>
++        <div class="connector-control"><div><strong>{{ item.required ? 'Required for a supported offer' : 'Operational / preview adapter' }}</strong><p>{{ item.required ? 'Paused or degraded availability holds new assessments for review. Saved assessments retain their original availability snapshot.' : 'This adapter does not change the credit score or eligibility result.' }}</p></div><button type="button" class="btn-ghost" [class.pause-action]="item.status !== 'Paused'" [disabled]="integrationBusy" (click)="toggleConnector()">{{ item.status === 'Paused' ? 'Resume connector' : 'Pause connector' }}</button></div>
++        <p class="wf-success" *ngIf="integrationBanner" role="status">{{ integrationBanner }}</p>
++        <div class="connector-check"><span class="ai-eyebrow">APPLICATION CHECK</span><h4>Use a saved assessment</h4><ng-container *ngIf="integrationApplicants.length; else noSavedApplications"><label>Application<select [(ngModel)]="integrationApplicantId" (ngModelChange)="integrationResult = null; integrationError = ''" [disabled]="integrationBusy"><option *ngFor="let app of integrationApplicants" [value]="app.id">{{ app.customerName }} · {{ app.id }} · {{ workflow.latest(app).input.product }}</option></select></label><div class="form-actions"><button type="button" class="btn-primary" [disabled]="integrationBusy || !integrationApplicantId" (click)="runIntegrationCheck()"><span class="ai-button-spinner" *ngIf="integrationBusy"></span>{{ integrationBusy ? 'Running check…' : 'Run check' }}</button><a class="ai-text-button" [routerLink]="['/applications', integrationApplicantId]">Open assessment ↗</a></div></ng-container><ng-template #noSavedApplications><p class="wf-muted">Assess an individual application or a bulk file first. The saved application will then be available here.</p><button type="button" class="btn-primary" (click)="setTab('individual')">Start an application →</button></ng-template></div>
++        <div class="connector-result" *ngIf="integrationResult as result" [attr.data-tone]="result.tone" role="status"><span class="ai-eyebrow">CHECK RESULT · ASSESSMENT v{{ result.assessmentVersion }}</span><h4>{{ result.title }}</h4><p *ngFor="let line of result.lines">{{ line }}</p><small>{{ result.checkedAt | date:'dd MMM y, HH:mm:ss':'+0300' }} EAT · {{ result.applicationId }}</small></div>
++        <p class="ai-footnote">Checks read the same saved assessment as Decision Queue. Counts and delivery rates come from this browser's simulated checks. No bank, bureau, identity, sanctions, SMS or payout endpoint is called.</p>
++      </article>
++    </div>
++    <article class="ai-panel wf-section"><div class="ai-panel-heading"><div><span class="ai-eyebrow">INTEGRATION ACTIVITY</span><h3>Checks and connector controls</h3></div><span>Latest {{ workflow.integration.events.length }} events</span></div><div class="table-scroll"><table class="cd-table wf-table"><thead><tr><th>Time · EAT</th><th>Connector</th><th>Action</th><th>Application</th><th>Outcome</th></tr></thead><tbody><tr *ngFor="let event of workflow.integration.events"><td>{{ event.at | date:'dd MMM, HH:mm:ss':'+0300' }}</td><td>{{ event.connector }}</td><td>{{ event.action }}</td><td><a *ngIf="event.applicationId" class="ai-text-button" [routerLink]="['/applications', event.applicationId]">{{ event.applicationId }}</a><small *ngIf="event.assessmentVersion">Assessment v{{ event.assessmentVersion }}</small><span *ngIf="!event.applicationId">Connector control</span></td><td>{{ event.outcome }}</td></tr><tr *ngIf="!workflow.integration.events.length"><td colspan="5"><p class="wf-muted">Run a check or pause/resume a connector to start the activity trail.</p></td></tr></tbody></table></div><p class="ai-footnote">Browser-local activity trail. It records demonstration checks and controls and is not a server-authenticated audit log.</p></article>
++  </section>
+ </div>
+diff --git a/src/app/views/pages/credit/new-application/new-application.component.ts b/src/app/views/pages/credit/new-application/new-application.component.ts
+--- a/src/app/views/pages/credit/new-application/new-application.component.ts
++++ b/src/app/views/pages/credit/new-application/new-application.component.ts
+@@ -7,10 +7,18 @@
+ import { BulkApplicationRow, LoanCustomer, LoanRecord } from '../workflow/loan-workflow.models';
+ import { LoanWorkflowService, loanId } from '../workflow/loan-workflow.service';
+ import { customerFacts } from '../workflow/loan-eligibility.engine';
++import { LoanConnector, LoanConnectorResult } from '../workflow/loan-integration.service';
+ 
+-@Component({ selector: 'app-new-application', templateUrl: './new-application.component.html', styleUrls: ['../workflow/loan-workflow.scss'] })
++@Component({ selector: 'app-new-application', templateUrl: './new-application.component.html', styleUrls: ['../workflow/loan-workflow.scss', './loan-intake-integration.scss'] })
+ export class NewApplicationComponent implements OnInit, OnDestroy {
+-  tab: 'individual' | 'bulk' = 'individual'; nationalId = ''; customer: LoanCustomer | null = null;
++  tab: 'individual' | 'bulk' | 'integration' = 'individual'; nationalId = ''; customer: LoanCustomer | null = null;
++  readonly modes = [
++    { id: 'individual', label: 'Individual application', detail: 'Assess one customer', icon: '01' },
++    { id: 'bulk', label: 'Bulk Intelligence', detail: 'Assess a file of applications', icon: '02' },
++    { id: 'integration', label: 'Integration', detail: 'Connectors and application checks', icon: '03' }
++  ] as const;
++  connectorId = 'bureau'; integrationApplicantId = ''; integrationResult: LoanConnectorResult | null = null;
++  integrationBusy = false; integrationError = ''; integrationBanner = '';
+   created: LoanRecord | null = null; error = ''; looking = false; busy = false; reading = false; processing = false;
+   rows: BulkApplicationRow[] = []; fileName = ''; bulkDone = 0; bulkCancelled = false;
+   reassessmentId = ''; reassessmentNote = ''; submissionKey = loanId('SINGLE');
+@@ -45,17 +53,46 @@
+   constructor(private fb: FormBuilder, private route: ActivatedRoute, public workflow: LoanWorkflowService) {}
+   ngOnInit(): void {
+     this.subscription.add(this.route.queryParamMap.subscribe(params => {
+-      if (this.busy || this.processing) { return; }
++      if (this.busy || this.processing || this.integrationBusy) { return; }
+       this.reset(); const id = params.get('reassess');
+-      if (!id) { return; }
++      if (!id) { if (params.get('mode') === 'integration') { this.integrationApplicantId = params.get('application') || ''; this.setTab('integration'); } return; }
+       const record = this.workflow.find(id);
+       if (!record || !this.workflow.pending(record)) { this.error = 'The reassessment application is missing or already finalised.'; return; }
+       this.reassessmentId = id; this.nationalId = record.nationalId; this.customer = this.workflow.lookup(record.nationalId);
+       this.form.patchValue({ ...this.workflow.latest(record).input, customerFacts: this.workflow.latest(record).eligibility?.customer || this.customer?.facts });
+     }));
+   }
++  setTab(mode: 'individual' | 'bulk' | 'integration'): void {
++    if (this.busy || this.processing || this.reading || this.integrationBusy || (!!this.reassessmentId && mode !== 'individual')) { return; }
++    this.tab = mode; this.error = '';
++    if (mode === 'integration' && !this.workflow.find(this.integrationApplicantId)) { this.integrationApplicantId = this.workflow.applications[0]?.id || ''; this.integrationResult = null; }
++  }
++  modeKey(event: KeyboardEvent, index: number): void {
++    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) { return; } event.preventDefault();
++    const next = event.key === 'Home' ? 0 : event.key === 'End' ? 2 : (index + (event.key === 'ArrowRight' ? 1 : 2)) % 3;
++    this.setTab(this.modes[next].id);
++    if (typeof document !== 'undefined') { document.getElementById('intake-tab-' + this.tab)?.focus(); }
++  }
++  get selectedConnector(): LoanConnector | undefined { return this.workflow.integration.find(this.connectorId); }
++  get integrationApplicants(): LoanRecord[] { return this.workflow.applications; }
++  selectConnector(item: LoanConnector): void { if (this.integrationBusy) { return; } this.connectorId = item.id; this.integrationResult = null; this.integrationError = ''; this.integrationBanner = ''; }
++  toggleConnector(): void {
++    if (this.integrationBusy) { return; } this.integrationError = ''; this.integrationResult = null;
++    try { const item = this.workflow.integration.toggle(this.connectorId); this.integrationBanner = item.name + (item.status === 'Paused' ? ' paused.' : ' resumed in Live simulation mode.'); }
++    catch (e) { this.integrationError = this.workflow.errorMessage(e); }
++  }
++  async runIntegrationCheck(): Promise<void> {
++    if (this.integrationBusy) { return; } this.integrationError = ''; this.integrationResult = null; this.integrationBanner = '';
++    const record = this.workflow.find(this.integrationApplicantId);
++    if (!record) { this.integrationError = 'Select a saved application before running a check.'; return; }
++    this.integrationBusy = true;
++    try { this.integrationResult = await this.workflow.integration.runCheck(this.connectorId, record); }
++    catch (e) { this.integrationError = this.workflow.errorMessage(e); }
++    finally { this.integrationBusy = false; }
++  }
+   ngOnDestroy(): void { this.subscription.unsubscribe(); }
+   reset(): void {
++    this.tab = 'individual';
+     this.created = null; this.customer = null; this.error = ''; this.nationalId = '';
+     this.reassessmentId = ''; this.reassessmentNote = ''; this.submissionKey = loanId('SINGLE');
+   }
+@@ -79,6 +116,7 @@
+       const value = this.form.getRawValue();
+       const draft: ApplicationDraft = { ...this.customer.profile, product: value.product || '', amount: Number(value.amount), tenorMonths: Number(value.tenorMonths), income: Number(value.income), obligations: Number(value.obligations), employment: value.employment || '', bureau: value.bureau || '', channel: value.channel || '' };
+       this.created = await this.workflow.submit(draft, { applicationId: this.reassessmentId || undefined, submissionKey: this.submissionKey, reassessmentNote: this.reassessmentNote, customerFacts: customerFacts(value.customerFacts) });
++      this.integrationApplicantId = this.created.id;
+     } catch (error) { this.error = this.workflow.errorMessage(error); }
+     finally { this.busy = false; }
+   }
+@@ -115,7 +153,7 @@
+     } finally { this.processing = false; }
+   }
+   downloadTemplate(): void {
+-    const customers = this.workflow.customers.slice(0, 3);
++    const customers = this.workflow.customers;
+     const text = [BULK_COLUMNS.join(','), ...customers.map(c => [c.profile.nationalId, c.profile.amount, c.profile.tenorMonths, c.profile.product, '', ''].join(','))].join('\r\n');
+     const url = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' }));
+     const link = document.createElement('a'); link.href = url; link.download = 'loan-applications-template.csv'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+diff --git a/src/app/views/pages/credit/workflow/loan-assessment.component.html b/src/app/views/pages/credit/workflow/loan-assessment.component.html
+--- a/src/app/views/pages/credit/workflow/loan-assessment.component.html
++++ b/src/app/views/pages/credit/workflow/loan-assessment.component.html
+@@ -10,13 +10,14 @@
+ 
+   <article class="ai-limit-panel" *ngIf="a.limit as limit; else earlierLimit">
+     <div class="ai-panel-heading"><div><span class="ai-eyebrow">AI LIMIT RECOMMENDATION</span><h3>{{ limit.outcome }}</h3><p class="wf-muted">{{ a.input.product }} · {{ limit.tenorMonths }}-month term · officer review required</p></div><span class="ai-small-tag">{{ limit.offer ? 'Policy + risk checked' : 'No supported offer' }}</span></div>
+-    <div class="ai-limit-numbers"><div><span>Customer requested</span><strong>{{ workflow.money(limit.requestedAmount) }}</strong></div><div class="featured"><span>Recommended lending limit</span><strong>{{ limit.offer ? workflow.money(limit.maximumAmount) : limit.outcome === 'Decline' ? 'No eligible amount' : 'Pending review' }}</strong><small>For this product and term</small></div><div><span>Proposed offer</span><strong>{{ limit.offer ? workflow.money(limit.recommendedAmount) : 'No offer yet' }}</strong><small>{{ limit.outcome === 'Approve reduced amount' ? 'Smaller than the original request' : limit.offer ? 'Within the customer request' : 'Review the findings below' }}</small></div></div>
++    <div class="ai-limit-numbers"><div><span>Customer requested</span><strong>{{ workflow.money(limit.requestedAmount) }}</strong></div><div class="featured"><span>Risk-adjusted lending limit</span><strong>{{ limit.maximumAmount > 0 ? workflow.money(limit.maximumAmount) : limit.outcome === 'Decline' ? 'No eligible amount' : 'Pending review' }}</strong><small>For this product and term</small></div><div><span>Proposed offer</span><strong>{{ limit.offer ? workflow.money(limit.recommendedAmount) : 'No offer yet' }}</strong><small>{{ limit.outcome === 'Refer for review' && limit.offer ? 'Officer review required' : limit.outcome === 'Approve reduced amount' ? 'Smaller than the original request' : limit.offer ? 'Within the customer request' : 'Review the findings below' }}</small></div></div>
+     <div class="ai-offer-evidence" *ngIf="limit.offer as offer"><span>Offer score <b>{{ offer.score }}/900</b></span><span>Offer likelihood <b>{{ offer.probability | percent:'1.1-1' }}</b></span><span>Offer debt service <b>{{ offer.dti | percent:'1.1-1' }}</b></span><span>Principal / month <b>{{ workflow.money(offer.installment) }}</b></span><button type="button" class="ai-text-button" (click)="preset('recommended'); activeTab = 'drivers'">Explore this offer →</button></div>
+     <ul class="ai-limit-reasons"><li *ngFor="let reason of limit.reasons">{{ reason }}</li></ul>
+-    <details class="ai-limit-method"><summary>How this limit is determined</summary><p>Monthly repayment headroom: {{ workflow.money(limit.monthlyBudget) }}. Principal-only capacity over {{ limit.tenorMonths }} months: {{ workflow.money(limit.affordabilityCeiling) }}. Configured policy amount ceiling: {{ workflow.money(limit.policyCeiling) }}. The engine finds the largest principal in KSh 1,000 increments that passes the source scorecard and customer eligibility checks and stays below {{ limit.riskCeiling | percent:'1.0-0' }} simulated likelihood. Interest, fees and itemised living expenses are excluded. This is an indicative recommendation for officer review.</p></details>
++    <details class="ai-limit-method"><summary>How this limit is determined</summary><p *ngIf="limit.version === 'limit-demo-1'">Monthly repayment headroom: {{ workflow.money(limit.monthlyBudget) }}. Principal-only capacity over {{ limit.tenorMonths }} months: {{ workflow.money(limit.affordabilityCeiling) }}. Configured policy amount ceiling: {{ workflow.money(limit.policyCeiling) }}. The engine finds the largest principal in KSh 1,000 increments that passes the source scorecard and customer eligibility checks and stays below {{ limit.riskCeiling | percent:'1.0-0' }} simulated likelihood. Interest, fees and itemised living expenses are excluded. This is an indicative recommendation for officer review.</p><p *ngIf="limit.version === 'limit-demo-2'">{{ limit.riskBand }} requested-risk band uses {{ limit.riskMultiplier | percent:'1.0-0' }} of {{ workflow.money(limit.affordabilityCeiling) }} principal-only repayment capacity. The configured ceiling is {{ workflow.money(limit.policyCeiling) }}. Candidate likelihood must stay below {{ limit.riskCeiling | percent:'1.0-0' }}. Medium and High proposals require officer review, even when a smaller amount has a better risk outlook. All amounts are indicative, exclude interest and fees and are rounded down in KSh 1,000 increments.</p></details>
+   </article>
+   <ng-template #earlierLimit><p class="ai-legacy-note">This saved version has no lending-limit snapshot. Reassess to calculate a new limit without changing this assessment.</p></ng-template>
+ 
++  <div class="assessment-data-status" *ngIf="a.integration as data" [class.needs-review]="data.decision !== 'Approved'"><strong>{{ data.decision === 'Approved' ? 'Required data connectors available' : 'Data availability needs review' }}</strong><span *ngFor="let connector of data.connectors">{{ connector.name }} · {{ connector.status }}</span><p *ngIf="data.reasons.length">{{ data.reasons.join(' ') }}</p><small>Availability snapshot · {{ data.checkedAt | date:'dd MMM, HH:mm':'+0300' }} EAT · simulated adapters</small></div>
+   <div class="ai-tabs" role="group" aria-label="Assessment sections"><button type="button" *ngFor="let tab of tabs" [class.active]="activeTab === tab.id" [attr.aria-pressed]="activeTab === tab.id" (click)="activeTab = tab.id">{{ tab.label }}</button></div>
+   <ng-container *ngIf="activeTab === 'insights'">
+     <div class="ai-insight-layout" *ngIf="ai as insight">
+@@ -38,17 +39,16 @@
+       <article class="ai-panel explainable-panel">
+         <div class="ai-panel-heading"><div><span class="ai-eyebrow">EXPLAINABLE OUTLOOK</span><h3>What moves the risk signal?</h3><p class="wf-muted">Model sensitivities, with the policy evidence that informs the decision.</p></div><span class="ai-small-tag">{{ a.score }} score · {{ ai ? (ai.probability | percent:'1.1-1') : '—' }} likelihood</span></div>
+         <div class="outlook-summary" *ngIf="a.eligibility as eligibility"><div><span class="outlook-summary-icon">{{ eligibility.decision === 'Approved' ? '✓' : '!' }}</span><span><strong>{{ eligibilityPassed }}/7 policy checks passed</strong><small>{{ eligibility.decision === 'Approved' ? 'Customer eligibility requirements met' : eligibility.decision === 'Declined' ? 'A policy decline finding requires attention' : 'Review the outstanding customer findings' }}</small></span></div><button type="button" class="ai-text-button" (click)="activeTab = 'policy'">All policy checks →</button></div>
+-        <div class="outlook-legend"><span><i class="protective"></i>Lowers simulated risk</span><span><i class="adverse"></i>Raises simulated risk</span><small>Model effect · percentage points</small></div>
+-        <ng-container *ngIf="ai; else noDrivers">
+-          <section class="outlook-driver" *ngFor="let driver of outlookDrivers; trackBy: trackDriver">
+-            <div class="outlook-driver-heading"><div><strong>{{ driver.label }}</strong><small>{{ driver.observed }}</small></div><span class="outlook-effect" [class.adverse]="driver.deltaPp > 0" [class.protective]="driver.deltaPp < 0">{{ driver.deltaPp > 0 ? '+' : '' }}{{ driver.deltaPp | number:'1.1-1' }} pp</span></div>
+-            <div class="outlook-driver-track" aria-hidden="true"><i [class.adverse]="driver.deltaPp > 0" [style.left.%]="driver.deltaPp < 0 ? 50 - MathAbs(driver.deltaPp) / maxDriver * 50 : 50" [style.width.%]="MathAbs(driver.deltaPp) / maxDriver * 50"></i></div>
+-            <div class="outlook-policy" *ngFor="let check of driver.checks" [attr.data-result]="check.result"><span class="policy-link-icon">{{ check.result === 'Pass' ? '✓' : check.result === 'Needs review' ? '?' : '!' }}</span><div><strong>{{ check.name }}</strong><p>{{ check.observed }}</p><small>{{ check.requirement }}</small></div><span class="policy-result">{{ check.result === 'Pass' ? 'Pass' : check.effect === 'Recommend decline' ? 'Decline finding' : 'Review' }}</span></div>
+-            <details class="driver-method"><summary>Model reference</summary><p>{{ driver.explanation }} Reference: {{ driver.reference }}.</p></details>
+-          </section>
+-        </ng-container>
+-        <ng-template #noDrivers><p class="wf-muted">Reassess this application to add model sensitivities. Available eligibility evidence is shown below.</p><div class="outlook-policy" *ngFor="let check of a.eligibility?.checks" [attr.data-result]="check.result"><div><strong>{{ check.name }}</strong><p>{{ check.observed }}</p><small>{{ check.requirement }}</small></div><span class="policy-result">{{ check.result }}</span></div></ng-template>
+-        <section class="identity-policy-context" *ngIf="identityChecks.length && ai"><span class="ai-eyebrow">ADDITIONAL ELIGIBILITY CONTEXT</span><div class="outlook-policy" *ngFor="let check of identityChecks" [attr.data-result]="check.result"><span class="policy-link-icon">{{ check.result === 'Pass' ? '✓' : '?' }}</span><div><strong>{{ check.name }}</strong><p>{{ check.observed }}</p><small>{{ check.requirement }}</small></div><span class="policy-result">{{ check.result === 'Pass' ? 'Pass' : check.effect === 'Recommend decline' ? 'Decline finding' : 'Review' }}</span></div></section>
++        <div class="risk-influence-chart" *ngIf="ai; else noDrivers"><div class="risk-chart-heading"><span>Parameters by relative influence</span><small>Highest first · hover, focus or tap a bar</small></div><div class="risk-chart-legend"><span><i class="adverse"></i>Raises likelihood</span><span><i class="protective"></i>Lowers likelihood</span></div>
++          <button type="button" class="risk-chart-row" *ngFor="let driver of rankedDrivers; trackBy: trackDriver" [class.selected]="activeDriverLabel === driver.label" [attr.aria-pressed]="activeDriverLabel === driver.label" [attr.aria-describedby]="activeDriverLabel === driver.label ? 'risk-driver-explanation' : null" [attr.aria-label]="driver.label + ', relative influence ' + driver.share.toFixed(1) + ' percent, sensitivity ' + driver.deltaPp.toFixed(1) + ' percentage points'" (mouseenter)="showDriver(driver.label)" (focus)="showDriver(driver.label)" (click)="showDriver(driver.label)" (keydown.escape)="activeDriverLabel = ''"><span class="risk-chart-label"><b>{{ driver.rank | number:'2.0-0' }}</b><strong>{{ driver.label }}</strong><em>{{ driver.share | number:'1.1-1' }}%</em></span><span class="risk-chart-track"><i [class.adverse]="driver.deltaPp > 0" [class.neutral]="driver.deltaPp === 0" [style.width.%]="driver.share"></i></span></button>
++          <div class="risk-chart-axis"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
++          <div id="risk-driver-explanation" class="risk-driver-tooltip" role="tooltip" *ngIf="activeGraphDriver as driver; else graphHint"><div><span class="ai-eyebrow">WHY THIS PARAMETER MATTERS</span><strong>{{ driver.label }}</strong><b [class.adverse]="driver.deltaPp > 0">{{ driver.deltaPp > 0 ? '+' : '' }}{{ driver.deltaPp | number:'1.1-1' }} pp</b></div><p><strong>{{ driver.observed }}.</strong> {{ driver.explanation }}</p><p>Compared with {{ driver.reference }}, the simulated likelihood {{ driver.deltaPp > 0 ? 'increases' : driver.deltaPp < 0 ? 'decreases' : 'does not materially change' }}{{ driver.deltaPp === 0 ? '' : ' by ' + MathAbs(driver.deltaPp).toFixed(1) + ' percentage points' }}.</p><small *ngFor="let check of driver.checks">{{ check.name }}: {{ check.observed }} · {{ check.effect }}</small></div>
++          <ng-template #graphHint><div class="risk-chart-hint">Move over a bar or select it to see the observed value, its effect and the related policy evidence.</div></ng-template>
++          <p class="ai-footnote">Influence is the share of absolute local model sensitivity for this application. It is not a trained model's global feature weight. Green is protective; red increases the simulated likelihood.</p>
++        </div>
++        <ng-template #noDrivers><p class="wf-muted">Reassess this application to add its ranked model graph and current policy snapshot.</p></ng-template>
++        <details class="graph-policy-evidence" *ngIf="ai"><summary>Related policy evidence</summary><ng-container *ngFor="let driver of outlookDrivers; trackBy: trackDriver"><section *ngIf="driver.checks.length"><h4>{{ driver.label }}</h4><div class="outlook-policy" *ngFor="let check of driver.checks" [attr.data-result]="check.result"><span class="policy-link-icon">{{ check.result === 'Pass' ? '✓' : '?' }}</span><div><strong>{{ check.name }}</strong><p>{{ check.observed }}</p><small>{{ check.requirement }}</small></div><span class="policy-result">{{ check.result === 'Pass' ? 'Pass' : check.effect === 'Recommend decline' ? 'Decline finding' : 'Review' }}</span></div></section></ng-container></details>
++        <details class="identity-policy-context" *ngIf="identityChecks.length && ai"><summary>Identity &amp; account eligibility</summary><div class="outlook-policy" *ngFor="let check of identityChecks" [attr.data-result]="check.result"><span class="policy-link-icon">{{ check.result === 'Pass' ? '✓' : '?' }}</span><div><strong>{{ check.name }}</strong><p>{{ check.observed }}</p><small>{{ check.requirement }}</small></div><span class="policy-result">{{ check.result === 'Pass' ? 'Pass' : check.effect === 'Recommend decline' ? 'Decline finding' : 'Review' }}</span></div></details>
+         <p class="ai-footnote">Bars show the simulated model's sensitivity against the stated reference. Policy findings are separate rules and are not assigned invented model contributions. Effects do not sum to likelihood and are not SHAP or causal effects.</p>
+       </article>
+     </div>
+diff --git a/src/app/views/pages/credit/workflow/loan-assessment.component.ts b/src/app/views/pages/credit/workflow/loan-assessment.component.ts
+--- a/src/app/views/pages/credit/workflow/loan-assessment.component.ts
++++ b/src/app/views/pages/credit/workflow/loan-assessment.component.ts
+@@ -8,9 +8,10 @@
+   activeTab: 'insights' | 'drivers' | 'policy' | 'profile' = 'insights';
+   readonly tabs = [{ id: 'insights', label: 'AI overview' }, { id: 'drivers', label: 'Explainable outlook' }, { id: 'policy', label: 'Policy checks' }, { id: 'profile', label: 'Customer & facility' }] as const;
+   scenarioAmount = 10000; scenarioTenor = 12; scenario: LoanScenario | null = null; scenarioError = '';
++  activeDriverLabel = '';
+   constructor(public workflow: LoanWorkflowService) {}
+   readonly MathAbs = Math.abs;
+-  ngOnChanges(): void { this.resetScenario(); this.activeTab = 'insights'; }
++  ngOnChanges(): void { this.resetScenario(); this.activeTab = 'insights'; this.activeDriverLabel = ''; }
+   get ai() { return this.assessment.ai; }
+   get customer() { return this.assessment.eligibility?.customer; }
+   get eligibilityPassed(): number { return this.assessment.eligibility?.checks.filter(c => c.result === 'Pass').length || 0; }
+@@ -28,6 +29,13 @@
+     return (this.ai?.drivers || []).map(d => ({ ...d, observed: observed[d.label] || '', checks: (a.eligibility?.checks || []).filter(c => (groups[d.label] || []).includes(c.code)) }));
+   }
+   get identityChecks(): LoanCheck[] { return (this.assessment.eligibility?.checks || []).filter(c => ['EL-01', 'EL-02'].includes(c.code)); }
++  get rankedDrivers() {
++    const drivers = this.outlookDrivers.slice().sort((a, b) => Math.abs(b.deltaPp) - Math.abs(a.deltaPp));
++    const total = drivers.reduce((sum, d) => sum + Math.abs(d.deltaPp), 0);
++    return drivers.map((driver, i) => ({ ...driver, rank: i + 1, share: total ? Math.abs(driver.deltaPp) / total * 100 : 0 }));
++  }
++  get activeGraphDriver() { return this.rankedDrivers.find(d => d.label === this.activeDriverLabel); }
++  showDriver(label: string): void { this.activeDriverLabel = label; }
+   trackDriver(_index: number, driver: LoanRiskDriver): string { return driver.label; }
+   get riskBackground(): string {
+     const color = this.ai?.risk === 'High' ? '#df6685' : this.ai?.risk === 'Medium' ? '#dc9d41' : '#416ef0';
+diff --git a/src/app/views/pages/credit/workflow/loan-customers.data.ts b/src/app/views/pages/credit/workflow/loan-customers.data.ts
+new file mode 100644
+--- /dev/null
++++ b/src/app/views/pages/credit/workflow/loan-customers.data.ts
+@@ -0,0 +1,22 @@
++import { LoanCustomer, LoanCustomerFacts } from './loan-workflow.models';
++
++// Fictional profiles, with names and IDs independent of model calculations.
++const facts = (ageYears: number, accountTenureMonths: number, employmentTenureMonths: number, activeLoans: number, activeLenders: number, averageBalance6m: number): LoanCustomerFacts => ({
++  nationalIdVerified: true, kycCompleted: true, accountTenureMonths, crbDefaulter: false, crbBlacklisted: false,
++  activeLoans, activeLenders, previousInstitutionDefault: false, employmentTenureMonths, ageYears, averageBalance6m
++});
++const rows = [
++  { name: 'Brian Otieno', id: 'KE-41000123', branch: 'Nairobi', amount: 300000, tenor: 12, income: 1200000, obligations: 60000, employment: 'Salaried', bureau: 'Clean', facts: facts(34, 42, 36, 1, 1, 225000) },
++  { name: 'Grace Wambui', id: 'KE-41000124', branch: 'Nakuru', amount: 600000, tenor: 12, income: 1500000, obligations: 100000, employment: 'Salaried', bureau: 'Clean', facts: facts(39, 60, 48, 2, 2, 340000) },
++  { name: 'David Kiptoo', id: 'KE-41000125', branch: 'Eldoret', amount: 200000, tenor: 6, income: 950000, obligations: 45000, employment: 'Salaried', bureau: 'Clean', facts: facts(32, 30, 24, 1, 1, 168000) },
++  { name: 'Amina Hassan', id: 'KE-41000126', branch: 'Mombasa', amount: 750000, tenor: 12, income: 450000, obligations: 50000, employment: 'Salaried', bureau: 'Thin file', facts: facts(30, 18, 14, 2, 2, 98000) },
++  { name: 'Peter Mutua', id: 'KE-41000127', branch: 'Thika', amount: 900000, tenor: 12, income: 400000, obligations: 100000, employment: 'Business owner', bureau: 'Clean', facts: facts(43, 48, 60, 3, 2, 121000) },
++  { name: 'Faith Achieng', id: 'KE-41000128', branch: 'Kisumu', amount: 400000, tenor: 6, income: 180000, obligations: 35000, employment: 'Salaried', bureau: 'Clean', facts: facts(29, 24, 18, 2, 2, 41000) },
++  { name: 'Samuel Mwangi', id: 'KE-41000129', branch: 'Nairobi', amount: 600000, tenor: 6, income: 150000, obligations: 45000, employment: 'Self employed', bureau: 'Clean', facts: facts(36, 36, 30, 4, 3, 28500) },
++  { name: 'Mercy Njeri', id: 'KE-41000130', branch: 'Nakuru', amount: 800000, tenor: 6, income: 200000, obligations: 65000, employment: 'Salaried', bureau: 'Clean', facts: facts(35, 28, 24, 3, 3, 32000) }
++];
++export const KENYA_LOAN_CUSTOMERS: LoanCustomer[] = rows.map((r, i) => ({ id: 'KENYA-CUSTOMER-' + (i + 1), source: 'Kenya demo profile', facts: r.facts,
++  profile: { applicant: r.name, nationalId: r.id, phone: '+254700' + String(410001 + i), country: 'Kenya', branch: r.branch,
++    product: 'Personal Loan', amount: r.amount, tenorMonths: r.tenor, income: r.income, obligations: r.obligations,
++    employment: r.employment, bureau: r.bureau, channel: 'Mobile app' }
++}));
+diff --git a/src/app/views/pages/credit/workflow/loan-integration.service.ts b/src/app/views/pages/credit/workflow/loan-integration.service.ts
+new file mode 100644
+--- /dev/null
++++ b/src/app/views/pages/credit/workflow/loan-integration.service.ts
+@@ -0,0 +1,101 @@
++import { Injectable, OnDestroy } from '@angular/core';
++import { LoanConnectorStatus, LoanDataAvailability, LoanRecord, latestAssessment } from './loan-workflow.models';
++
++export interface LoanConnector {
++  id: string; name: string; system: string; purpose: string; usedBy: string; owner: string; required: boolean;
++  status: LoanConnectorStatus; latencyMs: number; callsToday: number; success: number | null;
++}
++export interface LoanConnectorResult {
++  tone: 'ok' | 'bad' | 'wait'; title: string; lines: string[]; connectorId: string; applicationId: string; assessmentVersion: number; checkedAt: string;
++}
++interface ConnectorEvent { id: string; at: string; action: string; connectorId: string; connector: string; applicationId: string; outcome: string; assessmentVersion?: number; }
++interface ConnectorState { schema: 1; date: string; status: Record<string, LoanConnectorStatus>; calls: Record<string, { total: number; delivered: number }>; events: ConnectorEvent[]; }
++const KEY = 'eclectics-loan-connectors-v1';
++const definitions = [
++  { id: 'core', name: 'Core banking', system: 'Core banking adapter', purpose: 'Account tenure, income, existing exposure and repayment capacity on the selected assessment.', usedBy: 'Affordability and lending limit', owner: 'Core systems', required: true, initial: 'Live', latencyMs: 240 },
++  { id: 'bureau', name: 'Credit reference bureau', system: 'Kenya CRB adapter', purpose: 'Bureau category, defaulter/blacklist flags and active loan/lender counts saved with this application.', usedBy: 'Credit risk and eligibility', owner: 'Risk data', required: true, initial: 'Live', latencyMs: 400 },
++  { id: 'identity', name: 'National identity & KYC', system: 'Identity verification adapter', purpose: 'Review recorded national-ID verification and completed KYC, without treating an ID format as a verified identity.', usedBy: 'Eligibility and approval review', owner: 'Fraud & KYC', required: true, initial: 'Live', latencyMs: 410 },
++  { id: 'origination', name: 'Origination channels', system: 'Mobile app / USSD / agent', purpose: 'Application product, channel, requested principal and selected repayment period.', usedBy: 'New application', owner: 'Channels', required: false, initial: 'Live', latencyMs: 180 },
++  { id: 'collections', name: 'Collections ledger', system: 'Loan servicing adapter', purpose: 'Previous default with this institution as recorded in the assessment. No repayment-history counts are invented.', usedBy: 'Internal default policy', owner: 'Collections', required: true, initial: 'Live', latencyMs: 320 },
++  { id: 'payout', name: 'Disbursement readiness', system: 'Mobile money / bank adapter', purpose: 'Check the saved officer approval and approved amount. This is a readiness preview and never moves money.', usedBy: 'Post-approval review', owner: 'Operations', required: false, initial: 'Paused', latencyMs: 300 },
++  { id: 'screening', name: 'Sanctions & PEP screening', system: 'Watchlist adapter', purpose: 'Show whether verified screening evidence is available. An adverse credit bureau category is not a sanctions match.', usedBy: 'Compliance review', owner: 'Compliance', required: false, initial: 'Live', latencyMs: 260 },
++  { id: 'notices', name: 'Customer notices', system: 'SMS adapter', purpose: 'Prepare an application-specific notice preview. No message is sent from this demonstration.', usedBy: 'Decision and evidence notices', owner: 'Customer care', required: false, initial: 'Degraded', latencyMs: 1800 }
++] as const;
++const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value));
++const today = (): string => new Date(Date.now() + 3 * 3600000).toISOString().slice(0, 10);
++const defaultState = (): ConnectorState => ({ schema: 1, date: today(), status: Object.fromEntries(definitions.map(c => [c.id, c.initial])), calls: {}, events: [] });
++
++@Injectable({ providedIn: 'root' })
++export class LoanIntegrationService implements OnDestroy {
++  private state = defaultState(); storageError = '';
++  private storageListener = (e: StorageEvent): void => { if (e.key === KEY || e.key === null) { this.restore(); } };
++  constructor() { this.restore(); if (typeof window !== 'undefined') { window.addEventListener('storage', this.storageListener); } }
++  ngOnDestroy(): void { if (typeof window !== 'undefined') { window.removeEventListener('storage', this.storageListener); } }
++  private read(): ConnectorState {
++    const raw = localStorage.getItem(KEY); if (!raw) { return defaultState(); } const s = JSON.parse(raw) as ConnectorState;
++    if (!s || s.schema !== 1 || typeof s.date !== 'string' || !s.status || !s.calls || !Array.isArray(s.events)
++      || !definitions.every(d => ['Live', 'Degraded', 'Paused'].includes(s.status[d.id]))
++      || !Object.values(s.calls).every(c => c && Number.isSafeInteger(c.total) && Number.isSafeInteger(c.delivered) && c.delivered >= 0 && c.total >= c.delivered)
++      || !s.events.every(e => e && typeof e.id === 'string' && typeof e.action === 'string' && typeof e.connector === 'string' && typeof e.connectorId === 'string' && typeof e.applicationId === 'string' && typeof e.outcome === 'string' && Number.isFinite(Date.parse(e.at)))) { throw new Error('Saved connector state is inconsistent; it has been retained.'); }
++    if (s.date !== today()) { s.date = today(); s.calls = {}; } return s;
++  }
++  private restore(): void { try { this.state = this.read(); this.storageError = ''; } catch (e) { this.storageError = e instanceof Error ? e.message : 'Connector settings could not be read.'; } }
++  private commit(state: ConnectorState): void {
++    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { throw new Error('The browser could not save the connector change. No change was recorded.'); }
++    this.state = copy(state); this.storageError = '';
++  }
++  get connectors(): LoanConnector[] {
++    const calls = this.state.date === today() ? this.state.calls : {};
++    return definitions.map(d => { const c = calls[d.id]; return { ...d, status: this.state.status[d.id], latencyMs: this.state.status[d.id] === 'Paused' ? 0 : d.latencyMs,
++      callsToday: c?.total || 0, success: c?.total ? Math.round(c.delivered / c.total * 1000) / 10 : null }; });
++  }
++  get events(): ConnectorEvent[] { return copy(this.state.events); }
++  count(status: LoanConnectorStatus): number { return this.connectors.filter(c => c.status === status).length; }
++  get callsToday(): number { return this.connectors.reduce((sum, c) => sum + c.callsToday, 0); }
++  find(id: string): LoanConnector | undefined { return this.connectors.find(c => c.id === id); }
++  private event(s: ConnectorState, c: LoanConnector, action: string, applicationId: string, outcome: string, assessmentVersion?: number): void {
++    s.events.unshift({ id: 'CONN-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8), at: new Date().toISOString(), connectorId: c.id, connector: c.name, action, applicationId, outcome, ...(assessmentVersion ? { assessmentVersion } : {}) }); s.events = s.events.slice(0, 250);
++  }
++  toggle(id: string): LoanConnector {
++    const s = this.read(); const connector = this.find(id); if (!connector) { throw new Error('Choose an available connector.'); }
++    const status: LoanConnectorStatus = s.status[id] === 'Paused' ? 'Live' : 'Paused'; s.status[id] = status;
++    this.event(s, connector, status === 'Paused' ? 'Paused' : 'Resumed', '', status === 'Paused' ? 'No simulated calls; required data gates future assessments for review.' : 'Connector available for simulated checks.');
++    this.commit(s); return this.find(id)!;
++  }
++  availability(): LoanDataAvailability {
++    this.restore(); const connectors = this.connectors.filter(c => c.required).map(c => ({ id: c.id, name: c.name, status: c.status }));
++    const reasons = connectors.filter(c => c.status !== 'Live').map(c => c.name + ' is ' + c.status.toLowerCase() + '; review required before supporting an offer.');
++    if (this.storageError) { reasons.push('Connector configuration is unavailable; confirm the data sources before proceeding.'); }
++    return { version: 'connector-demo-1', checkedAt: new Date().toISOString(), decision: reasons.length ? 'Refer' : 'Approved', connectors, reasons };
++  }
++  async runCheck(id: string, record: LoanRecord): Promise<LoanConnectorResult> {
++    this.restore(); const connector = this.find(id); if (!connector) { throw new Error('Select a connector.'); }
++    if (!record?.assessments?.length) { throw new Error('Select a saved application before running a check.'); }
++    const assessment = latestAssessment(record); const at = new Date().toISOString();
++    const base = { connectorId: id, applicationId: record.id, assessmentVersion: assessment.version, checkedAt: at };
++    if (connector.status === 'Paused') {
++      const result: LoanConnectorResult = { ...base, tone: 'bad', title: 'Check blocked — connector paused', lines: ['Resume this connector before running a simulated check. No call was counted.'] };
++      const s = this.read(); this.event(s, connector, 'Check blocked', record.id, result.title, assessment.version); this.commit(s); return result;
++    }
++    await new Promise<void>(resolve => setTimeout(resolve, 180));
++    const state = this.read(); if (state.status[id] !== connector.status) { throw new Error('Connector state changed while checking. Retry using its current status.'); }
++    const result = connector.status === 'Degraded' ? { ...base, tone: 'wait' as const, title: 'Slow connector — review required', lines: ['The simulated response is degraded. No fresh verification is asserted.', 'Resume a paused connector to restore the Live demonstration state.'] }
++      : { ...base, ...this.readSnapshot(id, record) };
++    const c = state.calls[id] || { total: 0, delivered: 0 }; c.total++; if (connector.status === 'Live') { c.delivered++; } state.calls[id] = c;
++    this.event(state, connector, 'Check', record.id, result.title, assessment.version); this.commit(state); return result;
++  }
++  private readSnapshot(id: string, record: LoanRecord): Pick<LoanConnectorResult, 'tone' | 'title' | 'lines'> {
++    const a = latestAssessment(record), input = a.input, facts = a.eligibility?.customer;
++    const money = (n: number): string => 'KSh ' + new Intl.NumberFormat('en-KE', { maximumFractionDigits: 0 }).format(n);
++    if (id === 'core') { return { tone: a.affordability.dti <= a.policy.maxDti ? 'ok' : 'wait', title: 'Account and exposure snapshot', lines: ['Income ' + money(input.income) + '; existing monthly obligations ' + money(input.obligations) + '.', 'Requested debt service ' + (a.affordability.dti * 100).toFixed(1) + '%; policy cap ' + (a.policy.maxDti * 100).toFixed(0) + '%.', 'Monthly repayment headroom ' + money(a.affordability.headroom) + '.'] }; }
++    if (id === 'bureau') { return { tone: facts?.crbDefaulter || facts?.crbBlacklisted ? 'bad' : !facts || facts.crbDefaulter === null || facts.crbBlacklisted === null || input.bureau === 'Thin file' ? 'wait' : 'ok', title: 'Bureau snapshot: ' + input.bureau, lines: ['Defaulter listing: ' + this.flag(facts?.crbDefaulter) + '; blacklist: ' + this.flag(facts?.crbBlacklisted) + '.', 'Active loans ' + (facts?.activeLoans ?? 'unknown') + '; lenders ' + (facts?.activeLenders ?? 'unknown') + '.', 'Uses saved assessment v' + a.version + '; no fresh external bureau pull has occurred.'] }; }
++    if (id === 'identity') { const good = facts?.nationalIdVerified === true && facts.kycCompleted === true; return { tone: good ? 'ok' : 'wait', title: good ? 'ID and KYC confirmed on this snapshot' : 'Identity evidence needs review', lines: ['Customer ' + input.applicant + ' · ' + input.nationalId + '.', 'ID verified: ' + this.flag(facts?.nationalIdVerified) + '; KYC complete: ' + this.flag(facts?.kycCompleted) + '.', 'These are saved demonstration facts, not a national identity service response.'] }; }
++    if (id === 'collections') { return { tone: facts?.previousInstitutionDefault === true ? 'bad' : facts?.previousInstitutionDefault === false ? 'ok' : 'wait', title: 'Internal repayment standing', lines: ['Previous default with this institution: ' + this.flag(facts?.previousInstitutionDefault) + '.', 'Detailed instalment history is not available on this file.'] }; }
++    if (id === 'payout') { const ready = record.status === 'Approved' && !!record.approvedAmount && facts?.nationalIdVerified === true && facts.kycCompleted === true && facts.crbDefaulter === false && facts.crbBlacklisted === false && !this.availability().reasons.length;
++      return { tone: ready ? 'ok' : 'wait', title: ready ? 'Officer approval ready for further payout checks' : 'Not ready for payout review', lines: ['Officer status: ' + record.status + '.', record.approvedAmount ? 'Approved principal ' + money(record.approvedAmount) + '.' : 'No saved officer-approved amount.', 'Readiness preview only. Compliance/freshness checks and customer acceptance are still required; no funds are transferred.'] }; }
++    if (id === 'screening') { return { tone: 'wait', title: 'Verified screening evidence not available', lines: ['No sanctions or PEP screening result is attached to this assessment.', 'A credit bureau category does not establish a sanctions or PEP match.', 'Use an approved screening source and officer review before payout.'] }; }
++    if (id === 'notices') { return { tone: 'ok', title: 'Customer notice preview', lines: ['Recipient on file: ' + input.phone + '.', record.status === 'More information required' ? 'Additional supporting information is required for your loan application.' : 'Your application is ' + record.status.toLowerCase() + '.', 'Preview only. No SMS has been sent.'] }; }
++    return { tone: 'ok', title: 'Origination snapshot', lines: [input.applicant + ' · ' + input.product + '.', money(input.amount) + ' over ' + input.tenorMonths + ' months · ' + input.channel + '.', input.branch + ', ' + input.country + '.'] };
++  }
++  private flag(v: boolean | null | undefined): string { return v === true ? 'Yes' : v === false ? 'No' : 'Unknown'; }
++}
+diff --git a/src/app/views/pages/credit/workflow/loan-limit.engine.ts b/src/app/views/pages/credit/workflow/loan-limit.engine.ts
+--- a/src/app/views/pages/credit/workflow/loan-limit.engine.ts
++++ b/src/app/views/pages/credit/workflow/loan-limit.engine.ts
+@@ -1,68 +1,49 @@
+ import { ApplicationDraft } from '../credit-data.service';
+ import { CreditDecision, PolicySettings } from '../credit-demo.data';
+-import { simulatedLoanProbability } from './loan-ai.engine';
++import { simulatedLoanProbability, simulatedRisk } from './loan-ai.engine';
+ import { LoanLimitRecommendation } from './loan-workflow.models';
+ 
+-type CandidateScore = { score: number; dti: number; decision: CreditDecision };
+-// Fixed-term search is monotone for the original scorecard and simulated ensemble.
+-// Evaluate the policy at each candidate; a failed request is not itself a smaller-offer decision.
++type CandidateScore = { score: number; dti: number; decision: CreditDecision; eligibilityDecision?: CreditDecision; dataDecision?: CreditDecision };
++export const LOAN_RISK_LIMITS = { Low: { multiplier: 1, ceiling: 0.12 }, Medium: { multiplier: 0.65, ceiling: 0.30 }, High: { multiplier: 0.35, ceiling: 0.50 } };
++// Risk-adjusted indicative limit at the current product/term. High and Medium requests
++// need officer review even when a smaller candidate has a lower simulated likelihood.
+ export function recommendLoanLimit(input: ApplicationDraft, policy: PolicySettings,
+   evaluate: (candidate: ApplicationDraft) => CandidateScore): LoanLimitRecommendation {
+-  simulatedLoanProbability(input); // Validate financial inputs with the shared engine.
+-  if (![policy.maxDti, policy.maxAmount, policy.approveFrom, policy.declineBelow].every(Number.isFinite)
+-    || policy.maxDti <= 0 || policy.maxDti > 1 || policy.maxAmount < 10000 || policy.declineBelow >= policy.approveFrom) {
+-    throw new Error('Valid policy settings are required to recommend a lending limit.');
+-  }
+-  const minimumAmount = 10000; const increment = 1000; const riskCeiling = 0.12;
++  const riskBand = simulatedRisk(simulatedLoanProbability(input)); const tier = LOAN_RISK_LIMITS[riskBand];
++  if (![policy.maxDti, policy.maxAmount, policy.approveFrom, policy.declineBelow].every(Number.isFinite) || policy.maxDti <= 0 || policy.maxDti > 1 || policy.maxAmount < 10000 || policy.declineBelow >= policy.approveFrom) { throw new Error('Valid policy settings are required to recommend a lending limit.'); }
+   const monthlyBudget = Math.max(0, input.income * policy.maxDti - input.obligations);
+   const affordabilityCeiling = monthlyBudget * input.tenorMonths;
+-  const cap = Math.min(affordabilityCeiling, policy.maxAmount);
+-  const result: LoanLimitRecommendation = { version: 'limit-demo-1', outcome: 'Refer for review',
+-    requestedAmount: input.amount, tenorMonths: input.tenorMonths, maximumAmount: 0, recommendedAmount: 0,
+-    monthlyBudget, affordabilityCeiling, policyCeiling: policy.maxAmount, minimumAmount, increment, riskCeiling,
+-    offer: null, reasons: [] };
++  const cap = Math.floor(Math.min(policy.maxAmount, affordabilityCeiling * tier.multiplier) / 1000) * 1000;
++  const result: LoanLimitRecommendation = { version: 'limit-demo-2', outcome: 'Refer for review', requestedAmount: input.amount,
++    tenorMonths: input.tenorMonths, maximumAmount: Math.max(0, cap), recommendedAmount: 0, monthlyBudget, affordabilityCeiling,
++    policyCeiling: policy.maxAmount, minimumAmount: 10000, increment: 1000, riskCeiling: tier.ceiling, riskBand, riskMultiplier: tier.multiplier, offer: null,
++    reasons: [riskBand + ' requested-risk band: use ' + Math.round(tier.multiplier * 100) + '% of principal-only repayment capacity, capped by the configured amount ceiling.'] };
+   const assess = (amount: number) => {
+     const candidate = { ...input, amount }; const source = evaluate(candidate);
+     if (!Number.isFinite(source.score) || !Number.isFinite(source.dti)) { throw new Error('Candidate policy assessment returned invalid values.'); }
+-    const probability = simulatedLoanProbability(candidate);
+-    return { score: source.score, probability, dti: source.dti, installment: amount / input.tenorMonths, policyDecision: source.decision };
++    return { source, offer: { score: source.score, probability: simulatedLoanProbability(candidate), dti: source.dti, installment: amount / input.tenorMonths,
++      policyDecision: source.decision === 'Declined' ? 'Declined' as CreditDecision : riskBand !== 'Low' || source.decision !== 'Approved' || source.score < policy.approveFrom ? 'Refer' as CreditDecision : 'Approved' as CreditDecision } };
+   };
+-  const supported = (offer: NonNullable<LoanLimitRecommendation['offer']>): boolean =>
+-    offer.policyDecision === 'Approved' && offer.score >= policy.approveFrom && offer.dti <= policy.maxDti && offer.probability < riskCeiling;
+-  if (cap < minimumAmount) {
+-    result.outcome = 'Decline'; result.reasons = ['Repayment capacity at the selected term does not support the KSh 10,000 minimum principal.'];
+-    return result;
++  if (cap < 10000) { result.maximumAmount = 0; result.outcome = 'Decline'; result.reasons.push('Repayment capacity does not support the minimum KSh 10,000 principal at this risk allocation.'); return result; }
++  const minimum = assess(10000);
++  if (minimum.source.decision === 'Declined' || minimum.source.eligibilityDecision === 'Declined') { result.maximumAmount = 0; result.outcome = 'Decline'; result.reasons.push('A decline finding remains at the minimum amount. A smaller loan does not resolve it.'); return result; }
++  if ((minimum.source.eligibilityDecision && minimum.source.eligibilityDecision !== 'Approved') || (minimum.source.dataDecision && minimum.source.dataDecision !== 'Approved')) {
++    result.reasons.push('This indicative capacity is not an offer. Resolve customer eligibility or required connector availability before terms can be supported.'); return result;
+   }
+-  const minimum = assess(minimumAmount);
+-  if (!supported(minimum)) {
+-    result.outcome = minimum.policyDecision === 'Declined' ? 'Decline' : 'Refer for review';
+-    result.reasons = [minimum.policyDecision === 'Declined' ? 'Policy still recommends decline at the minimum principal. Reducing the amount does not resolve the finding.'
+-      : 'No principal in the supported range meets both approval policy and the low-risk threshold. Review the financial evidence.'];
+-    return result;
+-  }
+-  let low = minimumAmount / increment; let high = Math.floor(cap / increment);
+-  while (low < high) {
+-    const middle = low + Math.ceil((high - low) / 2);
+-    if (supported(assess(middle * increment))) { low = middle; } else { high = middle - 1; }
+-  }
+-  result.maximumAmount = low * increment;
+-  result.recommendedAmount = Math.min(input.amount, result.maximumAmount);
+-  result.offer = assess(result.recommendedAmount);
+-  result.outcome = result.recommendedAmount === input.amount ? 'Approve full amount' : 'Approve reduced amount';
+-  const next = result.maximumAmount + increment;
+-  result.reasons.push(result.outcome === 'Approve full amount' ? 'The requested principal fits within the recommended limit.'
+-    : 'The request exceeds the recommended limit. A smaller principal passes the repeated policy and model checks.');
+-  if (next > policy.maxAmount) { result.reasons.push('The configured policy amount ceiling sets the upper bound.'); }
+-  if (next > affordabilityCeiling) { result.reasons.push('Repayment headroom at this term sets the upper bound.'); }
+-  if (next <= cap) {
+-    const beyond = assess(next);
+-    if (beyond.probability >= riskCeiling) { result.reasons.push('A higher principal crosses the simulated low-risk threshold.'); }
+-    if (beyond.policyDecision !== 'Approved' || beyond.score < policy.approveFrom) { result.reasons.push('A higher principal falls outside the source scorecard approval band.'); }
+-  }
++  const viable = (a: ReturnType<typeof assess>): boolean => a.source.decision !== 'Declined' && a.source.score >= policy.declineBelow && a.offer.dti <= policy.maxDti && a.offer.probability < tier.ceiling;
++  if (!viable(minimum)) { result.maximumAmount = 0; result.reasons.push('No candidate meets the minimum score, affordability and risk checks.'); return result; }
++  let low = 10; let high = cap / 1000;
++  while (low < high) { const mid = low + Math.ceil((high - low) / 2); if (viable(assess(mid * 1000))) { low = mid; } else { high = mid - 1; } }
++  result.maximumAmount = low * 1000; result.recommendedAmount = Math.min(input.amount, result.maximumAmount); result.offer = assess(result.recommendedAmount).offer;
++  result.outcome = result.offer.policyDecision !== 'Approved' ? 'Refer for review' : result.recommendedAmount === input.amount ? 'Approve full amount' : 'Approve reduced amount';
++  result.reasons.push(result.outcome === 'Refer for review' ? 'A positive limit is proposed for officer review. It is not an automatic approval.' : result.recommendedAmount < input.amount ? 'The smaller offer passes the candidate checks.' : 'The request fits within the supported lending limit.');
++  if (result.maximumAmount + 1000 > policy.maxAmount) { result.reasons.push('The configured policy amount ceiling is binding.'); }
++  else if (result.maximumAmount + 1000 <= cap) { result.reasons.push('A higher principal falls outside the candidate score or simulated risk threshold.'); }
++  else { result.reasons.push('Risk-adjusted repayment capacity is binding at this term.'); }
+   return result;
+ }
+ 
+-export function validLoanLimit(value: unknown, input: ApplicationDraft, policy: PolicySettings): value is LoanLimitRecommendation {
++function validLegacyLoanLimit(value: unknown, input: ApplicationDraft, policy: PolicySettings): value is LoanLimitRecommendation {
+   const a = value as LoanLimitRecommendation; const finite = (n: number): boolean => Number.isFinite(n) && n >= 0;
+   if (!a || a.version !== 'limit-demo-1' || !['Approve full amount', 'Approve reduced amount', 'Refer for review', 'Decline'].includes(a.outcome)
+     || a.requestedAmount !== input.amount || a.tenorMonths !== input.tenorMonths || a.policyCeiling !== policy.maxAmount
+@@ -81,3 +62,28 @@
+     && finite(o.dti) && o.dti <= policy.maxDti && Math.abs(o.dti - (input.obligations + a.recommendedAmount / input.tenorMonths) / input.income) < 0.00001
+     && finite(o.installment) && Math.abs(o.installment - a.recommendedAmount / input.tenorMonths) < 0.01;
+ }
++
++export function validLoanLimit(value: unknown, input: ApplicationDraft, policy: PolicySettings): value is LoanLimitRecommendation {
++  const a = value as LoanLimitRecommendation;
++  if (a?.version === 'limit-demo-1') { return validLegacyLoanLimit(value, input, policy); }
++  try {
++    const band = simulatedRisk(simulatedLoanProbability(input)); const tier = LOAN_RISK_LIMITS[band];
++    const finite = (n: number): boolean => Number.isFinite(n) && n >= 0;
++    const budget = Math.max(0, input.income * policy.maxDti - input.obligations);
++    if (!a || a.version !== 'limit-demo-2' || !['Approve full amount', 'Approve reduced amount', 'Refer for review', 'Decline'].includes(a.outcome)
++      || a.requestedAmount !== input.amount || a.tenorMonths !== input.tenorMonths || a.policyCeiling !== policy.maxAmount || a.minimumAmount !== 10000 || a.increment !== 1000
++      || a.riskBand !== band || a.riskMultiplier !== tier.multiplier || a.riskCeiling !== tier.ceiling
++      || ![a.maximumAmount, a.recommendedAmount, a.monthlyBudget, a.affordabilityCeiling].every(finite)
++      || Math.abs(a.monthlyBudget - budget) > 0.01 || Math.abs(a.affordabilityCeiling - budget * input.tenorMonths) > 0.01
++      || a.maximumAmount % 1000 !== 0 || a.maximumAmount > Math.min(policy.maxAmount, a.affordabilityCeiling * tier.multiplier)
++      || !Array.isArray(a.reasons) || !a.reasons.length || !a.reasons.every(x => typeof x === 'string')) { return false; }
++    if (!a.offer) { return a.recommendedAmount === 0 && (a.outcome === 'Refer for review' || (a.outcome === 'Decline' && a.maximumAmount === 0)); }
++    const o = a.offer;
++    if (a.maximumAmount < 10000 || a.recommendedAmount !== Math.min(input.amount, a.maximumAmount) || !finite(o.score) || o.score < policy.declineBelow || o.score > 900
++      || !finite(o.probability) || o.probability >= tier.ceiling || Math.abs(o.probability - simulatedLoanProbability({ ...input, amount: a.recommendedAmount })) > 0.00001
++      || !finite(o.dti) || o.dti > policy.maxDti || Math.abs(o.dti - (input.obligations + a.recommendedAmount / input.tenorMonths) / input.income) > 0.00001
++      || !finite(o.installment) || Math.abs(o.installment - a.recommendedAmount / input.tenorMonths) > 0.01 || !['Approved', 'Refer'].includes(o.policyDecision)) { return false; }
++    if (o.policyDecision === 'Approved') { return band === 'Low' && o.score >= policy.approveFrom && a.outcome === (a.recommendedAmount === input.amount ? 'Approve full amount' : 'Approve reduced amount'); }
++    return a.outcome === 'Refer for review';
++  } catch { return false; }
++}
+diff --git a/src/app/views/pages/credit/workflow/loan-workflow.models.ts b/src/app/views/pages/credit/workflow/loan-workflow.models.ts
+--- a/src/app/views/pages/credit/workflow/loan-workflow.models.ts
++++ b/src/app/views/pages/credit/workflow/loan-workflow.models.ts
+@@ -13,7 +13,7 @@
+   version: 'eligibility-demo-1'; customer: LoanCustomerFacts; policy: LoanEligibilityPolicy;
+   checks: LoanCheck[]; decision: CreditDecision; reasons: string[];
+ }
+-export interface LoanCustomer { id: string; source: 'Mock customer from original portal'; profile: ApplicationDraft; facts: LoanCustomerFacts; }
++export interface LoanCustomer { id: string; source: 'Mock customer from original portal' | 'Kenya demo profile'; profile: ApplicationDraft; facts: LoanCustomerFacts; }
+ export interface LoanCheck { code: string; name: string; observed: string; requirement: string; result: 'Pass' | 'Triggered' | 'Not implemented' | 'Needs review'; effect: string; }
+ export interface LoanModelOutput { id: string; name: string; probability: number; risk: RiskBand; weight: number; }
+ export interface LoanRiskDriver { label: string; deltaPp: number; reference: string; explanation: string; }
+@@ -29,9 +29,10 @@
+ }
+ export type LoanLimitOutcome = 'Approve full amount' | 'Approve reduced amount' | 'Refer for review' | 'Decline';
+ export interface LoanLimitRecommendation {
+-  version: 'limit-demo-1'; outcome: LoanLimitOutcome; requestedAmount: number; tenorMonths: number;
++  version: 'limit-demo-1' | 'limit-demo-2'; outcome: LoanLimitOutcome; requestedAmount: number; tenorMonths: number;
+   maximumAmount: number; recommendedAmount: number; monthlyBudget: number; affordabilityCeiling: number;
+-  policyCeiling: number; minimumAmount: 10000; increment: 1000; riskCeiling: 0.12;
++  policyCeiling: number; minimumAmount: 10000; increment: 1000; riskCeiling: number;
++  riskBand?: RiskBand; riskMultiplier?: number;
+   offer: { score: number; probability: number; dti: number; installment: number; policyDecision: CreditDecision } | null;
+   reasons: string[];
+ }
+@@ -47,6 +48,12 @@
+   limit?: LoanLimitRecommendation;
+   eligibility?: LoanEligibility;
+   sourceChecks?: LoanCheck[];
++  integration?: LoanDataAvailability;
++}
++export type LoanConnectorStatus = 'Live' | 'Degraded' | 'Paused';
++export interface LoanDataAvailability {
++  version: 'connector-demo-1'; checkedAt: string; decision: 'Approved' | 'Refer';
++  connectors: Array<{ id: string; name: string; status: LoanConnectorStatus }>; reasons: string[];
+ }
+ export interface LoanEvent {
+   id: string; action: 'Assessed' | 'Reassessed' | 'Approve' | 'Decline' | 'Request information';
+diff --git a/src/app/views/pages/credit/workflow/loan-workflow.scss b/src/app/views/pages/credit/workflow/loan-workflow.scss
+--- a/src/app/views/pages/credit/workflow/loan-workflow.scss
++++ b/src/app/views/pages/credit/workflow/loan-workflow.scss
+@@ -159,3 +159,17 @@
+   @media(prefers-reduced-motion: reduce) { *, *:before, *:after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+ }
+ @keyframes loan-spin { to { transform: rotate(360deg); } }
++.loan-workflow {
++ .risk-influence-chart { margin-top: 21px; }
++ .risk-chart-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; >span { font-size: 13px; font-weight: 700; color: #3a5a7d; } small { color: #8295ac; font-size: 10px; } }
++ .risk-chart-legend { display: flex; flex-wrap: wrap; gap: 17px; margin: 14px 0 17px; span { display: inline-flex; align-items: center; gap: 6px; color: #7c8fa7; font-size: 10px; } i { width: 7px; height: 7px; border-radius: 50%; } .adverse { background: #d56d86; } .protective { background: #3a9c89; } }
++ .risk-chart-row { display: block; width: 100%; text-align: left; background: #fff; border: 1px solid transparent; border-radius: 8px; padding: 11px; margin-bottom: 4px; &:hover, &.selected { background: #f4f7ff; border-color: #dae5f6; } }
++ .risk-chart-label { display: flex; align-items: center; gap: 10px; b { font-size: 9px; color: #91a2b9; width: 18px; } strong { color: #4c6787; font-size: 12px; } em { font-style: normal; color: #5d7696; font-weight: 700; font-size: 12px; margin-left: auto; } }
++ .risk-chart-track { display: block; height: 11px; background: repeating-linear-gradient(to right,#edf2f8 0%,#edf2f8 24.7%,#dfe7f2 25%); border-radius: 5px; margin: 11px 0 0 28px; overflow: hidden; i { display: block; height: 100%; background: linear-gradient(90deg,#67b5a2,#26927b); border-radius: 5px; min-width: 0; &.adverse { background: linear-gradient(90deg,#e39baf,#cb5875); } &.neutral { background: #acb9ca; } } }
++ .risk-chart-axis { display: flex; align-items: center; justify-content: space-between; color: #8da0b6; font-size: 9px; margin: 7px 10px 21px 39px; }
++ .risk-driver-tooltip { background: #1b365b; border: 1px solid #254877; border-radius: 11px; padding: 19px; margin-top: 18px; color: #d8e7fa; >div { position: relative; padding-right: 75px; >strong { display: block; color: white; font-size: 14px; } >b { position: absolute; right: 0; top: 19px; color: #7fd2bd; font-size: 17px; &.adverse { color: #f1b3c4; } } } .ai-eyebrow { color: #9fb7dd; font-size: 9px; } p { color: #c8dbf4; font-size: 12px; line-height: 1.85; margin: 12px 0; } p strong { color: #edf5ff; } small { display: block; border-top: 1px solid #b7cff01f; padding-top: 10px; margin-top: 10px; color: #b6cde9; font-size: 10px; line-height: 1.8; } }
++ .risk-chart-hint { padding: 18px; background: #f4f7fc; border: 1px dashed #cfdbed; border-radius: 9px; color: #7e91ab; font-size: 12px; line-height: 1.85; }
++ .graph-policy-evidence, details.identity-policy-context { border-top: 1px solid #e2e9f3; margin-top: 22px; padding-top: 18px; >summary { color: #607d9f; font-size: 12px; margin-bottom: 13px; } h4 { color: #6a85a4; font-size: 11px; margin: 18px 0 8px; } }
++ .assessment-data-status { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 15px; padding: 15px 17px; border: 1px solid #d9e8e3; border-radius: 9px; background: #f1f9f5; color: #568575; margin: 19px 0; strong { font-size: 11px; width: 100%; color: #39745f; } span { font-size: 10px; } small { width: 100%; color: #83a396; font-size: 9px; } p { width: 100%; margin: 6px 0; font-size: 11px; line-height: 1.8; } &.needs-review { border-color: #eddfc2; background: #fff8ea; color: #9b7f49; strong { color: #927136; } } }
++ @media(max-width: 550px) { .risk-chart-heading { display: block; small { display: block; margin-top: 7px; } } .risk-chart-label strong { font-size: 11px; } }
++}
+diff --git a/src/app/views/pages/credit/workflow/loan-workflow.service.ts b/src/app/views/pages/credit/workflow/loan-workflow.service.ts
+--- a/src/app/views/pages/credit/workflow/loan-workflow.service.ts
++++ b/src/app/views/pages/credit/workflow/loan-workflow.service.ts
+@@ -4,9 +4,11 @@
+ import { ApplicationDraft, CreditDataService } from '../credit-data.service';
+ import { APPLICATIONS, COUNTRIES, PRODUCTS, CreditDecision, DecisionRule, PolicySettings } from '../credit-demo.data';
+ import { BulkApplicationRow, LoanAssessment, LoanCheck, LoanCustomer, LoanCustomerFacts, LoanEvent, LoanRecord, LOAN_STATUSES, LOAN_STORAGE_KEY, isPending, latestAssessment } from './loan-workflow.models';
+-import { previewLoanScenario, simulateLoanAi, validLoanAi } from './loan-ai.engine';
++import { previewLoanScenario, simulateLoanAi, simulatedRisk, simulatedLoanProbability, validLoanAi } from './loan-ai.engine';
+ import { recommendLoanLimit, validLoanLimit } from './loan-limit.engine';
+ import { combineLoanDecisions, customerFacts, DEMO_LOAN_CUSTOMER_FACTS, evaluateLoanEligibility, validLoanEligibility } from './loan-eligibility.engine';
++import { KENYA_LOAN_CUSTOMERS } from './loan-customers.data';
++import { LoanIntegrationService } from './loan-integration.service';
+ 
+ function copy<T>(value: T): T { return JSON.parse(JSON.stringify(value)); }
+ export function loanId(prefix: string): string {
+@@ -27,7 +29,9 @@
+ export class LoanWorkflowService implements OnDestroy {
+   readonly products = PRODUCTS;
+   readonly statuses = LOAN_STATUSES;
+-  readonly customers: LoanCustomer[] = [0, 1, 2, 5, 11].map((index, position) => {
++  readonly customers: LoanCustomer[] = copy(KENYA_LOAN_CUSTOMERS);
++  // Older saved applications retain their original identity and remain readable.
++  private readonly legacyCustomers: LoanCustomer[] = [0, 1, 2, 5, 11].map((index, position) => {
+     const app = APPLICATIONS[index];
+     return { id: 'DEMO-CUSTOMER-' + (index + 1), source: 'Mock customer from original portal', profile: {
+       applicant: app.applicant, nationalId: app.nationalId, phone: app.phone, country: app.country, branch: app.branch,
+@@ -41,7 +45,7 @@
+   private inFlight = new Set<string>();
+   private onStorage = (event: StorageEvent): void => { if (event.key === LOAN_STORAGE_KEY || event.key === null) { this.restore(); } };
+ 
+-  constructor(public credit: CreditDataService, private auth: AuthService) {
++  constructor(public credit: CreditDataService, private auth: AuthService, public integration: LoanIntegrationService = new LoanIntegrationService()) {
+     this.restore();
+     if (typeof window !== 'undefined') { window.addEventListener('storage', this.onStorage); }
+   }
+@@ -52,13 +56,14 @@
+   latest = latestAssessment;
+   pending = isPending;
+   money(value: number): string { return this.credit.money(value); }
+-  advice(assessment: LoanAssessment): CreditDecision { return combineLoanDecisions(assessment.ai?.advice || assessment.recommendation, assessment.eligibility?.decision || 'Approved'); }
++  advice(assessment: LoanAssessment): CreditDecision { return combineLoanDecisions(combineLoanDecisions(assessment.ai?.advice || assessment.recommendation, assessment.eligibility?.decision || 'Approved'), assessment.integration?.decision || 'Approved'); }
++  customerRisk(customer: LoanCustomer): string { return simulatedRisk(simulatedLoanProbability(customer.profile)); }
+   bureauLabel(a: LoanAssessment): string { return a.eligibility?.customer.crbBlacklisted === true ? 'Blacklisted' : a.eligibility?.customer.crbDefaulter === true ? 'Defaulter listed' : a.input.bureau; }
+   recommendationLabel(a: LoanAssessment): string { return a.limit?.outcome || (this.advice(a) === 'Approved' ? 'Support approval' : this.advice(a) === 'Declined' ? 'Recommend decline' : 'Refer for review'); }
+   limitSummary(a: LoanAssessment): string {
+     const l = a.limit; if (!l) { return ''; }
+-    return l.offer ? 'An offer of ' + this.money(l.recommendedAmount) + ' is supported against the ' + this.money(l.requestedAmount) + ' request. The recommended limit is ' + this.money(l.maximumAmount) + ' for this product and ' + l.tenorMonths + '-month term.'
+-      : l.outcome === 'Decline' ? 'No eligible principal is recommended at this term. Review the decisive policy or affordability finding.' : 'A lending limit needs further review; no supported offer has been established.';
++    return l.offer ? (l.outcome === 'Refer for review' ? 'A proposed amount of ' : 'An offer of ') + this.money(l.recommendedAmount) + ' is indicated against the ' + this.money(l.requestedAmount) + ' request. The risk-adjusted limit is ' + this.money(l.maximumAmount) + ' at ' + l.tenorMonths + ' months.' + (l.outcome === 'Refer for review' ? ' Officer review and an acknowledged exception are required for approval.' : '')
++      : l.outcome === 'Decline' ? 'No eligible principal is recommended at this term. Review the decisive policy or affordability finding.' : (l.maximumAmount > 0 ? 'Indicative repayment capacity is ' + this.money(l.maximumAmount) + '. ' : '') + 'No supported offer is established until the outstanding findings are resolved.';
+   }
+   facilityAdvice(a: LoanAssessment): CreditDecision { return a.limit ? a.limit.outcome.startsWith('Approve') ? 'Approved' : a.limit.outcome === 'Decline' ? 'Declined' : 'Refer' : this.advice(a); }
+   approvalNeedsOverride(a: LoanAssessment, basis: 'requested' | 'recommended'): boolean {
+@@ -87,7 +92,7 @@
+ 
+   lookup(nationalId: string): LoanCustomer | null {
+     const id = nationalId.trim().toUpperCase();
+-    const customer = this.customers.find(x => x.profile.nationalId.toUpperCase() === id);
++    const customer = [...this.customers, ...this.legacyCustomers].find(x => x.profile.nationalId.toUpperCase() === id);
+     return customer ? copy(customer) : null;
+   }
+   private officer(): Pick<LoanEvent, 'officer' | 'officerSource'> {
+@@ -112,6 +117,12 @@
+         validateLoanDraft(a.input);
+         if (a.ai !== undefined && !validLoanAi(a.ai)) { return false; }
+         if (a.limit !== undefined && !validLoanLimit(a.limit, a.input, a.policy)) { return false; }
++        if (a.integration && (a.integration.version !== 'connector-demo-1' || !Number.isFinite(Date.parse(a.integration.checkedAt)) || !['Approved', 'Refer'].includes(a.integration.decision)
++          || !Array.isArray(a.integration.reasons) || !a.integration.reasons.every(r => typeof r === 'string') || !Array.isArray(a.integration.connectors) || a.integration.connectors.length !== 4
++          || new Set(a.integration.connectors.map(c => c.id)).size !== 4 || !a.integration.connectors.every(c => ['core', 'bureau', 'identity', 'collections'].includes(c.id) && typeof c.name === 'string' && ['Live', 'Degraded', 'Paused'].includes(c.status))
++          || (a.integration.decision === 'Approved' && (a.integration.reasons.length > 0 || a.integration.connectors.some(c => c.status !== 'Live')))
++          || (a.integration.decision === 'Refer' && !a.integration.reasons.length))) { return false; }
++        if (a.limit?.offer && a.integration?.decision === 'Refer') { return false; }
+         if (a.eligibility !== undefined && (!validLoanEligibility(a.eligibility, a.input, a.policy) || JSON.stringify(a.checks) !== JSON.stringify(a.eligibility.checks))) { return false; }
+         if (a.limit?.offer && a.eligibility && evaluateLoanEligibility(a.eligibility.customer, { ...a.input, amount: a.limit.recommendedAmount }, a.policy, a.eligibility.policy).decision !== 'Approved') { return false; }
+         if (a.ai) {
+@@ -128,7 +139,7 @@
+           if (event.action !== 'Approve' || !Number.isFinite(event.approvedAmount) || event.approvedAmount! < 10000 || event.approvedAmount! > a.input.amount
+             || event.approvedTenorMonths !== a.input.tenorMonths || !['Requested amount', 'Recommended offer'].includes(event.approvalBasis!)) { return false; }
+           if (event.approvalBasis === 'Requested amount' && event.approvedAmount !== a.input.amount) { return false; }
+-          if (event.approvalBasis === 'Recommended offer' && (!a.limit?.offer || event.approvedAmount !== a.limit.recommendedAmount || !a.limit.outcome.startsWith('Approve'))) { return false; }
++          if (event.approvalBasis === 'Recommended offer' && (!a.limit?.offer || event.approvedAmount !== a.limit.recommendedAmount || a.limit.outcome === 'Decline')) { return false; }
+           if (this.approvalNeedsOverride(a, event.approvalBasis === 'Recommended offer' ? 'recommended' : 'requested') && !event.policyOverride) { return false; }
+         }
+       }
+@@ -210,7 +221,7 @@
+     if (!['Approve', 'Decline', 'Request information'].includes(action)) { throw new Error('Unknown decision action.'); }
+     if (action === 'Approve' && record.status === 'More information required') { throw new Error('Reassess the application after receiving the requested information before approval.'); }
+     if (!['requested', 'recommended'].includes(approvalBasis)) { throw new Error('Choose the requested amount or the assessed recommended offer.'); }
+-    if (action === 'Approve' && approvalBasis === 'recommended' && (!assessment.limit?.offer || !assessment.limit.outcome.startsWith('Approve'))) { throw new Error('No supported recommended offer exists. Reassess before approving revised terms.'); }
++    if (action === 'Approve' && approvalBasis === 'recommended' && (!assessment.limit?.offer || assessment.limit.outcome === 'Decline')) { throw new Error('No supported recommended offer exists. Reassess before approving revised terms.'); }
+     const approvedAmount = approvalBasis === 'recommended' ? assessment.limit?.recommendedAmount : assessment.input.amount;
+     const override = action === 'Approve' && this.approvalNeedsOverride(assessment, approvalBasis);
+     if (override && (!acknowledgeOverride || text.length < 20)) { throw new Error('Acknowledge the policy override and explain it in at least 20 characters.'); }
+@@ -232,28 +243,31 @@
+     if (raw !== preview.score) { contributions.push({ label: 'Score range clamp (300–900)', impact: preview.score - raw }); }
+     const installment = input.amount / input.tenorMonths;
+     const eligibility = evaluateLoanEligibility(facts, input, policy);
++    const integration = this.integration.availability();
+     const limit = recommendLoanLimit(input, policy, candidate => {
+       const scored = this.credit.scoreDraft(candidate);
+-      return { ...scored, decision: combineLoanDecisions(scored.decision, evaluateLoanEligibility(facts, candidate, policy, eligibility.policy).decision) };
++      return { ...scored, eligibilityDecision: evaluateLoanEligibility(facts, candidate, policy, eligibility.policy).decision, dataDecision: integration.decision };
+     });
+     if (!limit.offer && eligibility.reasons.length) { limit.reasons.push(...eligibility.reasons); }
++    if (!limit.offer && integration.reasons.length) { limit.reasons.push(...integration.reasons); }
+     return { version, assessedAt: new Date().toISOString(), input: copy(input), mode: 'SIMULATED', modelAvailable: false,
+       modelMessage: 'The ensemble uses deterministic model simulations for demonstration. Its likelihoods are illustrative, uncalibrated and do not come from trained estimators or an inference API.',
+       score: preview.score, scoreMinimum: 300, scoreMaximum: 900, risk: preview.risk, baseScore: 500, contributions,
+-      policy, configuredRules: rules, checks: copy(eligibility.checks), eligibility,
++      policy, configuredRules: rules, checks: copy(eligibility.checks), eligibility, integration,
+       sourceChecks: this.policyChecks(input, preview.score, preview.dti, policy, rules),
+       affordability: { installment, dti: preview.dti, headroom: Math.max(0, input.income * policy.maxDti - input.obligations), residual: input.income - input.obligations - installment, affordable: preview.dti <= policy.maxDti },
+       recommendation: preview.decision, reasons: copy(preview.reasons), ai: simulateLoanAi(input, policy, preview.decision),
+       limit, limitations: [
+         'The ensemble represents logistic, boosted-tree and forest-style model outputs using deterministic surrogates. No trained ML estimator or generative AI API is executed.',
+-        'Customer financial profiles are from the original portal. The additional identity, KYC, account/employment tenure, CRB flags, loan/lender counts, internal default, age and six-month balance facts are demonstration fixtures or user-entered demo inputs, not live verification results. Records and decisions are stored in this browser.',
++        'New intake uses eight fictional Kenyan financial profiles and demonstration identity, KYC, account/employment tenure, CRB, loan/lender, internal-default, age and balance facts. Older saved profiles retain their original snapshots. These facts are not live verification results. Records and decisions are stored in this browser.',
+         'The seven eligibility checks are a separate deterministic policy gate. Demo defaults are 6 account months, at most 4 active loans and 3 active lenders, and 6 employment/business months; DTI uses the saved configurable credit policy. Missing facts require review. Age and average balance provide context only and do not enter the six-signal model simulation.',
+         'Affordability uses principal / months and reported obligations. Interest, fees and separately itemised living expenses are unavailable.',
+         'Risk thresholds (700 / 580) come from the original scorecard. They are separate from the configurable lending cutoffs.',
+         'Risk-driver sensitivities compare one derived ensemble signal at a time with a stated demo reference. They are not SHAP, population feature importance or causal effects, and do not add to the likelihood.',
+         'Ensemble risk bands are below 12% / below 30% / otherwise high, using illustrative likelihoods without a validated default horizon. Agreement is the proportion of model risk votes matching the ensemble, not predictive accuracy.',
+         'Copilot briefings are composed from the actual assessment inputs and checks using templates. Combined advice describes the original request; a smaller recommended offer is assessed separately. Officer review remains required.',
+-        'Lending limits are illustrative, principal-only and specific to the selected product and term. The search rounds down to KSh 1,000 increments, caps principal by repayment headroom and the configured auto-approval amount, and rechecks source-policy approval and simulated likelihood below 12%. This is not a binding credit offer or a regulatory affordability assessment.'
++        'New risk-adjusted limits use 100% / 65% / 35% of principal-only repayment capacity for Low / Medium / High requested-risk bands, capped by the configured amount ceiling. Candidate likelihood ceilings are 12% / 30% / 50%. These are demonstration risk-appetite settings. Medium and High proposals always need officer review and explicit override acknowledgement before approval.',
++        'Eight fictional Kenyan profiles are used for new intake. Existing saved customer identities and assessment histories are retained. Connector availability is simulated; no external identity, CRB, SMS, sanctions or payout service is called.'
+       ] };
+   }
+   private policyChecks(input: ApplicationDraft, score: number, dti: number, policy: PolicySettings, rules: DecisionRule[]): LoanCheck[] {
