@@ -24,7 +24,7 @@ export const MENU: MenuItem[] = [
   { label: 'Dashboard', icon: 'home', link: '/dashboard', exact: true },
 
   { isTitle: true, label: 'Workspace' },
-  { label: 'New Application', icon: 'plus-circle', link: '/applications/new', exact: true },
+  { label: 'Ingestion', icon: 'plus-circle', link: '/applications/new', exact: true },
   {
     label: 'Applications',
     icon: 'file-text',
@@ -35,12 +35,12 @@ export const MENU: MenuItem[] = [
   { label: 'Decision Queue', icon: 'inbox', link: '/decision-queue', exact: true, badge: { text: 8, variant: 'uba' } },
 
   { isTitle: true, label: 'Risk & Decisioning' },
-  { label: 'Credit Scoring', icon: 'percent', link: '/credit-scoring', exact: true },
+  { label: 'Channels Simulator', icon: 'percent', link: '/credit-scoring', exact: true },
   { label: 'Decision Rules', icon: 'sliders', link: '/decision-rules', exact: true },
   { label: 'Policy Simulator', icon: 'shuffle', link: '/policy-simulator', exact: true },
 
   { isTitle: true, label: 'Insights' },
-  { label: 'Reports', icon: 'bar-chart-2', link: '/reports', exact: true },
+  { label: 'Portfolio Analytics', icon: 'pie-chart', link: '/portfolio', exact: true },
 
   { isTitle: true, label: 'Administration' },
   { label: 'Alerts', icon: 'bell', link: '/alerts', exact: true, badge: { text: 8, variant: 'uba' } },

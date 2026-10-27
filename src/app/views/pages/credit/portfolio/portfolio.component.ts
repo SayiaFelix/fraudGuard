@@ -28,7 +28,7 @@ Chart.register(...registerables);
 // TYPES
 // ---------------------------------------------
 
-type PortfolioTab = 'products' | 'countries';
+type PortfolioTab = 'products' | 'countries' | 'reports';
 
 type ApprovalBand =
   | 'all'
@@ -861,6 +861,11 @@ private outcomeInstance?: Chart<'bar', number[], string>;
     }
 
     this.activeTab = tab;
+
+    if (tab === 'reports') {
+      this.clearNotification();
+      return;
+    }
 
     this.currentPage = 1;
     this.searchTerm = '';
