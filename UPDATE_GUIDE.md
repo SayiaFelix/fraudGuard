@@ -1,35 +1,32 @@
-# Explainable Outlook — hover pop-out update
+# Clean wording update — files only
 
-Apply this after `Loan_Workflow_Integration_Kenya_Risk_Update_Files.zip` has been installed.
+Apply after `Loan_Workflow_Hover_Popout_Update_Files.zip`.
 
 ## Install
 
 1. Stop Angular with Ctrl+C.
-2. Extract this package and merge its `src` folder into the existing project folder containing `package.json`, replacing the three matching files.
+2. Extract this ZIP and merge its `src` folder into the existing project folder containing `package.json`, replacing the four matching files.
 3. Restart:
 
 ```powershell
 npx ng serve --port 22602
 ```
 
-## Included replacements
+## Updated files
 
-- `src/app/views/pages/credit/workflow/loan-assessment.component.ts`
 - `src/app/views/pages/credit/workflow/loan-assessment.component.html`
-- `src/app/views/pages/credit/workflow/loan-workflow.scss`
+- `src/app/views/pages/credit/workflow/loan-workflow.service.ts`
+- `src/app/views/pages/credit/applications/applications.component.html`
+- `src/app/views/pages/credit/new-application/new-application.component.html`
 
-The shared assessment is used by New Application, Applications and Decision Queue. No new package or NgModule declaration is needed.
+The repeated word “simulated” is removed from the Explainable Outlook, hover explanations, scenario wording, assessment labels and integration labels. Generated summaries, strengths, concerns, limit reasons and connector messages also receive the clean wording when displayed, including messages in previously saved assessments.
 
-## Hover behaviour
+The Model simulation and Connector simulation badges, methodology disclosures and endpoint limitations remain. These accurately describe the demo. This is a presentation change: stored assessment text, numerical model outputs, risk bands, loan limits, policy checks, connector controls and decision submission logic are unchanged. The existing floating hover card remains in place.
 
-The reason now appears in a floating card with a pointer and shadow, rather than expanding below the graph. It opens beside the bar when space allows, or above/below it on smaller screens. It remains within the viewport, scrolls internally when necessary, and follows the bar as the page scrolls. Hovering does not change the graph height.
+No new npm package, component or NgModule declaration is needed.
 
-Hover, focus or tap a bar to open its explanation. You can move the pointer onto the card to read it. Move away, tap outside, change tabs or press Escape to dismiss it. Each assessment has its own accessible description identifier. Resize/scroll handlers and pending timers are cleaned up when the assessment closes.
+## Verification
 
-The customer information, ranked sensitivities, seven policy checks, lending limits and decision submission behaviour remain as in the previous update.
+The three HTML templates were compared against the preceding versions after accounting for the text substitutions and the new display-formatter calls. Their structure, original binding expressions, controls and policy-table columns are unchanged. The shared service is identical apart from its display-only text formatter. The remaining templates contain no standalone occurrence of the removed word. Formatter checks cover earlier saved summaries and case-insensitive text.
 
-## Validation
-
-Strict Angular compilation and the existing workflow checks passed. Actual browser checks passed for desktop hover, no layout shift, hovering over the card, keyboard focus/Escape, outside dismissal, scroll repositioning, tab cleanup, 390px mobile and short landscape viewport bounds, and real touch open/dismiss interactions. No browser page errors were reported.
-
-The full development build passed with the original project's existing development bundle budget temporarily disabled for validation; its exact configuration was restored and is not included in this package. Existing unrelated optional-chain/CommonJS warnings remain.
+This wording-only patch was not subjected to a new full Angular build.
