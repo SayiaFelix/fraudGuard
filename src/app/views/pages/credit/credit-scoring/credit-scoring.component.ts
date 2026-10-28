@@ -4,7 +4,7 @@ import { CreditDataService } from '../credit-data.service';
 
 type Channel = 'mobile' | 'chatbot';
 type JourneyStep = 'welcome' | 'limit-check' | 'explain' | 'apply' | 'success';
-type PhoneTab = 'home' | 'loans' | 'cards' | 'profile';
+type PhoneTab = 'home' | 'offers' | 'loans' | 'cards' | 'profile';
 
 interface ChatMessage {
   sender: 'bot' | 'customer';
@@ -40,6 +40,13 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     closed: 'Mar 2026'
   };
 
+  personalLoan: LoanRecommendation = {
+    name: 'Personal Loan',
+    amount: 50000,
+    term: 12,
+    why: 'A general facility from verified income. It is not tied to the student loan, so the amount starts at a comfortable point inside the limit.'
+  };
+
   recommendations: LoanRecommendation[] = [
     {
       name: 'Professional Development Loan',
@@ -61,7 +68,12 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     }
   ];
 
-  selectedRecommendation: LoanRecommendation | null = null;
+  selectedOffer: LoanRecommendation | null = null;
+  offerReady = false;
+
+  get loanChoices(): LoanRecommendation[] {
+    return [this.personalLoan, ...this.recommendations];
+  }
 
   channel: Channel = 'mobile';
   phoneTab: PhoneTab = 'home';
@@ -170,7 +182,7 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
   }
 
   get activeRecommendation(): LoanRecommendation {
-    return this.selectedRecommendation || this.recommendations[0];
+    return this.selectedOffer || this.recommendations[0];
   }
 
   get whatIfAssessment() {
@@ -237,15 +249,22 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
   openPhoneTab(tab: PhoneTab): void {
     this.phoneTab = tab;
     if (tab === 'loans' && this.journeyStep === 'welcome' && !this.isProcessing) {
+      this.selectedOffer = null;
+      this.requestedAmount = 50000;
+      this.loanTermMonths = 12;
       this.startJourney();
     }
   }
 
+  startPersonalJourney(): void {
+    this.selectedOffer = null;
+    this.requestedAmount = 50000;
+    this.loanTermMonths = 12;
+    this.startJourney();
+  }
+
   chooseRecommendation(rec: LoanRecommendation): void {
-    this.selectedRecommendation = rec;
-    this.loanTermMonths = rec.term;
-    const ceiling = this.calculateAssessment().maxLimit;
-    this.requestedAmount = Math.min(rec.amount, ceiling);
+    this.stageOffer(rec);
     this.startJourney();
   }
 
@@ -278,7 +297,8 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     this.whatIfIncome = this.customer.income;
     this.whatIfDebt = this.customer.existingDebt;
     this.applicationRef = '';
-    this.selectedRecommendation = null;
+    this.selectedOffer = null;
+    this.offerReady = false;
     this.loanTermMonths = 12;
     this.phoneTab = 'home';
     this.resetChat();
@@ -293,7 +313,7 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
   resetChat() {
     this.chatMessages = [{
       sender: 'bot',
-      text: `Hello Felix. I'm Leo. Your <b>${this.previousLoan.product}</b> of <b>${this.money(this.previousLoan.amount)}</b> closed on time in ${this.previousLoan.closed}. Because of that, I recommend a <b>${this.recommendations[0].name}</b> of <b>${this.money(this.recommendations[0].amount)}</b>. Ask me why, or say apply.`,
+      text: `Hello Felix. I'm Leo. Your <b>${this.previousLoan.product}</b> of <b>${this.money(this.previousLoan.amount)}</b> closed on time in ${this.previousLoan.closed}. I recommend a <b>${this.recommendations[0].name}</b> of <b>${this.money(this.recommendations[0].amount)}</b>. You can also ask for a <b>different loan</b>.`,
       time: this.now()
     }];
   }
@@ -321,16 +341,28 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
   private processBotResponse(prompt: string) {
     const lower = prompt.toLowerCase().trim();
     const a = this.assessment;
+    const named = this.findNamedProduct(lower);
+    const wantsDifferent = /different|another loan|something else|other loan|not that|not this/.test(lower);
+    const chat = this.smallTalk(lower);
     let reply = '';
 
-    if (lower.includes('recommend') || lower.includes('suggest') || lower.includes('student')) {
+    if (named && (lower.includes('why') || lower.includes('explain') || lower.includes('recommend') || lower.includes('suggest'))) {
+      reply = `<b>${named.name}</b> — ${this.money(named.amount)} over ${named.term} months.<br><br>${named.why}<br><br>Say <b>apply for ${named.name}</b> to start it, or ask for a different loan.`;
+    }
+    else if (named) {
+      reply = this.prepareOffer(named);
+    }
+    else if (wantsDifferent) {
+      reply = this.loanMenu();
+    }
+    else if (!lower.includes('apply') && (lower.includes('recommend') || lower.includes('suggest') || lower.includes('student'))) {
       reply = this.recommendReply();
     }
-    else if (lower === 'yes' || lower === 'yeah' || lower === 'sure' || lower.includes('increase') || lower.includes('more') || lower.includes('qualify')) {
+    else if (lower.includes('increase') || lower.includes('qualify') || lower.includes('boost')) {
       reply = this.boostReply();
     }
     else if (lower === 'no' || lower === 'nope') {
-      reply = `Understood. If you change your mind, you can always ask me to explain your limit or help you apply for a loan.`;
+      reply = `Understood. You can still ask for the recommendation, a different loan, or your limit.`;
     }
     else if (lower.includes('why') || lower.includes('explain')) {
       reply = lower.includes('limit') ? this.reasonsReply() : this.recommendReply();
@@ -343,54 +375,129 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     else if (lower.includes('apply')) {
       if (this.applicationRef) {
         reply = `You already have a pending application: <b>${this.applicationRef}</b>. You can track its status anytime.`;
+      } else if (lower.includes('recommended')) {
+        reply = this.prepareOffer(this.recommendations[0]);
       } else {
-        if (!this.selectedRecommendation) {
-          this.loanTermMonths = this.activeRecommendation.term;
-          this.requestedAmount = Math.min(this.activeRecommendation.amount, this.calculateAssessment().maxLimit);
-        }
-        const offer = this.activeRecommendation;
-        const priced = this.assessment;
-        reply = `I can start <b>${offer.name}</b> from here.<br><br>` +
-                `${offer.why}<br><br>` +
-                `• Amount: <b>${this.money(this.requestedAmount)}</b><br>` +
-                `• Term: <b>${this.loanTermMonths} Months</b><br>` +
-                `• Est. Monthly Repayment: <b>${this.money(priced.monthlyRepayment)}</b><br><br>` +
-                `Shall I submit this application? Reply <b>"Confirm"</b> to proceed.`;
+        reply = this.prepareOffer(this.selectedOffer || this.recommendations[0]);
+      }
+    }
+    else if (lower === 'yes' || lower === 'yeah' || lower === 'sure') {
+      reply = this.offerReady
+        ? ''
+        : `Tell me which loan first. Say <b>apply recommended</b>, or name one such as <b>personal loan</b>.`;
+      if (this.offerReady) {
+        this.confirmOffer();
+        return;
       }
     }
     else if (lower === 'confirm' || lower === 'proceed') {
-      if (!this.selectedRecommendation) {
-        this.loanTermMonths = this.activeRecommendation.term;
-        this.requestedAmount = Math.min(this.activeRecommendation.amount, this.calculateAssessment().maxLimit);
-        this.selectedRecommendation = this.activeRecommendation;
-      }
-      this.isProcessing = true; 
-      setTimeout(() => {
-        this.isProcessing = false;
-        this.applicationRef = 'DEMO-' + Math.floor(Math.random() * 900000 + 100000);
-        this.journeyStep = 'success';
-        
-        this.addBotMessage(
-          `🎉 <b>Application Submitted Successfully!</b><br><br>` +
-          `• Product: <b>${this.activeRecommendation.name}</b><br>` +
-          `• Reference: <b>${this.applicationRef}</b><br>` +
-          `• Amount: <b>${this.money(this.requestedAmount)}</b><br>` +
-          `• Status: <b>Pending Disbursement</b><br><br>` +
-          `You can view your new limit and application details by clicking the "Mobile Banking" tab.`
-        );
-      }, 1500);
-      return; 
+      this.confirmOffer();
+      return;
     }
     else if (lower.includes('status') || lower.includes('track')) {
-      reply = this.applicationRef 
-        ? `Your application <b>${this.applicationRef}</b> is currently in status: <b>Pending Disbursement</b>.`
-        : `You haven't submitted an application yet. Ask me to "Apply" to get started.`;
+      reply = this.applicationRef
+        ? `Your application <b>${this.applicationRef}</b> for <b>${(this.selectedOffer || this.recommendations[0]).name}</b> is currently in status: <b>Pending Disbursement</b>.`
+        : `You haven't submitted an application yet. Ask me to apply for the recommended loan, or name a different one.`;
+    }
+    else if (chat) {
+      reply = chat;
     }
     else {
-      reply = `I can recommend a loan from your student-loan history, explain why, check your limit, or apply right here in chat. What would you like to do?`;
+      reply = `I can recommend a loan, start a different one, or just chat a little. Try "hello", "different loan", or "what can you do".`;
     }
 
     this.addBotMessage(reply);
+  }
+
+  private stageOffer(offer: LoanRecommendation): void {
+    this.selectedOffer = offer;
+    this.loanTermMonths = offer.term;
+    const ceiling = this.calculateAssessment().maxLimit;
+    this.requestedAmount = Math.min(offer.amount, ceiling);
+  }
+
+  private confirmOffer(): void {
+    const offer = this.selectedOffer || this.recommendations[0];
+    this.stageOffer(offer);
+    this.offerReady = false;
+    this.isProcessing = true;
+    setTimeout(() => {
+      this.isProcessing = false;
+      this.applicationRef = 'DEMO-' + Math.floor(Math.random() * 900000 + 100000);
+      this.journeyStep = 'success';
+      this.addBotMessage(
+        `🎉 <b>Application Submitted Successfully!</b><br><br>` +
+        `• Product: <b>${offer.name}</b><br>` +
+        `• Reference: <b>${this.applicationRef}</b><br>` +
+        `• Amount: <b>${this.money(this.requestedAmount)}</b><br>` +
+        `• Status: <b>Pending Disbursement</b><br><br>` +
+        `Say <b>different loan</b> if you want to start another product, or track this one.`
+      );
+    }, 1500);
+  }
+
+  private prepareOffer(offer: LoanRecommendation): string {
+    this.stageOffer(offer);
+    this.offerReady = true;
+    const priced = this.assessment;
+    const lead = offer.name === this.recommendations[0].name
+      ? `I can start the recommended <b>${offer.name}</b>.`
+      : `I can start <b>${offer.name}</b> instead.`;
+    return `${lead}<br><br>` +
+      `${offer.why}<br><br>` +
+      `• Amount: <b>${this.money(this.requestedAmount)}</b><br>` +
+      `• Term: <b>${this.loanTermMonths} Months</b><br>` +
+      `• Est. Monthly Repayment: <b>${this.money(priced.monthlyRepayment)}</b><br><br>` +
+      `Reply <b>Confirm</b> to submit this one, or name another loan.`;
+  }
+
+  private findNamedProduct(lower: string): LoanRecommendation | null {
+    if (lower.includes('personal')) return this.personalLoan;
+    if (lower.includes('career')) return this.recommendations[1];
+    if (lower.includes('equipment') || lower.includes('laptop') || lower.includes('graduate')) return this.recommendations[2];
+    if (lower.includes('professional') || lower.includes('development') || lower.includes('certification')) return this.recommendations[0];
+    return null;
+  }
+
+  private loanMenu(): string {
+    const lines = this.loanChoices
+      .map(loan => `• <b>${loan.name}</b> — ${this.money(loan.amount)}, ${loan.term} months`)
+      .join('<br>');
+    return `The recommendation is the <b>${this.recommendations[0].name}</b>, but you can apply for a different one. Name any of these:<br><br>${lines}<br><br>For example, say <b>personal loan</b>.`;
+  }
+
+  private smallTalk(lower: string): string | null {
+    if (/^(hi|hello|hey|hiya|good morning|good afternoon|good evening)\b/.test(lower)) {
+      return `Hello Felix. Good to see you. I can recommend a loan, start a different one, or check your limit. What would you like to do?`;
+    }
+    if (lower.includes('how are you') || lower.includes("how's it going") || lower.includes('how are u')) {
+      return `I'm doing well, thank you. Ready when you are to look at a loan.`;
+    }
+    if (lower.includes('thank')) {
+      return `You're welcome. I can still recommend a loan, start a different one, or check the limit.`;
+    }
+    if (lower.includes('who are you') || lower.includes('your name') || lower.includes('what are you')) {
+      return `I'm Leo, the loan assistant in this demo. I look at your last facility and suggest what fits next, and I can also start a loan you name yourself.`;
+    }
+    if (lower.includes('what can you') || lower === 'help' || lower.includes('help me')) {
+      return `Four things, all hardcoded for this demo: recommend a loan, explain why, apply for that loan or a different one, and check your limit. You can also say hello.`;
+    }
+    if (/\b(bye|goodbye|see you)\b/.test(lower)) {
+      return `Goodbye, Felix. Your limit will still be here when you come back.`;
+    }
+    if (lower.includes('joke')) {
+      return `A credit score walks into a bank and asks for a loan. The bank says, "Only if you can explain yourself." That is the part I am here for.`;
+    }
+    if (lower.includes('weather')) {
+      return `I don't have the weather. I do have your indicative limit of <b>${this.money(this.assessment.maxLimit)}</b>, if that is more useful.`;
+    }
+    if (lower.includes('my name') || lower.includes('who am i')) {
+      return `You're <b>Felix Sayia</b>, customer <b>${this.customer.id}</b>.`;
+    }
+    if (lower.includes('how old') || lower.includes('where are you')) {
+      return `I'm a demo assistant on this phone, so I don't have an age or an office. I can still help you apply.`;
+    }
+    return null;
   }
 
   private recommendReply(): string {

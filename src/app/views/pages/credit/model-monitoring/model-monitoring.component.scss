@@ -43,15 +43,15 @@
   letter-spacing: -0.02em;
 }
 
-.mm-head h1 { font-size: 1.85rem; }
+.mm-head h1 { font-size: 1.35rem; }
 .mm-head p, .mm-section-title p, .mm-card-head p, .mm-note {
-  margin-top: 0.4rem;
+  margin-top: 0.3rem;
   color: #64748b;
-  font-size: 0.95rem;
+  font-size: 0.78rem;
   font-weight: 500;
-  line-height: 1.45;
+  line-height: 1.4;
 }
-.mm-note { font-size: 0.86rem; }
+.mm-note { font-size: 0.72rem; }
 
 .mm-status {
   display: flex;
@@ -59,7 +59,7 @@
   align-items: flex-end;
   gap: 0.35rem;
   color: #64748b;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
@@ -85,10 +85,10 @@
 .mm-ensemble, .mm-card, .mm-board, .mm-split { margin-bottom: 1.15rem; }
 
 .mm-section-title { margin-bottom: 0.9rem; }
-.mm-section-title h2, .mm-card h2 { font-size: 1.15rem; }
+.mm-section-title h2, .mm-card h2 { font-size: 0.98rem; }
 .mm-card h3 {
-  margin: 1.15rem 0 0.7rem;
-  font-size: 1rem;
+  margin: 0.9rem 0 0.5rem;
+  font-size: 0.86rem;
   font-weight: 700;
   letter-spacing: -0.01em;
 }
@@ -142,16 +142,16 @@
 }
 .mm-model strong {
   display: block;
-  margin: 0.35rem 0 0.15rem;
-  font-size: 1.05rem;
+  margin: 0.25rem 0 0.1rem;
+  font-size: 0.9rem;
   letter-spacing: -0.02em;
 }
 .mm-model b {
   display: flex;
   align-items: baseline;
-  gap: 0.4rem;
-  margin-top: 0.85rem;
-  font-size: 1.7rem;
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+  font-size: 1.2rem;
   letter-spacing: -0.04em;
 }
 .mm-model b small {
@@ -249,7 +249,7 @@
   background: linear-gradient(180deg, var(--wash), #fff 70%);
 }
 .mm-facts dt { color: #64748b; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
-.mm-facts dd { margin: 0.3rem 0 0; font-size: 0.92rem; font-weight: 700; }
+.mm-facts dd { margin: 0.25rem 0 0; font-size: 0.78rem; font-weight: 700; }
 
 .mm-job {
   position: relative;
@@ -271,7 +271,7 @@
   background: linear-gradient(90deg, var(--tone), #f5b400);
   animation: mm-load 1.15s ease-in-out infinite;
 }
-.mm-job p { margin-top: 0.25rem; color: #334155; font-size: 0.9rem; }
+.mm-job p { margin-top: 0.2rem; color: #334155; font-size: 0.75rem; }
 
 .mm-metrics {
   display: grid;
@@ -311,14 +311,14 @@
 }
 .mm-metrics strong, .mm-errors strong {
   display: block;
-  margin: 0.25rem 0 0.35rem;
-  font-size: 1.55rem;
-  letter-spacing: -0.04em;
+  margin: 0.15rem 0 0.25rem;
+  font-size: 1.05rem;
+  letter-spacing: -0.03em;
 }
 .mm-metrics small, .mm-errors small {
   display: block;
   color: #64748b;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 500;
   line-height: 1.4;
 }
@@ -381,7 +381,7 @@
 .mm-cut { margin-bottom: 1.15rem; }
 .mm-slider { min-width: 240px; color: #334155; font-size: 0.85rem; font-weight: 700; }
 .mm-slider span, .mm-slider b { display: block; }
-.mm-slider b { margin: 0.15rem 0 0.35rem; font-size: 1.35rem; letter-spacing: -0.03em; }
+.mm-slider b { margin: 0.1rem 0 0.25rem; font-size: 1rem; letter-spacing: -0.03em; }
 .mm-slider input { width: 100%; accent-color: #1f6feb; }
 
 .mm-errors {
@@ -403,14 +403,14 @@
 .mm-errors .fp strong { color: #b54708; }
 .mm-errors .fn strong { color: #b42318; }
 .mm-errors article:last-child strong { color: #067647; }
-.mm-errors p { margin: 0.15rem 0 0.45rem; color: #334155; font-size: 0.88rem; line-height: 1.4; }
+.mm-errors p { margin: 0.1rem 0 0.35rem; color: #334155; font-size: 0.74rem; line-height: 1.35; }
 
 .mm-matrix, .mm-table { width: 100%; border-collapse: collapse; margin-top: 0.4rem; }
 .mm-matrix th, .mm-matrix td, .mm-table th, .mm-table td {
   padding: 0.7rem 0.55rem;
   border-bottom: 1px solid #eef2f7;
   text-align: left;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
 }
 .mm-matrix th, .mm-table th { color: #64748b; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
 .mm-matrix td small { display: block; color: #64748b; font-size: 0.75rem; }
@@ -420,7 +420,7 @@
 .mm-matrix td:not(.fp):not(.fn) { background: #f3fbf6; color: #067647; font-weight: 700; }
 .mm-table td.shift { color: #b54708; font-weight: 800; }
 
-.mm-features { list-style: none; margin: 0.8rem 0 0; padding: 0; }
+.mm-features { list-style: none; margin: 0.8rem 0 0; padding: 0; font-size: 0.78rem; }
 .mm-features li { position: relative; margin-bottom: 0.85rem; }
 .mm-features span, .mm-features b { position: relative; z-index: 1; }
 .mm-features li { display: flex; justify-content: space-between; }
@@ -491,5 +491,5 @@
   .mm { padding: 18px 16px 40px; }
   .mm-head, .mm-card-head, .mm-pipeline, .mm-board, .mm-split, .mm-facts, .mm-errors, .mm-metrics { display: grid; grid-template-columns: 1fr; }
   .mm-status, .mm-slider { align-items: flex-start; }
-  .mm-head h1 { font-size: 1.55rem; }
+  .mm-head h1 { font-size: 1.25rem; }
 }
