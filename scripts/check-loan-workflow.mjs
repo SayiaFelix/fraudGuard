@@ -15,7 +15,7 @@ const temp = fs.mkdtempSync(path.join(root, '.loan-check-'));
 const credit = 'src/app/views/pages/credit/';
 const names = [
   'credit-demo.data.ts', 'credit-data.service.ts', 'workflow/loan-workflow.models.ts',
-  'workflow/loan-workflow.service.ts', 'workflow/loan-bulk.ts', 'workflow/loan-ai.engine.ts', 'workflow/loan-limit.engine.ts', 'workflow/loan-eligibility.engine.ts', 'workflow/loan-customers.data.ts', 'workflow/loan-integration.service.ts', 'workflow/loan-assessment.component.ts',
+  'workflow/loan-workflow.service.ts', 'workflow/loan-bulk.ts', 'workflow/loan-ai.engine.ts', 'workflow/loan-limit.engine.ts', 'workflow/loan-eligibility.engine.ts', 'workflow/loan-auto-approval.engine.ts', 'workflow/loan-product-recommender.ts', 'workflow/loan-customers.data.ts', 'workflow/loan-integration.service.ts', 'workflow/loan-mock-api.client.ts', 'workflow/loan-assessment.component.ts',
   'new-application/new-application.component.ts', 'applications/applications.component.ts',
   'applications/application-detail.component.ts', 'decision-queue/loan-decision-queue.component.ts'
 ];
@@ -311,8 +311,28 @@ try {
   component.ngOnInit(); component.nationalId = 'UNKNOWN'; await component.lookup(); assert.equal(component.customer, null); assert.match(component.error, /not found/);
   component.setTab('integration'); assert.equal(component.tab, 'integration'); assert(component.integrationApplicantId); component.connectorId = 'identity'; await component.runIntegrationCheck(); assert.equal(component.integrationResult.connectorId, 'identity'); component.setTab('individual');
   component.nationalId = draft.nationalId; await component.lookup(); const count = workflow.applications.length;
-  await Promise.all([component.submit(), component.submit()]); assert.equal(workflow.applications.length, count + 1);
+  const assessmentStarted = Date.now(); const pendingAssessment = component.submit();
+  assert.equal(component.busy, true); assert.equal(component.created, null);
+  assert.equal(workflow.applications.length, count);
+  component.setTab('bulk'); assert.equal(component.tab, 'individual');
+  await Promise.all([pendingAssessment, component.submit()]); assert.equal(workflow.applications.length, count + 1);
+  assert.equal(component.busy, false); assert(Date.now() - assessmentStarted >= 1800);
   assert.deepEqual(latestAssessment(component.created).eligibility.customer, clearFacts);
+  const failedComponent = new NewApplicationComponent(new FormBuilder(), {}, workflow);
+  failedComponent.nationalId = draft.nationalId; await failedComponent.lookup();
+  const preservedAmount = failedComponent.form.getRawValue().amount, submitActual = workflow.submit;
+  workflow.submit = async () => { throw new Error('Assessment temporarily unavailable'); };
+  await failedComponent.submit(); assert.equal(failedComponent.busy, false); assert.equal(failedComponent.created, null);
+  assert.match(failedComponent.error, /temporarily unavailable/); assert.equal(failedComponent.form.getRawValue().amount, preservedAmount);
+  workflow.submit = submitActual;
+  await failedComponent.submit(); assert(failedComponent.created); assert.equal(failedComponent.busy, false);
+  failedComponent.ngOnDestroy();
+  const leavingComponent = new NewApplicationComponent(new FormBuilder(), {}, workflow);
+  leavingComponent.nationalId = draft.nationalId; await leavingComponent.lookup();
+  const beforeLeaving = workflow.applications.length, leavingRun = leavingComponent.submit();
+  leavingComponent.ngOnDestroy(); await leavingRun;
+  assert.equal(workflow.applications.length, beforeLeaving); assert.equal(leavingComponent.created, null);
+  assert.equal(leavingComponent.busy, false);
   const headers = ['national_id', 'requested_amount', 'tenor_months', 'product', 'application_id', 'reassessment_note'];
   const validRow = [draft.nationalId, '250000', '12', 'Personal Loan', '', ''];
   assert.deepEqual(parseLoanCsv('a,b\r\n"one,two","escaped ""quote"""'), [['a', 'b'], ['one,two', 'escaped "quote"']]);
@@ -402,8 +422,9 @@ try {
   console.log('PASS: scenario isolation, policy-constrained advice, old assessment compatibility and invalid ensemble-state rejection.');
   console.log('PASS: original scorecard reuse, fifteen-customer lookup, unknown IDs and all draft validation guards.');
   console.log('PASS: individual and CSV/XLSX/XLS bulk submission, duplicate protection, partial invalid rows and retry.');
+  console.log('PASS: visible assessment loading, duplicate-click guard, error recovery, retry and navigation cleanup.');
   console.log('PASS: pending review, approve, decline, information request, policy override and final-status guards.');
   console.log('PASS: reassessment version history, saved-state restoration, quota failure and corrupt-state preservation.');
   console.log('PASS: real page controllers, list filters/pagination, version selection, queue selection and shared status updates.');
-  console.log('LIMIT: no lending backend or trained ML model exists in the source ZIP; no live backend/model tests were claimed.');
+  console.log('LIMIT: API examples run in the browser; no external lending backend or trained ML model is called.');
 } finally { fs.rmSync(temp, { recursive: true, force: true }); }

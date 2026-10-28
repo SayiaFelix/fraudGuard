@@ -1,6 +1,38 @@
 // New Application mode cards and connector workspace.
 // All rules stay inside the existing lending component.
 .loan-workflow {
+  .small-loan-hint { padding: 13px 16px; margin: 18px 0 0; border: 1px solid #cde6d9; border-radius: 10px; background: #eef8f2; color: #2d7053; font-size: 13px; line-height: 1.7; }
+  .assessment-loading { padding: clamp(28px, 5vw, 58px); text-align: center; background: radial-gradient(ellipse at top, #eef4ff 0, #fff 65%); scroll-margin-top: 24px; }
+  .assessment-loading > .ai-small-tag { display: inline-flex; margin-bottom: 24px; background: #fff; }
+  .assessment-loading-orbit { position: relative; display: grid; place-items: center; width: 96px; height: 96px; margin: 0 auto 26px; border-radius: 50%; background: #e9f0ff; color: #285bd5; }
+  .assessment-loading-orbit::before { content: ''; position: absolute; inset: -7px; border: 3px solid #dce6fb; border-top-color: #285bd5; border-right-color: #20a39d; border-radius: 50%; animation: assessment-loading-spin 1.1s linear infinite; }
+  .assessment-loading-orbit > span { font-size: 40px; line-height: 1; }
+  .assessment-loading-copy h3 { margin: 12px 0; font-size: clamp(23px, 3vw, 30px); line-height: 1.25; color: #234260; }
+  .assessment-loading-copy p { margin: 0; color: #5c7187; font-size: 14px; line-height: 1.8; }
+  .assessment-loading-stages { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; max-width: 1000px; margin: 32px auto 0; padding: 0; list-style: none; text-align: left; }
+  .assessment-loading-stages li { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 18px; border: 1px solid #dce5f0; border-radius: 12px; background: #fff; }
+  .assessment-stage-mark { display: grid; place-items: center; flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; background: #edf1f7; color: #64778b; font-size: 13px; font-weight: 700; }
+  .assessment-loading-stages strong, .assessment-loading-stages small { display: block; }
+  .assessment-loading-stages strong { color: #405a76; font-size: 13px; line-height: 1.5; }
+  .assessment-loading-stages small { margin-top: 4px; color: #64778b; font-size: 12px; line-height: 1.6; }
+  .assessment-loading-stages li.active { border-color: #8ba8e8; background: #f1f5ff; box-shadow: 0 0 0 2px #285bd50a; }
+  .assessment-loading-stages li.active .assessment-stage-mark { background: #285bd5; color: #fff; }
+  .assessment-loading-stages li.complete .assessment-stage-mark { background: #e3f3eb; color: #267653; }
+  .assessment-loading-customer { margin: 24px 0 0; font-size: 13px; color: #5c7187; overflow-wrap: anywhere; }
+  .assessment-loading-customer > span { margin: 0 8px; }
+  @keyframes assessment-loading-spin { to { transform: rotate(360deg); } }
+  @media (max-width: 950px) { .assessment-loading-stages { grid-template-columns: 1fr; max-width: 540px; } }
+  @media (prefers-reduced-motion: reduce) { .assessment-loading-orbit::before { animation: none; border-top-color: #285bd5; } }
+  .connector-api-endpoint { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px 16px; margin-top: 18px; border: 1px solid #d9e5f3; border-radius: 10px; background: #f4f7fc; min-width: 0; }
+  .connector-api-endpoint > span { padding: 4px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; color: #246547; background: #e2f0e8; }
+  .connector-api-endpoint code { min-width: 0; overflow-wrap: anywhere; font-size: 13px; color: #234260; }
+  .connector-api-endpoint small { margin-left: auto; font-size: 12px; color: #64778b; }
+  .connector-api-sample { margin-top: 18px; padding-top: 16px; border-top: 1px solid #cfdbd9; min-width: 0; }
+  .connector-api-sample summary { cursor: pointer; font-size: 13px; font-weight: 650; }
+  .connector-api-sample-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 16px 0; font-size: 12px; }
+  .connector-api-sample-meta span { overflow-wrap: anywhere; }
+  .connector-api-sample h5 { margin: 18px 0 8px; color: #234260; font-size: 13px; }
+  .connector-api-sample pre { max-width: 100%; max-height: 280px; overflow: auto; margin: 0; padding: 15px; border-radius: 10px; background: #11263e; color: #e7f0fb; font: 12px/1.6 Consolas, monospace; white-space: pre; }
   --intake-heading: #244361;
   --intake-text: #405b76;
   --intake-muted: #5c7187;
@@ -10,47 +42,66 @@
   .intake-mode-tabs {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 4px;
-    margin: 0 0 18px;
-    padding: 4px;
-    border: 1px solid var(--intake-border);
-    border-radius: 12px;
-    background: #eef3f8;
+    gap: 14px;
+    margin: 24px 0;
     > button {
+      position: relative;
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 13px;
       min-width: 0;
-      min-height: 0;
-      padding: 10px 12px;
-      border: 0;
-      border-radius: 9px;
-      background: transparent;
+      min-height: 108px;
+      padding: 19px;
+      border: 1px solid var(--intake-border);
+      border-radius: 14px;
+      background: #fff;
       color: var(--intake-text);
-      text-align: center;
-      box-shadow: none;
+      text-align: left;
+      box-shadow: 0 3px 12px #17365106;
+      transition:
+        border-color 160ms ease,
+        background 160ms ease,
+        box-shadow 160ms ease,
+        transform 160ms ease;
       > span:nth-child(2) {
+        flex: 1;
         min-width: 0;
       }
       &:hover:not(:disabled) {
-        background: #ffffffb8;
+        transform: translateY(-2px);
+        border-color: #96b1e6;
+        background: #f7faff;
+        box-shadow: 0 7px 20px #234a8710;
       }
       &:focus-visible {
         outline: 3px solid #8daff3;
-        outline-offset: 2px;
+        outline-offset: 3px;
       }
       &.active,
-      &[aria-selected="true"] {
-        background: #fff;
-        color: #1f4bb5;
-        box-shadow: 0 1px 3px #17365114;
-        strong {
-          color: #1f4bb5;
+      &[aria-selected="true"],
+      &.active:hover:not(:disabled),
+      &[aria-selected="true"]:hover:not(:disabled) {
+        border-color: #2553c1;
+        background: linear-gradient(120deg, #285bd5, #1f4bb5);
+        color: #fff;
+        box-shadow: 0 7px 20px #285bd525;
+        strong,
+        .intake-mode-arrow {
+          color: #fff;
+        }
+        small {
+          color: #edf3ff;
+        }
+        .intake-mode-number {
+          border-color: #ffffff45;
+          background: #ffffff1c;
+          color: #fff;
         }
       }
       &:disabled {
         opacity: 0.6;
         cursor: not-allowed;
+        transform: none;
       }
     }
     strong,
@@ -60,21 +111,36 @@
     }
     strong {
       color: var(--intake-heading);
-      font-size: 14px;
-      font-weight: 700;
-      line-height: 1.35;
-    }
-    small {
-      margin-top: 2px;
-      color: var(--intake-muted);
-      font-size: 12px;
-      font-weight: 500;
+      font-size: 16px;
+      font-weight: 650;
       line-height: 1.4;
     }
+    small {
+      margin-top: 5px;
+      color: var(--intake-muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
   }
-  .intake-mode-number,
+  .intake-mode-number {
+    display: grid;
+    flex: 0 0 40px;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #dce6f7;
+    border-radius: 12px;
+    background: #edf3ff;
+    color: #3765ba;
+    font-size: 13px;
+    font-weight: 700;
+  }
   .intake-mode-arrow {
-    display: none;
+    flex: 0 0 auto;
+    margin-left: auto;
+    color: #6f86a7;
+    font-size: 20px;
+    line-height: 1;
   }
   .customer-risk {
     margin-top: 8px;
@@ -415,11 +481,12 @@
     .connector-kpis {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .intake-mode-tabs small {
-      display: none;
-    }
     .intake-mode-tabs > button {
-      padding: 12px 10px;
+      gap: 10px;
+      padding: 16px;
+    }
+    .intake-mode-tabs strong {
+      font-size: 15px;
     }
   }
   @media (max-width: 1000px) {
@@ -443,13 +510,13 @@
   @media (max-width: 740px) {
     .intake-mode-tabs {
       grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
       > button {
-        justify-content: flex-start;
-        text-align: left;
-        padding: 12px 14px;
+        min-height: 82px;
+        padding: 15px 17px;
       }
-      small {
-        display: block;
+      strong {
+        font-size: 16px;
       }
     }
     .connector-header {

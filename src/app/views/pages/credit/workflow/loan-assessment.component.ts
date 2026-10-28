@@ -1,12 +1,15 @@
 import { ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnChanges, OnDestroy, ViewChild } from '@angular/core';
 import { LoanAssessment, LoanCheck, LoanRiskDriver, LoanScenario } from './loan-workflow.models';
 import { LoanWorkflowService } from './loan-workflow.service';
+import { LoanProductSuggestion } from './loan-product-recommender';
 
 let nextDriverPopoverId = 0;
 
 @Component({ selector: 'app-loan-assessment', templateUrl: './loan-assessment.component.html', styleUrls: ['./loan-workflow.scss'] })
 export class LoanAssessmentComponent implements OnChanges, OnDestroy {
   @Input() assessment: LoanAssessment;
+  @Input() applicationId = '';
+  productSuggestions: LoanProductSuggestion[] = [];
   activeTab: 'insights' | 'drivers' | 'policy' | 'profile' = 'insights';
   readonly tabs = [{ id: 'insights', label: 'AI overview' }, { id: 'drivers', label: 'Explainable outlook' }, { id: 'policy', label: 'Policy checks' }, { id: 'profile', label: 'Customer & facility' }] as const;
   scenarioAmount = 10000; scenarioTenor = 12; scenario: LoanScenario | null = null; scenarioError = '';
@@ -25,13 +28,28 @@ export class LoanAssessmentComponent implements OnChanges, OnDestroy {
   };
   constructor(public workflow: LoanWorkflowService, private changeDetector?: ChangeDetectorRef) {}
   readonly MathAbs = Math.abs;
-  ngOnChanges(): void { this.hideDriver(); this.resetScenario(); this.activeTab = 'insights'; }
+  ngOnChanges(): void {
+    this.hideDriver(); this.resetScenario(); this.activeTab = 'insights';
+    this.productSuggestions = this.assessment ? this.workflow.productSuggestions(this.assessment) : [];
+  }
   ngOnDestroy(): void { this.hideDriver(); }
   selectTab(tab: typeof this.activeTab): void { this.hideDriver(); this.activeTab = tab; }
   get ai() { return this.assessment.ai; }
   get customer() { return this.assessment.eligibility?.customer; }
   get eligibilityPassed(): number { return this.assessment.eligibility?.checks.filter(c => c.result === 'Pass').length || 0; }
   get reviewActions(): string[] { return [...(this.assessment.eligibility?.reasons.map(x => 'Resolve customer eligibility finding — ' + x + '.') || []), ...(this.ai?.actions || [])].slice(0, 3); }
+  get copilotBrief(): string {
+    const a = this.assessment;
+    if (a.automaticApproval?.eligible) { return this.workflow.money(a.input.amount) + ' approved automatically. All required checks passed.'; }
+    if (!a.limit?.offer) { return 'This request needs review. Resolve the policy or affordability findings before selecting an offer.'; }
+    return (a.ai?.risk || a.risk) + ' risk. ' + this.workflow.money(a.limit.recommendedAmount) +
+      ' proposed against the ' + this.workflow.money(a.input.amount) + ' request. ' +
+      (a.eligibility?.decision === 'Approved' ? 'Customer eligibility checks passed.' : 'Review the outstanding policy findings.');
+  }
+  suggestionParams(suggestion: LoanProductSuggestion): Record<string, string | number> {
+    return { customer: this.assessment.input.nationalId, product: suggestion.product, amount: suggestion.amount,
+      tenor: suggestion.tenorMonths, sourceApplication: this.applicationId, sourceVersion: this.assessment.version };
+  }
   verification(value: boolean | null | undefined): string { return value === true ? 'Verified' : value === false ? 'Not verified' : 'Unknown'; }
   get outlookDrivers(): Array<LoanRiskDriver & { checks: LoanCheck[]; observed: string }> {
     const groups: Record<string, string[]> = { 'Bureau outlook': ['EL-03', 'EL-05'], 'Repayment burden': ['EL-06'], 'Loan-to-income exposure': ['EL-04'], 'Employment profile': ['EL-07'] };
@@ -120,6 +138,7 @@ export class LoanAssessmentComponent implements OnChanges, OnDestroy {
     return 'conic-gradient(' + color + ' ' + ((this.ai?.probability || 0) * 360) + 'deg, #edf0f8 0deg)';
   }
   get maxAmount(): number { return Math.max(10000, Math.ceil(this.assessment.input.amount * 1.25 / 5000) * 5000); }
+  get scenarioStep(): number { return this.assessment.input.amount <= 10000 ? 1 : 1000; }
   get maxDriver(): number { return Math.max(1, ...(this.ai?.drivers.map(x => Math.abs(x.deltaPp)) || [1])); }
   resetScenario(): void {
     if (!this.assessment) { return; }
@@ -135,7 +154,8 @@ export class LoanAssessmentComponent implements OnChanges, OnDestroy {
     catch (error) { this.scenario = null; this.scenarioError = this.workflow.errorMessage(error); }
   }
   preset(kind: 'smaller' | 'longer' | 'recommended'): void {
-    this.scenarioAmount = kind === 'recommended' && this.assessment.limit?.offer ? this.assessment.limit.recommendedAmount : kind === 'smaller' ? Math.max(10000, Math.floor(this.assessment.input.amount * 0.8 / 5000) * 5000) : this.assessment.input.amount;
+    const increment = this.assessment.input.amount <= 10000 ? 1 : 1000;
+    this.scenarioAmount = kind === 'recommended' && this.assessment.limit?.offer ? this.assessment.limit.recommendedAmount : kind === 'smaller' ? Math.max(1, Math.floor(this.assessment.input.amount * 0.8 / increment) * increment) : this.assessment.input.amount;
     this.scenarioTenor = kind === 'longer' ? Math.min(60, this.assessment.input.tenorMonths + 6) : this.assessment.input.tenorMonths;
     this.runScenario();
   }

@@ -54,7 +54,7 @@ export function loanRowsFromCells(cells: unknown[][]): BulkApplicationRow[] {
     if (row.length > headers.length) { errors.push('Too many cells. Quote commas inside CSV fields.'); }
     if (typeof get('national_id') !== 'string') { errors.push('National ID must be Text in Excel to preserve leading zeros.'); }
     if (!nationalId) { errors.push('National ID is required.'); }
-    if (!String(get('requested_amount')).trim() || !Number.isFinite(amount) || amount < 10000) { errors.push('Requested amount must be at least KSh 10,000.'); }
+    if (!String(get('requested_amount')).trim() || !Number.isFinite(amount) || amount < 1) { errors.push('Requested amount must be at least KSh 1.'); }
     if (!String(get('tenor_months')).trim() || !Number.isInteger(tenorMonths) || tenorMonths < 1 || tenorMonths > 60) { errors.push('Tenor must be a whole number from 1 to 60 months.'); }
     if (!product) { errors.push('Product is required.'); }
     const key = applicationId || [nationalId.toUpperCase(), product.toLowerCase(), amount, tenorMonths].join('|');
