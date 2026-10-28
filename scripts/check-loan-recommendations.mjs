@@ -115,6 +115,9 @@ try {
   assert(!recommendLoanProducts(latestAssessment(business), candidate => credit.scoreDraft(candidate)).some(s => s.product === 'Salary Advance'));
   const presenter = new LoanAssessmentComponent(workflow); presenter.assessment = a; presenter.applicationId = personal.id; presenter.ngOnChanges();
   assert(presenter.copilotBrief.length < 240);
+  assert.equal(presenter.copilotState, 'idle'); assert.equal(presenter.productSuggestions.length, 0);
+  const briefing = presenter.loadCopilot(); assert.equal(presenter.copilotState, 'loading');
+  await briefing; assert.equal(presenter.copilotState, 'ready');
   const selected = presenter.productSuggestions[0], countBefore = workflow.applications.length;
   productPage = new NewApplicationComponent(new FormBuilder(), routeFor(presenter.suggestionParams(selected)), workflow);
   productPage.ngOnInit();
