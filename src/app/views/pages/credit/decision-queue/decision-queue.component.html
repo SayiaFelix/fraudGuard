@@ -1,3 +1,10 @@
+<div class="alerts-page">
+<header class="alerts-head">
+  <span>Credit operations · Case desk</span>
+  <h1>Alerts</h1>
+  <p>Open alerts, with case actions on the same page.</p>
+</header>
+
 <div class="toolbar">
   <div class="chips">
     <button type="button" *ngFor="let item of ['All', 'High', 'Medium', 'Unassigned']" [class.on]="filter === item" (click)="setFilter(item)">{{ item }}</button>
@@ -97,3 +104,4 @@
     <p class="fine">Alerts and case actions live on this queue. Approve, decline, request information, escalate, or assign without leaving the page.</p>
   </article>
 </section>
+</div>

@@ -25,7 +25,7 @@ export const MENU: MenuItem[] = [
 
   { isTitle: true, label: 'Workspace' },
   { label: 'Ingestion', icon: 'plus-circle', link: '/applications/new', exact: true },
-  { label: 'Channel Simulator', icon: 'smartphone', link: '/credit-scoring', exact: true },
+  { label: 'Customer Channels', icon: 'smartphone', link: '/credit-scoring', exact: true },
   {
     label: 'Applications',
     icon: 'file-text',

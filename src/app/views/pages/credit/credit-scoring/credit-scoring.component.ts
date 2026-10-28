@@ -103,6 +103,8 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     policyChecks.push({ label: `Minimum Score (650)`, passed: score >= 650 });
     policyChecks.push({ label: `Max DTI (40%)`, passed: dti <= 40 });
     policyChecks.push({ label: `Within Max Limit (${this.money(maxLimit)})`, passed: this.requestedAmount <= maxLimit });
+    policyChecks.push({ label: `No prior default`, passed: !this.customer.hasDefaulted });
+    policyChecks.push({ label: `Debt within 15% of income`, passed: debt <= income * 0.15 });
 
     if (score >= 650 && dti <= 40 && this.requestedAmount <= maxLimit) {
       outcome = 'eligible';

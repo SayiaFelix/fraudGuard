@@ -18,13 +18,13 @@ interface ExceptionCard { name: string; detail: string; count: number; amount: n
 export class CreditReportsComponent implements OnInit, OnDestroy {
   @Input() embedded = false;
 
-  readonly reports: Array<{ id: ReportId; name: string }> = [
-    { id: 'summary', name: 'Summary' },
-    { id: 'distribution', name: 'Distribution' },
-    { id: 'outcomes', name: 'Outcomes' },
-    { id: 'exceptions', name: 'Exceptions' },
-    { id: 'turnaround', name: 'Turnaround' },
-    { id: 'limits', name: 'Limits' }
+  readonly reports: Array<{ id: ReportId; name: string; icon: string }> = [
+    { id: 'summary', name: 'Summary', icon: 'fa-chart-line' },
+    { id: 'distribution', name: 'Distribution', icon: 'fa-chart-pie' },
+    { id: 'outcomes', name: 'Outcomes', icon: 'fa-check-circle' },
+    { id: 'exceptions', name: 'Exceptions', icon: 'fa-exclamation-circle' },
+    { id: 'turnaround', name: 'Turnaround', icon: 'fa-clock' },
+    { id: 'limits', name: 'Limits', icon: 'fa-sliders-h' }
   ];
   readonly behaviourRules = BEHAVIOUR_RULES;
 
