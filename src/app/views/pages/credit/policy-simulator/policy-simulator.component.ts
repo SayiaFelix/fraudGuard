@@ -140,6 +140,21 @@ export class PolicySimulatorComponent implements OnInit, OnDestroy {
     }
   ];
 
+  aiBriefingLoading = false;
+aiBriefingGenerated = false;
+
+generateAIBriefing(): void {
+  if (this.aiBriefingLoading) return;
+
+  this.aiBriefingLoading = true;
+  this.aiBriefingGenerated = false;
+
+  setTimeout(() => {
+    this.aiBriefingLoading = false;
+    this.aiBriefingGenerated = true;
+  }, 2000);
+}
+
   constructor(public credit: CreditDataService) {}
 
   ngOnInit(): void {

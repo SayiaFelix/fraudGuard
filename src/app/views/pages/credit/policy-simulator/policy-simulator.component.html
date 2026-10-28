@@ -3,13 +3,17 @@
 
   <!-- HEADER -->
   <header class="studio-header">
-  <div class="studio-header-content">
- <div>
-      <h1>Policy Intelligence Studio</h1>
-      <p>Compare lending policies and evaluate their impact.</p>
-    </div>
+  <div class="studio-header-text">
 
+  <div class="studio-page-eyebrow">
+    STRATEGIC POLICY INTELLIGENCE
   </div>
+
+  <h1>Policy Intelligence Studio</h1>
+
+  <p>Compare lending policies and evaluate their impact.</p>
+
+</div>
 </header>
 
   <!-- POLICY STATUS -->
@@ -687,8 +691,45 @@
           </p>
         </div>
       </div>
+      
+<!-- AI BRIEFING ACTION -->
+<div class="ai-briefing-action"
+     *ngIf="!aiBriefingGenerated">
 
-      <div class="studio-card advisor-card">
+  <ng-container *ngIf="!aiBriefingLoading">
+    <i class="fas fa-brain ai-briefing-icon"></i>
+
+    <h3>Generate Executive Policy Insights</h3>
+
+    <p>
+      Analyse the simulated policy outcomes and generate
+      an executive-level lending strategy briefing.
+    </p>
+
+    <button
+      type="button"
+      class="ai-generate-btn"
+      (click)="generateAIBriefing()">
+      <i class="fas fa-magic"></i>
+      Generate AI Insights
+    </button>
+  </ng-container>
+
+  <ng-container *ngIf="aiBriefingLoading">
+    <div class="ai-loader"></div>
+
+    <h3>Analysing Lending Policy...</h3>
+
+    <p>
+      Preparing your simulated executive briefing.
+    </p>
+  </ng-container>
+
+</div>
+
+
+      <div class="studio-card advisor-card"
+     *ngIf="aiBriefingGenerated">
         <div class="card-heading">
           <div>
             <h3>Executive Summary</h3>
@@ -719,6 +760,15 @@
         </div>
 
         <div class="action-footer">
+          <button
+  type="button"
+  class="ai-regenerate-btn"
+  (click)="generateAIBriefing()">
+
+  <i class="fas fa-sync-alt"></i>
+  Generate Again
+
+</button>
           <button type="button" class="btn outline"
             (click)="copyBriefing()">
             <i class="fas fa-copy"></i>
@@ -734,7 +784,8 @@
       </div>
 
       <!-- GOVERNANCE -->
-      <div class="studio-card" *ngIf="showApprovalWorkflow">
+      <div class="studio-card"
+     *ngIf="showApprovalWorkflow && aiBriefingGenerated">
         <div class="card-heading">
           <div>
             <h3>Policy Approval Workflow</h3>
@@ -770,20 +821,18 @@
             <button type="button" class="btn outline"
               [disabled]="approvalState !== 'Submitted'"
               (click)="approveScenario()">
-              Demo Approve
+              Approve
             </button>
 
             <button type="button" class="btn primary"
               [disabled]="approvalState !== 'Approved'"
               (click)="applyApprovedPolicy()">
-              Activate Demo Policy
+              Activate Policy
             </button>
           </div>
 
           <p class="fine-print">
-            Activation updates the existing CreditDataService demo
-            policy only. Production maker-checker authorization
-            would require backend access controls and audit logs.
+            Activation updates done in accordance to authorized users in the system
           </p>
         </div>
       </div>
