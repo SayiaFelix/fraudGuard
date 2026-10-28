@@ -46,3 +46,8 @@ testem.log
 Thumbs.db
 ./yarn.lock
 .vercel
+
+# local secrets
+.env
+.env.*
+!.env.example
