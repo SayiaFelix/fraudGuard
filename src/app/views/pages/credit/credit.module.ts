@@ -35,8 +35,16 @@ const routes: Routes = [
       { path: 'alerts', component: DecisionQueueComponent, data: { title: 'Alerts', subtitle: 'Open alerts, with case actions on the same page' } },
       { path: 'decision-queue', component: LoanDecisionQueueComponent, data: { title: 'Decision Queue', subtitle: 'Assessed applications awaiting officer decisions' } },
       { path: 'credit-scoring', component: CreditScoringComponent, data: { ownHeader: true } },
-      { path: 'decision-rules', component: DecisionRulesComponent, data: { title: 'Decision rules', subtitle: 'Policy that sits on top of the score' } },
-      { path: 'policy-simulator', component: PolicySimulatorComponent, data: { title: 'Policy simulator', subtitle: 'See who would move if the cutoffs change' } },
+      {
+  path: 'decision-rules',
+  component: DecisionRulesComponent,
+  data: { ownHeader: true }
+},
+      {
+  path: 'policy-simulator',
+  component: PolicySimulatorComponent,
+  data: { ownHeader: true }
+},
       { path: 'portfolio', component: PortfolioComponent, data: { ownHeader: true } },
       { path: 'reports', component: CreditReportsComponent, data: { title: 'Reports', subtitle: 'Download a CSV from the demo book' } },
       { path: 'model-monitoring', component: ModelMonitoringComponent, data: { title: 'Model monitoring', subtitle: 'Gini, KS, and population stability' } },

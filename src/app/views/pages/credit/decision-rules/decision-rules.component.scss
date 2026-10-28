@@ -2572,6 +2572,7 @@
     bottom: 15px;
 
   }
+}
   /* Simplified Decision Intelligence header */
 
 .di-page {
@@ -2652,4 +2653,245 @@
   margin-bottom: 16px;
 }
 
+
+/* ==========================================
+   CREATE RULE MODAL - IMPROVED READABILITY
+   AND SCROLLING
+   ========================================== */
+
+/* Overlay covers the screen */
+.di-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow: hidden;
+  background: rgba(18, 36, 62, 0.65);
+}
+
+/* Modal stays within the visible screen */
+.di-dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 760px);
+  max-height: calc(100dvh - 32px);
+  min-height: 0;
+  margin: auto;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+/* Header remains visible */
+.di-dialog-header {
+  flex: 0 0 auto;
+  padding: 20px 24px;
+  background: #ffffff;
+
+  h2 {
+    font-size: 21px;
+    font-weight: 800;
+    color: #20314b;
+  }
+
+  p {
+    font-size: 13px;
+    font-weight: 500;
+    color: #60718a;
+  }
+}
+
+/* Scroll only the form content */
+.di-dialog-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  padding: 20px 24px;
+
+  scrollbar-width: thin;
+  scrollbar-color: #a5b4c8 #f1f5f9;
+}
+
+/* Footer and buttons remain visible */
+.di-dialog-footer {
+  flex: 0 0 auto;
+  padding: 16px 24px;
+  background: #f9fbff;
+  border-top: 1px solid #e1e9f3;
+}
+
+/* Make form labels clearer and bolder */
+.di-form-grid label {
+  font-size: 13px;
+  font-weight: 750;
+  color: #344760;
+}
+
+/* Improve text inside input fields */
+.di-form-grid input,
+.di-form-grid select,
+.di-form-grid textarea {
+  font-size: 13px;
+  font-weight: 600;
+  color: #263752;
+  border: 1px solid #cbd7e6;
+}
+
+/* Better input focus */
+.di-form-grid input:focus,
+.di-form-grid select:focus,
+.di-form-grid textarea:focus {
+  outline: none;
+  border-color: #3468f6;
+  box-shadow: 0 0 0 3px rgba(52, 104, 246, 0.10);
+}
+
+/* Clearer checkbox label */
+.di-checkbox-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #344760;
+}
+
+/* Smaller screens */
+@media (max-width: 600px) {
+  .di-overlay {
+    padding: 10px;
+  }
+
+  .di-dialog {
+    max-height: calc(100dvh - 20px);
+  }
+
+  .di-dialog-header,
+  .di-dialog-body,
+  .di-dialog-footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* =========================================
+   FIX CREATE / EDIT RULE MODAL SCROLLING
+   ========================================= */
+
+.di-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  padding: 12px !important;
+  overflow-y: auto !important;
+}
+
+/* Main modal */
+.di-dialog {
+  display: flex !important;
+  flex-direction: column !important;
+
+  width: min(100%, 760px) !important;
+  max-height: calc(100dvh - 24px) !important;
+  min-height: 0 !important;
+
+  margin: auto !important;
+  overflow: hidden !important;
+}
+
+/* Header stays visible */
+.di-dialog-header {
+  flex: 0 0 auto !important;
+}
+
+/* IMPORTANT: Form is the flex container */
+.di-rule-form {
+  display: flex !important;
+  flex-direction: column !important;
+
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Only the form fields scroll */
+.di-rule-form > .di-dialog-body {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+
+  scrollbar-width: auto;
+  scrollbar-color: #64748b #e2e8f0;
+}
+
+/* Visible scrollbar */
+.di-rule-form > .di-dialog-body::-webkit-scrollbar {
+  width: 9px;
+}
+
+.di-rule-form > .di-dialog-body::-webkit-scrollbar-track {
+  background: #e2e8f0;
+}
+
+.di-rule-form > .di-dialog-body::-webkit-scrollbar-thumb {
+  background: #64748b;
+  border-radius: 8px;
+}
+
+/* Save and Cancel stay visible */
+.di-rule-form > .di-dialog-footer {
+  flex: 0 0 auto !important;
+  position: relative;
+  z-index: 2;
+
+  display: flex !important;
+  justify-content: flex-end;
+  gap: 10px;
+
+  background: #ffffff;
+  border-top: 1px solid #e1e9f3;
+  padding: 15px 24px;
+}
+/* ==========================================
+   DECISION INTELLIGENCE - SPACING
+   ========================================== */
+
+.di-page {
+  padding-top: 20px !important;
+}
+
+.di-header {
+  margin-bottom: 22px !important;
+}
+
+.di-title-line {
+  gap: 12px !important;
+}
+
+.di-title-line h1 {
+  margin-bottom: 5px !important;
+}
+
+.di-tabs {
+  margin-bottom: 24px !important;
+}
+
+.di-section-header {
+  margin-bottom: 20px !important;
+}
+
+.di-section-header h2 {
+  margin: 6px 0 !important;
+}
+
+.di-kpis {
+  margin-top: 6px;
 }

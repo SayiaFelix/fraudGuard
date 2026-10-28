@@ -2,15 +2,11 @@
 <div class="di-page">
    <header class="di-header">
   <div class="di-title-line">
-    <div class="di-brand-icon">
-      <i class="fas fa-brain"></i>
-    </div>
-
-    <div class="di-heading-content">
-      <h1>Decision Intelligence Studio</h1>
-      <p>Manage credit policies, applications and intelligent lending decisions.</p>
-    </div>
+  <div class="di-heading-content">
+    <h1>Decision Intelligence Studio</h1>
+    <p>Manage credit policies, applications and intelligent lending decisions.</p>
   </div>
+</div>
 </header>
 
   <!-- WORKSPACE NAVIGATION -->
@@ -921,7 +917,7 @@
         </button>
       </div>
 
-      <form (ngSubmit)="saveRule()">
+      <form class="di-rule-form" (ngSubmit)="saveRule()">
         <div class="di-dialog-body">
           <p class="di-form-error" *ngIf="ruleError">{{ ruleError }}</p>
 
