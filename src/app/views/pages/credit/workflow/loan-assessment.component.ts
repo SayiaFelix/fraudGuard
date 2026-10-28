@@ -10,11 +10,17 @@ export class LoanAssessmentComponent implements OnChanges, OnDestroy {
   @Input() assessment: LoanAssessment;
   @Input() applicationId = '';
   productSuggestions: LoanProductSuggestion[] = [];
+  copilotState: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
+  copilotError = '';
   activeTab: 'insights' | 'drivers' | 'policy' | 'profile' = 'insights';
   readonly tabs = [{ id: 'insights', label: 'AI overview' }, { id: 'drivers', label: 'Explainable outlook' }, { id: 'policy', label: 'Policy checks' }, { id: 'profile', label: 'Customer & facility' }] as const;
   scenarioAmount = 10000; scenarioTenor = 12; scenario: LoanScenario | null = null; scenarioError = '';
   activeDriverLabel = '';
   readonly driverPopoverId = 'risk-driver-explanation-' + ++nextDriverPopoverId;
+  readonly copilotContentId = 'credit-copilot-' + this.driverPopoverId;
+  private destroyed = false;
+  private copilotRequest = 0;
+  private copilotWait: { timer: ReturnType<typeof setTimeout>; resolve: () => void } | null = null;
   @ViewChild('driverPopover') private driverPopover?: ElementRef<HTMLDivElement>;
   driverPopoverReady = false;
   driverPopoverLeft = 12; driverPopoverTop = 12;
@@ -29,11 +35,40 @@ export class LoanAssessmentComponent implements OnChanges, OnDestroy {
   constructor(public workflow: LoanWorkflowService, private changeDetector?: ChangeDetectorRef) {}
   readonly MathAbs = Math.abs;
   ngOnChanges(): void {
-    this.hideDriver(); this.resetScenario(); this.activeTab = 'insights';
-    this.productSuggestions = this.assessment ? this.workflow.productSuggestions(this.assessment) : [];
+    this.hideDriver(); this.resetCopilot(); this.resetScenario(); this.activeTab = 'insights';
   }
-  ngOnDestroy(): void { this.hideDriver(); }
-  selectTab(tab: typeof this.activeTab): void { this.hideDriver(); this.activeTab = tab; }
+  ngOnDestroy(): void { this.destroyed = true; this.hideDriver(); this.resetCopilot(); }
+  selectTab(tab: typeof this.activeTab): void {
+    this.hideDriver();
+    if (tab !== 'insights' && this.copilotState === 'loading') { this.resetCopilot(); }
+    this.activeTab = tab;
+  }
+  async loadCopilot(): Promise<void> {
+    if (this.destroyed || !this.assessment?.ai || this.copilotState === 'loading') { return; }
+    if (this.copilotState === 'ready') { this.resetCopilot(); return; }
+    const request = ++this.copilotRequest;
+    this.copilotState = 'loading'; this.copilotError = ''; this.productSuggestions = [];
+    try {
+      // Local demo briefing; the visible loading transition is not a remote LLM call.
+      await new Promise<void>(resolve => {
+        const timer = setTimeout(() => { this.copilotWait = null; resolve(); }, 850);
+        this.copilotWait = { timer, resolve };
+      });
+      if (this.destroyed || request !== this.copilotRequest) { return; }
+      this.productSuggestions = this.workflow.productSuggestions(this.assessment);
+      this.copilotState = 'ready';
+    } catch (error) {
+      if (!this.destroyed && request === this.copilotRequest) {
+        this.copilotError = this.workflow.errorMessage(error); this.copilotState = 'error';
+      }
+    }
+  }
+  private resetCopilot(): void {
+    ++this.copilotRequest;
+    const pending = this.copilotWait; this.copilotWait = null;
+    if (pending) { clearTimeout(pending.timer); pending.resolve(); }
+    this.copilotState = 'idle'; this.copilotError = ''; this.productSuggestions = [];
+  }
   get ai() { return this.assessment.ai; }
   get customer() { return this.assessment.eligibility?.customer; }
   get eligibilityPassed(): number { return this.assessment.eligibility?.checks.filter(c => c.result === 'Pass').length || 0; }

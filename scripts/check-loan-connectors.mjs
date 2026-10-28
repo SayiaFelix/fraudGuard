@@ -48,6 +48,7 @@ try {
   const felix = workflow.customers.find(c => c.profile.applicant === 'Felix Sayia');
   const record = await workflow.submit(felix.profile, { submissionKey: 'preview-felix' });
   assert.equal(latestAssessment(record).ai.risk, 'Low');
+  assert.equal(latestAssessment(record).score, 800); assert.equal(latestAssessment(record).limit.offer.score, 800);
   assert.equal(latestAssessment(record).limit.maximumAmount, 436000);
   assert.equal(latestAssessment(record).limit.recommendedAmount, 400000);
   const original = JSON.stringify(record);

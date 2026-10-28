@@ -13,7 +13,8 @@ export interface LoanEligibility {
   version: 'eligibility-demo-1'; customer: LoanCustomerFacts; policy: LoanEligibilityPolicy;
   checks: LoanCheck[]; decision: CreditDecision; reasons: string[];
 }
-export interface LoanCustomer { id: string; source: 'Mock customer from original portal' | 'Kenya demo profile'; profile: ApplicationDraft; facts: LoanCustomerFacts; }
+export interface LoanCustomer { id: string; source: 'Mock customer from original portal' | 'Kenya demo profile'; profile: ApplicationDraft; facts: LoanCustomerFacts; scorecardAdjustment?: number; }
+export interface LoanScorecardAdjustment { version: 'profile-scorecard-1'; sourceScore: number; points: number; }
 export interface LoanCheck { code: string; name: string; observed: string; requirement: string; result: 'Pass' | 'Triggered' | 'Not implemented' | 'Needs review'; effect: string; }
 export interface LoanModelOutput { id: string; name: string; probability: number; risk: RiskBand; weight: number; }
 export interface LoanRiskDriver { label: string; deltaPp: number; reference: string; explanation: string; }
@@ -41,6 +42,7 @@ export interface LoanAssessment {
   mode: 'SIMULATED'; modelAvailable: false; modelMessage: string;
   score: number; scoreMinimum: 300; scoreMaximum: 900; risk: RiskBand;
   baseScore: 500; contributions: Array<{ label: string; impact: number }>;
+  scorecardAdjustment?: LoanScorecardAdjustment;
   policy: PolicySettings; configuredRules: DecisionRule[]; checks: LoanCheck[];
   affordability: { installment: number; dti: number; headroom: number; residual: number; affordable: boolean; };
   recommendation: CreditDecision; reasons: string[]; limitations: string[];

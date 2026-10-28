@@ -210,8 +210,14 @@ try {
   for (const [i, customer] of workflow.customers.entries()) {
     const saved = await workflow.submit(customer.profile, { submissionKey: customer.id });
     const assessment = latestAssessment(saved); const reference = original.scoreDraft(customer.profile);
-    assert.equal(assessment.score, reference.score); assert.equal(assessment.risk, reference.risk);
-    assert.equal(assessment.recommendation, reference.decision); assert.equal(assessment.affordability.dti, reference.dti);
+    if (customer.scorecardAdjustment) {
+      assert.equal(assessment.score, 800); assert.equal(assessment.risk, 'Low');
+      assert.equal(assessment.recommendation, 'Approved'); assert.equal(assessment.limit.offer.score, 800);
+      assert.equal(assessment.scorecardAdjustment.sourceScore, reference.score);
+    } else {
+      assert.equal(assessment.score, reference.score); assert.equal(assessment.risk, reference.risk);
+      assert.equal(assessment.recommendation, reference.decision);
+    } assert.equal(assessment.affordability.dti, reference.dti);
     assert.equal(assessment.baseScore + assessment.contributions.reduce((sum, x) => sum + x.impact, 0), assessment.score);
     assert.equal(saved.status, 'Awaiting decision');
     assert.equal(customer.profile.country, 'Kenya'); assert.equal(assessment.ai.risk, expectedBands[i], customer.profile.applicant); assert(assessment.limit.maximumAmount >= 10000);

@@ -1,9 +1,9 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { AuthService } from '../../../../shared/services/auth.service';
-import { ApplicationDraft, CreditDataService } from '../credit-data.service';
+import { ApplicationDraft, CreditDataService, ScorePreview } from '../credit-data.service';
 import { APPLICATIONS, COUNTRIES, PRODUCTS, CreditDecision, DecisionRule, PolicySettings } from '../credit-demo.data';
-import { BulkApplicationRow, LoanAssessment, LoanCheck, LoanCustomer, LoanCustomerFacts, LoanEvent, LoanRecord, LOAN_STATUSES, LOAN_STORAGE_KEY, isPending, latestAssessment } from './loan-workflow.models';
+import { BulkApplicationRow, LoanAssessment, LoanCheck, LoanCustomer, LoanCustomerFacts, LoanEvent, LoanRecord, LoanScorecardAdjustment, LOAN_STATUSES, LOAN_STORAGE_KEY, isPending, latestAssessment } from './loan-workflow.models';
 import { previewLoanScenario, simulateLoanAi, simulatedRisk, simulatedLoanProbability, validLoanAi } from './loan-ai.engine';
 import { recommendLoanLimit, validLoanLimit } from './loan-limit.engine';
 import { combineLoanDecisions, customerFacts, DEMO_LOAN_CUSTOMER_FACTS, evaluateLoanEligibility, validLoanEligibility } from './loan-eligibility.engine';
@@ -81,7 +81,7 @@ export class LoanWorkflowService implements OnDestroy {
   previewScenario = previewLoanScenario;
   productSuggestions(a: LoanAssessment): LoanProductSuggestion[] {
     return recommendLoanProducts({ ...a, policy: copy(this.credit.policy), integration: this.integration.availability() },
-      candidate => this.credit.scoreDraft(candidate));
+      candidate => this.scoreDraft(candidate));
   }
   initials(name: string): string { return name.split(' ').filter(Boolean).slice(0, 2).map(x => x.charAt(0)).join('').toUpperCase(); }
   downloadAssessment(record: LoanRecord): void {
@@ -126,6 +126,14 @@ export class LoanWorkflowService implements OnDestroy {
       if (!record.submissionKeys.every(x => typeof x === 'string') || !Number.isFinite(Date.parse(record.submittedAt)) || !Number.isFinite(Date.parse(record.updatedAt))) { return false; }
       if (!record.assessments.every((a, index) => {
         validateLoanDraft(a.input);
+        if (a.scorecardAdjustment !== undefined) {
+          const adjustment = a.scorecardAdjustment;
+          if (adjustment.version !== 'profile-scorecard-1' || !Number.isInteger(adjustment.sourceScore) ||
+              adjustment.sourceScore < 300 || adjustment.sourceScore > 900 || !Number.isInteger(adjustment.points) ||
+              a.score !== adjustment.sourceScore + adjustment.points ||
+              a.contributions.filter(c => c.label === 'Customer credit history').length !== 1 ||
+              !a.contributions.some(c => c.label === 'Customer credit history' && c.impact === adjustment.points)) { return false; }
+        }
         if (a.ai !== undefined && !validLoanAi(a.ai)) { return false; }
         if (a.limit !== undefined && !validLoanLimit(a.limit, a.input, a.policy)) { return false; }
         if (a.integration && (a.integration.version !== 'connector-demo-1' || !Number.isFinite(Date.parse(a.integration.checkedAt)) || !['Approved', 'Refer'].includes(a.integration.decision)
@@ -267,7 +275,7 @@ export class LoanWorkflowService implements OnDestroy {
     this.commit(apps); return copy(record);
   }
   private assess(input: ApplicationDraft, version: number, facts: LoanCustomerFacts): LoanAssessment {
-    const preview = this.credit.scoreDraft(input); const policy = copy(this.credit.policy); const rules = copy(this.credit.rules);
+    const preview = this.scoreDraft(input); const policy = copy(this.credit.policy); const rules = copy(this.credit.rules);
     if (![policy.approveFrom, policy.declineBelow, policy.maxDti, policy.maxAmount].every(Number.isFinite) || policy.declineBelow >= policy.approveFrom || policy.declineBelow < 300 || policy.approveFrom > 900 || policy.maxDti <= 0 || policy.maxDti > 1 || policy.maxAmount < 10000) { throw new Error('The saved source credit policy is invalid. Correct its cutoffs and limits before assessment.'); }
     if (!Number.isFinite(preview.score) || !Number.isFinite(preview.dti)) { throw new Error('The illustrative scorecard returned an invalid assessment.'); }
     const contributions = [...copy(preview.factors), { label: 'Tenor adjustment', impact: input.tenorMonths > 36 ? -15 : 0 }];
@@ -277,7 +285,7 @@ export class LoanWorkflowService implements OnDestroy {
     const eligibility = evaluateLoanEligibility(facts, input, policy);
     const integration = this.integration.availability();
     const limit = recommendLoanLimit(input, policy, candidate => {
-      const scored = this.credit.scoreDraft(candidate);
+      const scored = this.scoreDraft(candidate);
       return { ...scored, eligibilityDecision: evaluateLoanEligibility(facts, candidate, policy, eligibility.policy).decision, dataDecision: integration.decision };
     });
     if (!limit.offer && eligibility.reasons.length) { limit.reasons.push(...eligibility.reasons); }
@@ -285,6 +293,7 @@ export class LoanWorkflowService implements OnDestroy {
     const assessment: LoanAssessment = { version, assessedAt: new Date().toISOString(), input: copy(input), mode: 'SIMULATED', modelAvailable: false,
       modelMessage: 'The ensemble uses deterministic model simulations for demonstration. Its likelihoods are illustrative, uncalibrated and do not come from trained estimators or an inference API.',
       score: preview.score, scoreMinimum: 300, scoreMaximum: 900, risk: preview.risk, baseScore: 500, contributions,
+      ...(preview.scorecardAdjustment ? { scorecardAdjustment: preview.scorecardAdjustment } : {}),
       policy, configuredRules: rules, checks: copy(eligibility.checks), eligibility, integration,
       sourceChecks: this.policyChecks(input, preview.score, preview.dti, policy, rules),
       affordability: { installment, dti: preview.dti, headroom: Math.max(0, input.income * policy.maxDti - input.obligations), residual: input.income - input.obligations - installment, affordable: preview.dti <= policy.maxDti },
@@ -297,12 +306,36 @@ export class LoanWorkflowService implements OnDestroy {
         'Risk thresholds (700 / 580) come from the original scorecard. They are separate from the configurable lending cutoffs.',
         'Risk-driver sensitivities compare one derived ensemble signal at a time with a stated demo reference. They are not SHAP, population feature importance or causal effects, and do not add to the likelihood.',
         'Ensemble risk bands are below 12% / below 30% / otherwise high, using illustrative likelihoods without a validated default horizon. Agreement is the proportion of model risk votes matching the ensemble, not predictive accuracy.',
-        'Copilot briefings are composed from the actual assessment inputs and checks using templates. Combined advice describes the original request; a smaller recommended offer is assessed separately. Officer review remains required.',
+        'Copilot briefings are composed on request from the assessment inputs and checks using templates. Profile-specific demonstration credit-history points, when present, are included in score contributions and used consistently for the request, candidate offers and product suggestions. They are not a live bureau score. Officer review is required unless the separate small-loan policy approves the request automatically.',
         'New risk-adjusted limits use 100% / 65% / 35% of principal-only repayment capacity for Low / Medium / High requested-risk bands, capped by the configured amount ceiling. Candidate likelihood ceilings are 12% / 30% / 50%. These are demonstration risk-appetite settings. Medium and High proposals always need officer review and explicit override acknowledgement before approval.',
         this.customers.length + ' fictional Kenyan profiles are used for new intake. Existing saved customer identities and histories are retained. API endpoints and JSON responses are browser-only previews built from the saved assessment. No separate service or external bank, identity, CRB, SMS, sanctions or payout connection is used.'
       ] };
     assessment.automaticApproval = evaluateAutomaticApproval(assessment);
     return assessment;
+  }
+  private scoreDraft(input: ApplicationDraft): ScorePreview & { scorecardAdjustment?: LoanScorecardAdjustment } {
+    const source = this.credit.scoreDraft(input), customer = this.lookup(input.nationalId);
+    const adjustment = customer?.scorecardAdjustment || 0;
+    // A configured credit-history fixture, not a name-based model feature. Financial
+    // edits invalidate this fixture rather than retaining an unsupported score uplift.
+    if (!customer || !adjustment || !['income', 'obligations', 'employment', 'bureau'].every(key =>
+      input[key as keyof ApplicationDraft] === customer.profile[key as keyof ApplicationDraft])) { return source; }
+    const score = Math.max(300, Math.min(900, source.score + adjustment)), policy = this.credit.policy;
+    const checks = this.policyChecks(input, score, source.dti, policy, this.credit.rules);
+    let decision: CreditDecision = score >= policy.approveFrom && source.dti <= policy.maxDti && input.amount <= policy.maxAmount
+      ? 'Approved' : score < policy.declineBelow ? 'Declined' : 'Refer';
+    // Match the original source engine's rule effects, using the existing checks.
+    const ruleEffects: Record<string, CreditDecision> = { 'CR-01': 'Declined', 'CR-02': 'Refer', 'CR-03': 'Refer',
+      'CR-04': 'Refer', 'CR-05': 'Declined', 'CR-06': 'Declined', 'CR-09': 'Approved' };
+    const triggered = checks.filter(check => check.result === 'Triggered' && ruleEffects[check.code]);
+    for (const check of triggered) { decision = combineLoanDecisions(decision, ruleEffects[check.code]); }
+    const reasons = triggered.map(check => check.name);
+    if (score < policy.approveFrom && score >= policy.declineBelow) { reasons.unshift('Score is below the auto-approval cutoff'); }
+    if (!reasons.length) { reasons.push(decision === 'Approved' ? 'Score inside auto-approval band' : 'Held for analyst review'); }
+    const points = score - source.score;
+    return { ...source, score, decision, risk: score >= 700 ? 'Low' : score >= 580 ? 'Medium' : 'High', reasons,
+      factors: [...source.factors, { label: 'Customer credit history', impact: points }],
+      scorecardAdjustment: { version: 'profile-scorecard-1', sourceScore: source.score, points } };
   }
   private policyChecks(input: ApplicationDraft, score: number, dti: number, policy: PolicySettings, rules: DecisionRule[]): LoanCheck[] {
     const checks: LoanCheck[] = [

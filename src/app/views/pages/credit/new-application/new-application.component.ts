@@ -20,6 +20,7 @@ export class NewApplicationComponent implements OnInit, OnDestroy {
   connectorId = 'bureau'; integrationApplicantId = ''; integrationResult: LoanConnectorResult | null = null;
   integrationBusy = false; integrationError = ''; integrationBanner = '';
   created: LoanRecord | null = null; error = ''; looking = false; busy = false; reading = false; processing = false;
+  directoryOpen = false;
   assessmentStep = 0;
   readonly assessmentStages = [
     { title: 'Preparing application', detail: 'Customer profile and requested terms' },
@@ -29,6 +30,8 @@ export class NewApplicationComponent implements OnInit, OnDestroy {
   private destroyed = false;
   private assessmentWait: { timer: ReturnType<typeof setTimeout>; resolve: () => void } | null = null;
   private assessmentFrame: number | null = null;
+  private profileRequest = 0;
+  private profileWait: { timer: ReturnType<typeof setTimeout>; resolve: () => void } | null = null;
   rows: BulkApplicationRow[] = []; fileName = ''; bulkDone = 0; bulkCancelled = false;
   reassessmentId = ''; reassessmentNote = ''; submissionKey = loanId('SINGLE');
   recommendationContext = '';
@@ -97,7 +100,7 @@ export class NewApplicationComponent implements OnInit, OnDestroy {
     }));
   }
   setTab(mode: 'individual' | 'bulk' | 'integration'): void {
-    if (this.busy || this.processing || this.reading || this.integrationBusy || (!!this.reassessmentId && mode !== 'individual')) { return; }
+    if (this.looking || this.busy || this.processing || this.reading || this.integrationBusy || (!!this.reassessmentId && mode !== 'individual')) { return; }
     this.tab = mode; this.error = '';
     if (mode === 'integration' && !this.workflow.find(this.integrationApplicantId)) { this.integrationApplicantId = this.workflow.applications[0]?.id || ''; this.integrationResult = null; }
   }
@@ -125,7 +128,7 @@ export class NewApplicationComponent implements OnInit, OnDestroy {
     finally { this.integrationBusy = false; }
   }
   ngOnDestroy(): void {
-    this.destroyed = true; this.subscription.unsubscribe(); this.finishAssessmentWait();
+    this.destroyed = true; this.subscription.unsubscribe(); this.finishAssessmentWait(); this.cancelProfileLookup();
     if (this.assessmentFrame !== null && typeof window !== 'undefined') { window.cancelAnimationFrame(this.assessmentFrame); }
   }
   private waitForAssessmentStage(): Promise<void> {
@@ -151,21 +154,36 @@ export class NewApplicationComponent implements OnInit, OnDestroy {
     });
   }
   reset(): void {
+    this.cancelProfileLookup(); this.directoryOpen = false;
     this.tab = 'individual';
     this.created = null; this.customer = null; this.error = ''; this.nationalId = ''; this.assessmentStep = 0;
     this.reassessmentId = ''; this.reassessmentNote = ''; this.submissionKey = loanId('SINGLE'); this.recommendationContext = '';
   }
   clearCustomer(): void { if (!this.reassessmentId) { this.customer = null; this.created = null; this.error = ''; this.recommendationContext = ''; this.submissionKey = loanId('SINGLE'); } }
   async lookup(): Promise<void> {
-    if (this.looking || this.busy) { return; }
+    if (this.destroyed || this.looking || this.busy || this.reassessmentId) { return; }
+    const request = ++this.profileRequest, nationalId = this.nationalId;
     this.looking = true; this.error = ''; this.customer = null; this.created = null;
     try {
-      await Promise.resolve();
-      const customer = this.workflow.lookup(this.nationalId);
+      // The directory is local. This presentation delay lets the loading state paint;
+      // it does not represent a live core-banking request.
+      const [customer] = await Promise.all([Promise.resolve().then(() => this.workflow.lookup(nationalId)),
+        new Promise<void>(resolve => {
+          const timer = setTimeout(() => { this.profileWait = null; resolve(); }, 750);
+          this.profileWait = { timer, resolve };
+        })]);
+      if (this.destroyed || request !== this.profileRequest) { return; }
       if (!customer) { throw new Error('Customer not found. Check the ID or choose a customer from the directory.'); }
-      this.customer = customer; this.form.patchValue({ ...customer.profile, customerFacts: customer.facts }); this.submissionKey = loanId('SINGLE');
-    } catch (error) { this.error = this.workflow.errorMessage(error); }
-    finally { this.looking = false; }
+      this.customer = customer; this.directoryOpen = false; this.recommendationContext = '';
+      this.form.patchValue({ ...customer.profile, customerFacts: customer.facts }); this.submissionKey = loanId('SINGLE');
+      this.focusAssessmentStatus('retrieved-customer-profile');
+    } catch (error) { if (!this.destroyed && request === this.profileRequest) { this.error = this.workflow.errorMessage(error); } }
+    finally { if (request === this.profileRequest) { this.cancelProfileLookup(); } }
+  }
+  private cancelProfileLookup(): void {
+    ++this.profileRequest; this.looking = false;
+    const pending = this.profileWait; this.profileWait = null;
+    if (pending) { clearTimeout(pending.timer); pending.resolve(); }
   }
   async submit(): Promise<void> {
     if (this.destroyed || this.busy || this.processing || this.created) { return; }
@@ -201,7 +219,7 @@ export class NewApplicationComponent implements OnInit, OnDestroy {
   get liveInstallment(): number { const v = this.form.getRawValue(); return Number(v.tenorMonths) > 0 ? Number(v.amount) / Number(v.tenorMonths) : 0; }
   get liveDti(): number { const v = this.form.getRawValue(); return Number(v.income) > 0 ? (Number(v.obligations) + this.liveInstallment) / Number(v.income) : 0; }
   get assessedRows(): BulkApplicationRow[] { return this.rows.filter(x => x.state === 'Saved'); }
-  chooseCustomer(id: string): void { if (!this.busy && !this.reassessmentId) { this.nationalId = id; void this.lookup(); } }
+  chooseCustomer(id: string): void { if (!this.destroyed && !this.looking && !this.busy && !this.reassessmentId) { this.nationalId = id; void this.lookup(); } }
   get readyCount(): number { return this.rows.filter(x => x.state === 'Ready' || x.state === 'Failed').length; }
   get savedCount(): number { return this.rows.filter(x => x.state === 'Saved').length; }
   get invalidCount(): number { return this.rows.filter(x => x.state === 'Invalid').length; }
