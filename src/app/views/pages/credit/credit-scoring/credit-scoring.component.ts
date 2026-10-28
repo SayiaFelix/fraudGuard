@@ -12,6 +12,13 @@ interface ChatMessage {
   time: string;
 }
 
+interface LoanRecommendation {
+  name: string;
+  amount: number;
+  term: number;
+  why: string;
+}
+
 @Component({
   selector: 'app-credit-scoring',
   templateUrl: './credit-scoring.component.html',
@@ -25,6 +32,36 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     existingDebt: 20000,
     hasDefaulted: false
   };
+
+  previousLoan = {
+    product: 'Student Loan',
+    amount: 180000,
+    status: 'Repaid on time',
+    closed: 'Mar 2026'
+  };
+
+  recommendations: LoanRecommendation[] = [
+    {
+      name: 'Professional Development Loan',
+      amount: 80000,
+      term: 12,
+      why: 'The last facility was a student loan, repaid in full and on time. Education credit that closed cleanly is why the next offer is a follow-on loan for a certification or further study.'
+    },
+    {
+      name: 'Career Starter Loan',
+      amount: 50000,
+      term: 12,
+      why: 'A repaid student loan plus verified income of Ksh 150,000 points to the move from study into work. This amount stays inside the limit that income already supports.'
+    },
+    {
+      name: 'Graduate Equipment Loan',
+      amount: 45000,
+      term: 6,
+      why: 'Customers who finish a student loan often need a laptop or tools before the first salary cycle. The clean close on the student facility is why a short equipment loan sits next to it.'
+    }
+  ];
+
+  selectedRecommendation: LoanRecommendation | null = null;
 
   channel: Channel = 'mobile';
   phoneTab: PhoneTab = 'home';
@@ -132,6 +169,10 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     return this.calculateAssessment();
   }
 
+  get activeRecommendation(): LoanRecommendation {
+    return this.selectedRecommendation || this.recommendations[0];
+  }
+
   get whatIfAssessment() {
     return this.calculateAssessment(this.whatIfIncome, this.whatIfDebt);
   }
@@ -200,6 +241,14 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     }
   }
 
+  chooseRecommendation(rec: LoanRecommendation): void {
+    this.selectedRecommendation = rec;
+    this.loanTermMonths = rec.term;
+    const ceiling = this.calculateAssessment().maxLimit;
+    this.requestedAmount = Math.min(rec.amount, ceiling);
+    this.startJourney();
+  }
+
   startJourney() {
     this.phoneTab = 'loans';
     this.isProcessing = true;
@@ -229,6 +278,8 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     this.whatIfIncome = this.customer.income;
     this.whatIfDebt = this.customer.existingDebt;
     this.applicationRef = '';
+    this.selectedRecommendation = null;
+    this.loanTermMonths = 12;
     this.phoneTab = 'home';
     this.resetChat();
   }
@@ -242,7 +293,7 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
   resetChat() {
     this.chatMessages = [{
       sender: 'bot',
-      text: `Hello Felix! 👋 I'm Leo, your UBA Smart Loan Assistant. Based on your profile, you have an indicative limit of ${this.money(this.assessment.maxLimit)}. How can I help you today?`,
+      text: `Hello Felix. I'm Leo. Your <b>${this.previousLoan.product}</b> of <b>${this.money(this.previousLoan.amount)}</b> closed on time in ${this.previousLoan.closed}. Because of that, I recommend a <b>${this.recommendations[0].name}</b> of <b>${this.money(this.recommendations[0].amount)}</b>. Ask me why, or say apply.`,
       time: this.now()
     }];
   }
@@ -272,14 +323,17 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     const a = this.assessment;
     let reply = '';
 
-    if (lower === 'yes' || lower === 'yeah' || lower === 'sure' || lower.includes('increase') || lower.includes('more') || lower.includes('qualify')) {
+    if (lower.includes('recommend') || lower.includes('suggest') || lower.includes('student')) {
+      reply = this.recommendReply();
+    }
+    else if (lower === 'yes' || lower === 'yeah' || lower === 'sure' || lower.includes('increase') || lower.includes('more') || lower.includes('qualify')) {
       reply = this.boostReply();
     }
     else if (lower === 'no' || lower === 'nope') {
       reply = `Understood. If you change your mind, you can always ask me to explain your limit or help you apply for a loan.`;
     }
     else if (lower.includes('why') || lower.includes('explain')) {
-      reply = this.reasonsReply();
+      reply = lower.includes('limit') ? this.reasonsReply() : this.recommendReply();
     }
     else if (lower.includes('limit') || lower.includes('how much')) {
       reply = `Your indicative maximum limit is <b>${this.money(a.maxLimit)}</b>.<br><br>` +
@@ -290,15 +344,26 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
       if (this.applicationRef) {
         reply = `You already have a pending application: <b>${this.applicationRef}</b>. You can track its status anytime.`;
       } else {
-        reply = `I can process that for you right now.<br><br>` +
-                `Based on your limit, here are the demo terms:<br>` +
+        if (!this.selectedRecommendation) {
+          this.loanTermMonths = this.activeRecommendation.term;
+          this.requestedAmount = Math.min(this.activeRecommendation.amount, this.calculateAssessment().maxLimit);
+        }
+        const offer = this.activeRecommendation;
+        const priced = this.assessment;
+        reply = `I can start <b>${offer.name}</b> from here.<br><br>` +
+                `${offer.why}<br><br>` +
                 `• Amount: <b>${this.money(this.requestedAmount)}</b><br>` +
                 `• Term: <b>${this.loanTermMonths} Months</b><br>` +
-                `• Est. Monthly Repayment: <b>${this.money(a.monthlyRepayment)}</b><br><br>` +
+                `• Est. Monthly Repayment: <b>${this.money(priced.monthlyRepayment)}</b><br><br>` +
                 `Shall I submit this application? Reply <b>"Confirm"</b> to proceed.`;
       }
     }
     else if (lower === 'confirm' || lower === 'proceed') {
+      if (!this.selectedRecommendation) {
+        this.loanTermMonths = this.activeRecommendation.term;
+        this.requestedAmount = Math.min(this.activeRecommendation.amount, this.calculateAssessment().maxLimit);
+        this.selectedRecommendation = this.activeRecommendation;
+      }
       this.isProcessing = true; 
       setTimeout(() => {
         this.isProcessing = false;
@@ -307,6 +372,7 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
         
         this.addBotMessage(
           `🎉 <b>Application Submitted Successfully!</b><br><br>` +
+          `• Product: <b>${this.activeRecommendation.name}</b><br>` +
           `• Reference: <b>${this.applicationRef}</b><br>` +
           `• Amount: <b>${this.money(this.requestedAmount)}</b><br>` +
           `• Status: <b>Pending Disbursement</b><br><br>` +
@@ -321,10 +387,17 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
         : `You haven't submitted an application yet. Ask me to "Apply" to get started.`;
     }
     else {
-      reply = `I can help you check your limit, explain how it's calculated, show you how to qualify for more, or apply for a loan right here in chat. What would you like to do?`;
+      reply = `I can recommend a loan from your student-loan history, explain why, check your limit, or apply right here in chat. What would you like to do?`;
     }
 
     this.addBotMessage(reply);
+  }
+
+  private recommendReply(): string {
+    const lines = this.recommendations
+      .map(rec => `• <b>${rec.name} — ${this.money(rec.amount)}, ${rec.term} months.</b> ${rec.why}`)
+      .join('<br>');
+    return `Your last facility was a <b>${this.previousLoan.product}</b> of <b>${this.money(this.previousLoan.amount)}</b>, ${this.previousLoan.status.toLowerCase()} in ${this.previousLoan.closed}. These are the loans matched to that history:<br><br>${lines}<br><br>Say <b>apply</b> and I will start the ${this.activeRecommendation.name}.`;
   }
 
   private reasonsReply(): string {

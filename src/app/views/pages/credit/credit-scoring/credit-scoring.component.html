@@ -7,7 +7,7 @@
     <div>
       <span class="eyebrow">OMNICHANNEL LENDING</span>
       <h1>Customer Channels</h1>
-      <p>Experience a full loan application through Mobile Banking or our AI Chatbot.</p>
+      <p>Walk a customer from a repaid student loan to the next facility AI recommends, and the reason behind it.</p>
     </div>
   </section>
 
@@ -74,15 +74,36 @@
           <div *ngIf="phoneTab === 'home'" class="step-view">
             <div class="greeting">
               <h2>Hello, Felix 👋</h2>
-              <p>Welcome back. Need a little extra cash?</p>
+              <p>AI looked at your last loan and picked what fits next.</p>
             </div>
-            <div class="hero-card">
-              <h3>Personal Loan</h3>
-              <p>Check your limit in seconds with no impact on your credit score.</p>
-              <button class="primary-btn" (click)="startJourney()" [disabled]="isProcessing">
-                {{ isProcessing ? 'Checking...' : 'Check My Limit' }}
-              </button>
+
+            <div class="history-card">
+              <span>Last facility</span>
+              <strong>{{ previousLoan.product }}</strong>
+              <p>{{ money(previousLoan.amount) }} · {{ previousLoan.status }} · Closed {{ previousLoan.closed }}</p>
             </div>
+
+            <div class="rec-head">
+              <span>AI recommendations</span>
+              <small>Matched to that student loan</small>
+            </div>
+
+            <button class="hero-card" type="button" (click)="chooseRecommendation(recommendations[0])" [disabled]="isProcessing">
+              <span class="ai-pill">Top match</span>
+              <h3>{{ recommendations[0].name }}</h3>
+              <p><b>Why.</b> {{ recommendations[0].why }}</p>
+              <em>{{ money(recommendations[0].amount) }} · {{ recommendations[0].term }} months</em>
+              <span class="primary-btn">{{ isProcessing ? 'Checking...' : 'Check this offer' }}</span>
+            </button>
+
+            <button class="rec-card" type="button" *ngFor="let rec of recommendations | slice:1" (click)="chooseRecommendation(rec)" [disabled]="isProcessing">
+              <div>
+                <strong>{{ rec.name }}</strong>
+                <em>{{ money(rec.amount) }}</em>
+              </div>
+              <small>{{ rec.term }} months</small>
+              <p><b>Why.</b> {{ rec.why }}</p>
+            </button>
           </div>
 
           <ng-container *ngIf="phoneTab === 'loans'">
@@ -122,8 +143,9 @@
             </div>
 
             <div class="limit-display">
-              <span>Your indicative limit</span>
+              <span>{{ activeRecommendation.name }}</span>
               <h2>{{ money(assessment.maxLimit) }}</h2>
+              <p>Indicative limit · requested {{ money(requestedAmount) }}</p>
             </div>
 
             <!-- DETAILED EXPLAINABILITY -->
@@ -170,6 +192,8 @@
             <button class="back-btn" (click)="journeyStep = 'limit-check'">← Back</button>
             
             <h3>Configure your loan</h3>
+            <p class="product-line">{{ activeRecommendation.name }}</p>
+            <p class="product-why"><b>Why this loan.</b> {{ activeRecommendation.why }}</p>
             
             <div class="form-group">
               <label>How much do you need?</label>
@@ -201,6 +225,7 @@
           <div *ngIf="journeyStep === 'success'" class="step-view success-view">
             <div class="success-icon">✓</div>
             <h2>Application Submitted!</h2>
+            <p>{{ activeRecommendation.name }} · {{ money(requestedAmount) }}</p>
             <p>Your reference number is</p>
             <h3 class="ref-num">{{ applicationRef }}</h3>
             <p class="status">Status: Pending Disbursement</p>
@@ -212,7 +237,7 @@
           <div *ngIf="phoneTab === 'cards'" class="step-view">
             <div class="tab-screen">
               <h3>Cards</h3>
-              <p>No cards are linked to this demo profile. Open Loans to review the personal loan limit and apply.</p>
+              <p>No cards are linked to this demo profile. Open Home to see the loans AI matched to the repaid student loan.</p>
             </div>
           </div>
 
@@ -284,6 +309,7 @@
         </div>
 
         <div class="quick-replies">
+          <button (click)="sendQuickReply('Recommend a loan')">Recommend a loan</button>
           <button (click)="sendQuickReply('Why is my limit this amount?')">Why this limit?</button>
           <button (click)="sendQuickReply('How can I increase my limit?')">Increase my limit</button>
           <button (click)="sendQuickReply('Apply for a loan')">Apply now</button>
@@ -316,6 +342,13 @@
       <div class="profile-card">
         <div class="avatar">{{ customer.name.charAt(0) }}</div>
         <div><strong>{{ customer.name }}</strong><small>{{ customer.id }}</small></div>
+      </div>
+
+      <div class="match-box">
+        <small>AI product match</small>
+        <strong>{{ activeRecommendation.name }}</strong>
+        <em>{{ previousLoan.product }} · {{ previousLoan.status }} · {{ previousLoan.closed }}</em>
+        <p>{{ activeRecommendation.why }}</p>
       </div>
 
       <!-- 1. Score & Risk Classification -->

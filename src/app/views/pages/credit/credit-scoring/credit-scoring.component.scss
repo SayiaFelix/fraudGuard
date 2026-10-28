@@ -292,13 +292,100 @@
 .greeting h2 { color: #0a0a0a; margin: 0 0 5px; font-size: 22px; font-weight: 800; }
 .greeting p { color: #1a1a1a; margin: 0 0 16px; font-size: 13px; font-weight: 700; }
 
+.history-card {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+  span {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--uba-red);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  strong { display: block; color: #0a0a0a; font-size: 15px; font-weight: 800; }
+  p { margin: 4px 0 0; color: #1a1a1a; font-size: 12px; font-weight: 700; }
+}
+
+.rec-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  span { color: #0a0a0a; font-size: 12px; font-weight: 800; }
+  small { color: #334155; font-size: 10px; font-weight: 700; }
+}
+
 .hero-card {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 16px 16px 14px;
+  border: 0;
+  border-radius: 18px;
   background: linear-gradient(160deg, #1b3d68, var(--navy) 55%, #0e223c);
-  color: #fff; padding: 20px 18px; border-radius: 18px;
+  color: #fff;
+  font: inherit;
+  text-align: left;
   box-shadow: 0 12px 24px rgba(20, 45, 78, 0.16);
-  h3 { margin: 0 0 8px; font-size: 18px; font-weight: 800; }
-  p { color: #f8fafc; font-size: 13px; font-weight: 700; line-height: 1.45; margin-bottom: 16px; }
-  .primary-btn { background: #fff; color: var(--navy); border-radius: 12px; }
+  cursor: pointer;
+  &:disabled { cursor: wait; opacity: 0.75; }
+  h3 { margin: 8px 0; font-size: 17px; font-weight: 800; }
+  p { color: #f8fafc; font-size: 12px; font-weight: 650; line-height: 1.45; margin: 0 0 10px; }
+  b { font-weight: 800; }
+  em { display: block; margin-bottom: 12px; font-style: normal; font-size: 12px; font-weight: 800; color: #fff; }
+  .primary-btn { display: block; background: #fff; color: var(--navy); border-radius: 12px; }
+  .ai-pill {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.16);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+}
+
+.rec-card {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  &:disabled { cursor: wait; opacity: 0.75; }
+  div { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  strong { color: #0a0a0a; font-size: 13px; font-weight: 800; }
+  em { font-style: normal; color: var(--navy); font-size: 12px; font-weight: 800; white-space: nowrap; }
+  small { display: block; margin: 2px 0 6px; color: #334155; font-size: 11px; font-weight: 700; }
+  p { margin: 0; color: #1a1a1a; font-size: 12px; font-weight: 650; line-height: 1.45; }
+  b { font-weight: 800; }
+}
+
+.product-line {
+  margin: -4px 0 6px;
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.product-why {
+  margin: 0 0 12px;
+  color: #1a1a1a;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.45;
+  b { font-weight: 800; }
 }
 
 /* --- SEMI-CIRCLE GAUGE --- */
@@ -335,6 +422,7 @@
   border: 1px solid var(--border); margin-bottom: 12px;
   span { color: #1a1a1a; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
   h2 { color: #0a0a0a; font-size: 28px; font-weight: 800; margin: 8px 0 0; letter-spacing: -0.03em; }
+  p { margin: 6px 0 0; color: #334155; font-size: 11px; font-weight: 700; }
 }
 
 .explain-card {
@@ -542,6 +630,18 @@
 .profile-card .avatar { width: 40px; height: 40px; }
 .profile-card strong { display: block; color: var(--navy); font-size: 14px; }
 .profile-card small { color: var(--muted); font-size: 11px; }
+
+.match-box {
+  margin: -8px 0 20px;
+  padding: 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  background: #eff6ff;
+  small { display: block; margin-bottom: 4px; color: #1d4ed8; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+  strong { display: block; margin-bottom: 4px; color: #1e3a8a; font-size: 14px; }
+  em { display: block; margin-bottom: 6px; color: #1d4ed8; font-size: 11px; font-style: normal; font-weight: 700; }
+  p { margin: 0; color: #1e3a8a; font-size: 12px; line-height: 1.5; font-weight: 500; }
+}
 
 .assessment-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;
