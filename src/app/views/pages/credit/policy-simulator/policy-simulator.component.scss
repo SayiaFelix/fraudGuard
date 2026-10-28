@@ -1197,3 +1197,349 @@
   line-height: 1.4;
 }
 }
+
+/* Make Active Lending Policy card more visible */
+
+.policy-status {
+  background: #ffffff !important;
+  border: 1px solid #b8c9e5 !important;
+  border-left: 4px solid #3468f6 !important;
+  border-radius: 12px;
+  padding: 20px 22px !important;
+  box-shadow: 0 4px 16px rgba(23, 45, 76, 0.08);
+}
+
+/* Make heading more prominent */
+.status-group strong {
+  color: #172d4c !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+}
+
+/* Make policy details readable */
+.status-group small {
+  color: #475569 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1.5;
+}
+
+/* Stronger icon */
+.status-symbol {
+  background: #e1eaff !important;
+  color: #2457df !important;
+  width: 44px;
+  height: 44px;
+  font-size: 18px;
+}
+
+/* More visible Current Policy badge */
+.state-chip {
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+  border: 1px solid #86efac;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  padding: 9px 15px !important;
+}
+
+/* Preserve distinct appearance for modified scenarios */
+.state-chip.draft {
+  background: #fff4d6 !important;
+  color: #92400e !important;
+  border-color: #fcd34d;
+}
+/* ==========================================
+   TYPOGRAPHY HIERARCHY
+   Level 1: page title
+   Level 2: section title
+   Level 3: card titles
+   Level 4: labels / values / table headers
+   Level 5: supporting text (lighter, regular)
+   ========================================== */
+
+/* LEVEL 1: Page title */
+.studio-header h1 {
+  font-size: 27px;
+  font-weight: 800;
+  color: #12243e;
+  letter-spacing: -0.5px;
+}
+
+.studio-header p {
+  font-size: 13px;
+  font-weight: 500;
+  color: #5f7089;
+}
+
+/* Tabs */
+.studio-tabs button {
+  font-weight: 700;
+}
+
+.studio-tabs button.active {
+  font-weight: 800;
+  color: #1f4fd1;
+}
+
+/* LEVEL 2: Section heading */
+.section-heading h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #12243e;
+  letter-spacing: -0.4px;
+}
+
+.section-heading p {
+  font-size: 13px;
+  font-weight: 500;
+  color: #5f7089;
+}
+
+.eyebrow {
+  font-weight: 800;
+  letter-spacing: 1.2px;
+}
+
+/* LEVEL 3: Card titles */
+.card-heading h3 {
+  font-size: 17px;
+  font-weight: 800;
+  color: #16294a;
+}
+
+.card-heading p {
+  font-weight: 500;
+  color: #6f7f97;
+}
+
+.strategy-card strong,
+.strategy-result h4,
+.advisor-section h4,
+.modal-body h4,
+.comparison-item-heading strong {
+  font-weight: 800;
+  color: #16294a;
+}
+
+.next-banner strong {
+  font-size: 14px;
+  font-weight: 800;
+  color: #16294a;
+}
+
+.advisor-hero h3 {
+  font-weight: 800;
+}
+
+/* LEVEL 4: Labels, values, table headers */
+.parameter-title label {
+  font-size: 13px;
+  font-weight: 800;
+  color: #16294a;
+}
+
+.parameter-title strong {
+  font-weight: 800;
+}
+
+.metric-card small,
+.risk-card small,
+.stability-summary small {
+  font-size: 12px;
+  font-weight: 700;
+  color: #5f7089;
+}
+
+.metric-card strong,
+.risk-card strong {
+  font-size: 27px;
+  font-weight: 800;
+  color: #12243e;
+}
+
+.stability-summary strong {
+  font-weight: 800;
+  color: #12243e;
+}
+
+.strategy-stat span {
+  font-weight: 600;
+}
+
+.strategy-stat strong {
+  font-weight: 800;
+  color: #16294a;
+}
+
+.migration-table th {
+  font-size: 11px;
+  font-weight: 800;
+  color: #5f7089;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.migration-table td strong {
+  font-weight: 750;
+  color: #16294a;
+}
+
+.decision-chip,
+.state-chip {
+  font-weight: 750;
+}
+
+.comparison-line strong {
+  font-weight: 800;
+}
+
+/* LEVEL 5: Supporting text stays light */
+.strategy-card small,
+.parameter p,
+.parameter-foot,
+.comparison-foot,
+.fine-print,
+.pagination,
+.metric-card span,
+.metric-card p,
+.risk-card span,
+.risk-card p {
+  font-weight: 500;
+  color: #8896ac;
+}
+
+.comparison-line span {
+  font-weight: 500;
+}
+
+.studio-page-eyebrow {
+  color: #3468f6;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+
+/* ============================================
+   AI STRATEGY ADVISOR — GENERATION CARD
+   ============================================ */
+
+.policy-studio .ai-briefing-action {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 260px;
+  margin: 18px 0 22px;
+  padding: 35px 24px;
+
+  background: #ffffff !important;
+  border: 1px solid #dce5f1 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 14px rgba(20, 40, 75, 0.04);
+
+  text-align: center;
+}
+
+.policy-studio .ai-briefing-icon {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+
+  width: 58px;
+  height: 58px;
+  margin-bottom: 14px;
+
+  background: #eaf0ff;
+  border-radius: 16px;
+
+  color: #3468f6 !important;
+  font-size: 25px !important;
+}
+
+.policy-studio .ai-briefing-action h3 {
+  margin: 0 0 10px !important;
+  color: #20314b !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  line-height: 1.3;
+}
+
+.policy-studio .ai-briefing-action p {
+  max-width: 520px;
+  margin: 0 0 22px !important;
+
+  color: #64748b !important;
+  font-size: 13px !important;
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+.policy-studio .ai-generate-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  padding: 12px 22px;
+  min-height: 43px;
+
+  background: #3468f6 !important;
+  border: 1px solid #3468f6 !important;
+  border-radius: 9px;
+
+  color: #ffffff !important;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 750;
+
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.policy-studio .ai-generate-btn:hover {
+  background: #2457df !important;
+  border-color: #2457df !important;
+}
+
+.policy-studio .ai-loader {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 20px;
+
+  border: 4px solid #e4ecff;
+  border-top-color: #3468f6;
+  border-radius: 50%;
+
+  animation: aiAdvisorSpin 0.8s linear infinite;
+}
+
+@keyframes aiAdvisorSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.policy-studio .ai-regenerate-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 10px 15px;
+
+  background: #edf3ff;
+  border: 1px solid #d7e4ff;
+  border-radius: 8px;
+
+  color: #3468f6;
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+}

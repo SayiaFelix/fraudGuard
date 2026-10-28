@@ -1,6 +1,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { jsPDF } from 'jspdf';
+import * as XLSX from 'xlsx';
 
 type Operator = 'lt' | 'lte' | 'gt' | 'gte' | 'eq' | 'neq';
 type Action = 'Decline' | 'Manual Review';
@@ -101,8 +102,8 @@ export class DecisionRulesComponent implements OnInit {
   ];
 
   readonly fields: PolicyField[] = [
-    { key: 'score', name: 'Credit Score', category: 'Credit Score',
-      min: 300, max: 850, initial: 650 },
+    { key: 'creditScore', name: 'Credit Score', category: 'Credit Score',
+  min: 300, max: 850, initial: 650 },
     { key: 'income', name: 'Monthly Income', category: 'Affordability',
       min: 0, max: 100000000, initial: 20000 },
     { key: 'debt', name: 'Monthly Debt', category: 'Affordability',
@@ -132,6 +133,144 @@ export class DecisionRulesComponent implements OnInit {
     'Device Finance'
   ];
 
+  /* BATCH RESULTS PAGINATION */
+
+batchPage = 1;
+batchPageSize = 10;
+
+get batchTotalPages(): number {
+  return Math.max(
+    1,
+    Math.ceil(this.batchFilteredResults.length / this.batchPageSize)
+  );
+}
+
+get paginatedBatchResults() {
+  const page = Math.min(this.batchPage, this.batchTotalPages);
+  const start = (page - 1) * this.batchPageSize;
+
+  return this.batchFilteredResults.slice(
+    start,
+    start + this.batchPageSize
+  );
+}
+
+get batchStartRecord(): number {
+  if (!this.batchFilteredResults.length) return 0;
+
+  const page = Math.min(this.batchPage, this.batchTotalPages);
+  return (page - 1) * this.batchPageSize + 1;
+}
+
+get batchEndRecord(): number {
+  return Math.min(
+    this.batchStartRecord + this.batchPageSize - 1,
+    this.batchFilteredResults.length
+  );
+}
+
+get batchPageNumbers(): number[] {
+  const total = this.batchTotalPages;
+  const current = Math.min(this.batchPage, total);
+
+  const start = Math.max(
+    1,
+    Math.min(current - 2, total - 4)
+  );
+
+  return Array.from(
+    { length: Math.min(5, total) },
+    (_, index) => start + index
+  );
+}
+
+goToBatchPage(page: number): void {
+  this.batchPage = Math.max(
+    1,
+    Math.min(page, this.batchTotalPages)
+  );
+}
+
+changeBatchPageSize(size: number): void {
+  this.batchPageSize = Number(size);
+  this.batchPage = 1;
+}
+
+  
+/* APPLICATIONS PAGINATION */
+
+applicationPage = 1;
+applicationPageSize = 10;
+
+get applicationTotalPages(): number {
+  return Math.max(
+    1,
+    Math.ceil(
+      this.filteredApplications.length / this.applicationPageSize
+    )
+  );
+}
+
+get paginatedApplications(): LoanApplication[] {
+  const page = Math.min(
+    this.applicationPage,
+    this.applicationTotalPages
+  );
+
+  const start = (page - 1) * this.applicationPageSize;
+
+  return this.filteredApplications.slice(
+    start,
+    start + this.applicationPageSize
+  );
+}
+
+get applicationStartRecord(): number {
+  if (!this.filteredApplications.length) return 0;
+
+  const page = Math.min(
+    this.applicationPage,
+    this.applicationTotalPages
+  );
+
+  return (page - 1) * this.applicationPageSize + 1;
+}
+
+get applicationEndRecord(): number {
+  return Math.min(
+    this.applicationStartRecord + this.applicationPageSize - 1,
+    this.filteredApplications.length
+  );
+}
+
+get applicationPageNumbers(): number[] {
+  const total = this.applicationTotalPages;
+  const current = Math.min(this.applicationPage, total);
+
+  const start = Math.max(
+    1,
+    Math.min(current - 2, total - 4)
+  );
+
+  return Array.from(
+    { length: Math.min(5, total) },
+    (_, index) => start + index
+  );
+}
+
+goToApplicationPage(page: number): void {
+  this.applicationPage = Math.max(
+    1,
+    Math.min(page, this.applicationTotalPages)
+  );
+}
+
+changeApplicationPageSize(size: number): void {
+  this.applicationPageSize = Number(size);
+  this.applicationPage = 1;
+}
+
+
   readonly countries = ['Kenya', 'Uganda', 'Tanzania', 'Rwanda', 'Ghana'];
 
   rules: LendingRule[] = [];
@@ -146,6 +285,8 @@ export class DecisionRulesComponent implements OnInit {
   applicationProduct = 'All';
 
   batchResults: Evaluation[] = [];
+  batchSourceApplications: LoanApplication[] = [];
+  batchSourceLabel = '';
   batchCompleted = false;
   batchSearch = '';
   batchFilter = 'All';
@@ -219,8 +360,8 @@ export class DecisionRulesComponent implements OnInit {
     return {
       id: '', code: '', name: '', description: '',
       category: 'Credit Score', field: 'creditScore',
-      operator: 'lt', value: 650, action: 'Manual Review',
-      severity: 'Medium', priority: 100, enabled: true
+      operator: 'lt', value: null as any, action: 'Manual Review',
+severity: 'Medium', priority: null as any, enabled: true
     };
   }
 
@@ -407,20 +548,28 @@ export class DecisionRulesComponent implements OnInit {
   }
 
   getCondition(rule: LendingRule): string {
-    const suffix = rule.field === 'dti' ? '%' :
-      ['monthlyIncome', 'monthlyDebt', 'requestedAmount'].includes(rule.field)
-        ? ' KES' : '';
+  const suffix = rule.field === 'dti' ? '%' :
+    ['monthlyIncome', 'monthlyDebt', 'requestedAmount'].includes(rule.field)
+      ? ' KES' : '';
 
-    return `${this.getFieldName(rule.field)} ${
-      this.getOperatorSymbol(rule.operator)
-    } ${rule.value.toLocaleString('en-KE')}${suffix}`;
-  }
+  const hasValue = rule.value !== null &&
+                   rule.value !== undefined &&
+                   (rule.value as any) !== '';
+
+  const value = hasValue
+    ? Number(rule.value).toLocaleString('en-KE')
+    : '…';
+
+  return `${this.getFieldName(rule.field)} ${
+    this.getOperatorSymbol(rule.operator)
+  } ${value}${suffix}`;
+}
 
   onRuleCategoryChange(): void {
     const field = this.availableFields[0];
     if (field) {
       this.ruleForm.field = field.key;
-      this.ruleForm.value = field.initial;
+      this.ruleForm.value = null as any;
     }
   }
 
@@ -763,15 +912,253 @@ export class DecisionRulesComponent implements OnInit {
     this.notify('New application created and evaluated.');
   }
 
+  
+/* ============================================
+   BATCH DATA SOURCES
+   ============================================ */
+
+// 1. Simulated database connector
+fetchBatchFromDatabase(): void {
+  // Existing synthetic data represents the database response.
+  this.batchSourceApplications = this.generateApplications(480);
+  this.batchSourceLabel = 'Simulated Database';
+
+  this.invalidateBatch();
+
+  this.notify(
+    `${this.batchSourceApplications.length} demo database records loaded.`
+  );
+}
+
+
+// 2. Download Excel template
+downloadBatchTemplate(): void {
+  const template = [
+    {
+      application_id: 'APP-11001',
+      applicant_name: 'Grace Wanjiku',
+      loan_product: 'Personal Loan',
+      country: 'Kenya',
+      requested_amount: 350000,
+      credit_score: 742,
+      monthly_income: 120000,
+      monthly_debt: 20000,
+      age: 32,
+      employment_months: 36,
+      overdue_loans: 0,
+      existing_loans: 1,
+      loan_tenure: 24
+    }
+  ];
+
+  const worksheet = XLSX.utils.json_to_sheet(template);
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    'Loan Applications'
+  );
+
+  XLSX.writeFile(
+    workbook,
+    'Credit_Application_Template.xlsx'
+  );
+}
+
+
+// 3. Upload Excel / CSV applications
+async onBatchFileSelected(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+
+  if (!file) return;
+
+  try {
+    const extension = file.name
+      .split('.')
+      .pop()
+      ?.toLowerCase();
+
+    if (!['xlsx', 'xls', 'csv'].includes(extension || '')) {
+      this.notify('Upload an Excel or CSV file.', true);
+      return;
+    }
+
+    const buffer = await file.arrayBuffer();
+
+    const workbook = XLSX.read(buffer, {
+      type: 'array',
+      cellDates: true
+    });
+
+    const sheetName = workbook.SheetNames[0];
+
+    if (!sheetName) {
+      throw new Error('No worksheet found.');
+    }
+
+    const rows = XLSX.utils.sheet_to_json<
+      Record<string, any>
+    >(workbook.Sheets[sheetName], {
+      defval: null
+    });
+
+    if (!rows.length) {
+      throw new Error('The uploaded file is empty.');
+    }
+
+    const requiredColumns = [
+      'application_id',
+      'applicant_name',
+      'loan_product',
+      'country',
+      'requested_amount',
+      'credit_score',
+      'monthly_income',
+      'monthly_debt',
+      'age',
+      'employment_months',
+      'overdue_loans',
+      'existing_loans',
+      'loan_tenure'
+    ];
+
+    const missingColumns = requiredColumns.filter(
+      column => !Object.prototype.hasOwnProperty.call(
+        rows[0], column
+      )
+    );
+
+    if (missingColumns.length) {
+      throw new Error(
+        `Missing columns: ${missingColumns.join(', ')}`
+      );
+    }
+
+    const numeric = (value: any): number | null => {
+      if (
+        value === null ||
+        value === undefined ||
+        String(value).trim() === ''
+      ) {
+        return null;
+      }
+
+      const number = Number(value);
+
+      return Number.isFinite(number)
+        ? number
+        : null;
+    };
+
+    const applications: LoanApplication[] = rows.map(
+      (row, index) => ({
+        id: String(
+          row.application_id || `UPLOAD-${index + 1}`
+        ),
+        name: String(row.applicant_name || ''),
+        product: String(row.loan_product || ''),
+        country: String(row.country || ''),
+        amount: numeric(row.requested_amount) as number,
+        score: numeric(row.credit_score),
+        income: numeric(row.monthly_income),
+        debt: numeric(row.monthly_debt),
+        age: numeric(row.age),
+        employmentMonths: numeric(row.employment_months),
+        overdueLoans: numeric(row.overdue_loans),
+        existingLoans: numeric(row.existing_loans),
+        tenure: numeric(row.loan_tenure),
+        submitted: new Date().toISOString()
+      })
+    );
+
+    // Reject invalid records before simulation.
+    const invalidRows: number[] = [];
+    const identifiers = new Set<string>();
+
+    applications.forEach((app, index) => {
+      const values = [
+        app.score,
+        app.income,
+        app.debt,
+        app.age,
+        app.employmentMonths,
+        app.overdueLoans,
+        app.existingLoans,
+        app.tenure
+      ];
+
+      const invalid =
+        !app.name.trim() ||
+        !app.product.trim() ||
+        !Number.isFinite(app.amount) ||
+        app.amount <= 0 ||
+        values.some(value =>
+          value === null || !Number.isFinite(value)
+        ) ||
+        identifiers.has(app.id);
+
+      if (invalid) {
+        invalidRows.push(index + 2);
+      }
+
+      identifiers.add(app.id);
+    });
+
+    if (invalidRows.length) {
+      throw new Error(
+        `Invalid or duplicate records on Excel rows: ${
+          invalidRows.slice(0, 10).join(', ')
+        }. Correct them and upload again.`
+      );
+    }
+
+    this.batchSourceApplications = applications;
+    this.batchSourceLabel = `Uploaded: ${file.name}`;
+
+    this.invalidateBatch();
+
+    this.notify(
+      `${applications.length} applications imported successfully.`
+    );
+
+  } catch (error) {
+    const message = error instanceof Error
+      ? error.message
+      : 'Unable to read the uploaded file.';
+
+    this.notify(message, true);
+
+  } finally {
+    input.value = '';
+  }
+}
+
+
   // -------------------------------------------------------
   // BATCH INTELLIGENCE
   // -------------------------------------------------------
 
   runBatch(): void {
-    this.batchResults = this.applications.map(app => this.evaluate(app));
-    this.batchCompleted = true;
-    this.notify(`${this.batchResults.length} synthetic applications evaluated.`);
+  if (!this.batchSourceApplications.length) {
+    this.notify(
+      'Upload a file or fetch database records first.',
+      true
+    );
+    return;
   }
+
+  this.batchResults = this.batchSourceApplications.map(
+    app => this.evaluate(app)
+  );
+
+  this.batchCompleted = true;
+
+  this.notify(
+    `${this.batchResults.length} applications evaluated successfully.`
+  );
+}
 
   private invalidateBatch(): void {
     this.batchResults = [];

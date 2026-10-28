@@ -1,13 +1,27 @@
-
 <div class="di-page">
-   <header class="di-header">
-  <div class="di-title-line">
-  <div class="di-heading-content">
-    <h1>Decision Intelligence Studio</h1>
-    <p>Manage credit policies, applications and intelligent lending decisions.</p>
-  </div>
-</div>
-</header>
+
+  <header class="di-header">
+    <div class="di-title-line">
+
+      <div class="di-heading-content">
+
+        <div class="di-page-eyebrow">
+          CREDIT DECISION INTELLIGENCE
+        </div>
+
+        <h1>Decision Intelligence Studio</h1>
+
+        <p>
+          Manage credit policies, applications and
+          intelligent lending decisions.
+        </p>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- WORKSPACE NAVIGATION -->
 
   <!-- WORKSPACE NAVIGATION -->
   <nav class="di-tabs" aria-label="Credit decisioning workspaces">
@@ -37,7 +51,7 @@
       [class.active]="activeTab === 'copilot'"
       (click)="openCopilot()">
       <i class="fas fa-magic"></i>
-      <span>AI Credit Copilot</span>
+      <span>AI Credit Overview</span>
     </button>
 
   </nav>
@@ -171,7 +185,7 @@
         <div class="di-search">
           <i class="fas fa-search"></i>
           <input type="search"
-            placeholder="Search rule, category or code"
+            placeholder="Search rule, category or code" 
             [(ngModel)]="ruleSearch">
         </div>
 
@@ -314,6 +328,7 @@
         <i class="fas fa-search"></i>
         <input type="search"
           [(ngModel)]="applicationSearch"
+          (ngModelChange)="applicationPage = 1"
           placeholder="Search applicant, product, or ID">
       </div>
 
@@ -358,12 +373,12 @@
               <th></th>
             </tr>
           </thead>
-
           <tbody>
-            <tr *ngFor="
-              let app of filteredApplications | slice:0:100;
-              trackBy: trackApplication
-            ">
+
+          <tr *ngFor="
+  let app of paginatedApplications;
+  trackBy: trackApplication
+">
               <td><strong>{{ app.id }}</strong></td>
               <td>{{ app.name }}</td>
               <td>{{ app.product }}</td>
@@ -405,11 +420,62 @@
         </table>
       </div>
 
-      <div class="di-table-footer">
-        Showing up to 100 of {{ filteredApplications.length }}
-        matching applications
-      </div>
-    </div>
+      
+<div class="di-table-footer di-pagination-footer">
+
+  <div class="di-pagination-info">
+    Showing {{ applicationStartRecord }}–{{ applicationEndRecord }}
+    of {{ filteredApplications.length }} applications
+  </div>
+
+  <div class="di-pagination-controls">
+
+    <span>Rows per page</span>
+
+    <select
+      [ngModel]="applicationPageSize"
+      (ngModelChange)="changeApplicationPageSize($event)">
+      <option [ngValue]="10">10</option>
+      <option [ngValue]="20">20</option>
+      <option [ngValue]="50">50</option>
+    </select>
+
+    <button type="button"
+      [disabled]="applicationPage <= 1"
+      (click)="goToApplicationPage(1)">
+      <i class="fas fa-angle-double-left"></i>
+    </button>
+
+    <button type="button"
+      [disabled]="applicationPage <= 1"
+      (click)="goToApplicationPage(applicationPage - 1)">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <button type="button"
+      *ngFor="let page of applicationPageNumbers"
+      [class.active]="page === applicationPage"
+      (click)="goToApplicationPage(page)">
+      {{ page }}
+    </button>
+
+    <button type="button"
+      [disabled]="applicationPage >= applicationTotalPages"
+      (click)="goToApplicationPage(applicationPage + 1)">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+
+    <button type="button"
+      [disabled]="applicationPage >= applicationTotalPages"
+      (click)="goToApplicationPage(applicationTotalPages)">
+      <i class="fas fa-angle-double-right"></i>
+    </button>
+
+  </div>
+
+</div>
+</div>
+
 
     <div class="di-next-banner">
       <div>
@@ -456,11 +522,65 @@
           of recommendations.
         </p>
 
-        <button class="di-btn primary" type="button"
-          (click)="runBatch()">
-          <i class="fas fa-play"></i>
-          {{ batchCompleted ? 'Re-run Batch Evaluation' : 'Run Batch Evaluation' }}
-        </button>
+        
+<!-- DATA SOURCE BUTTONS -->
+<div class="di-header-buttons">
+
+  <!-- Upload Excel or CSV -->
+  <input
+    #batchFileInput
+    type="file"
+    accept=".xlsx,.xls,.csv"
+    style="display: none"
+    (change)="onBatchFileSelected($event)">
+
+  <button
+    type="button"
+    class="di-btn outline"
+    (click)="batchFileInput.click()">
+    <i class="fas fa-file-excel"></i>
+    Upload Excel / CSV
+  </button>
+
+  <!-- Simulated database connector -->
+  <button
+    type="button"
+    class="di-btn outline"
+    (click)="fetchBatchFromDatabase()">
+    <i class="fas fa-database"></i>
+    Fetch from Database
+  </button>
+
+  <!-- Download Excel template -->
+  <button
+    type="button"
+    class="di-btn outline"
+    (click)="downloadBatchTemplate()">
+    <i class="fas fa-download"></i>
+    Template
+  </button>
+
+</div>
+
+<!-- CURRENT DATA SOURCE -->
+<p *ngIf="batchSourceLabel" style="margin: 12px 0;">
+  <i class="fas fa-check-circle"></i>
+  {{ batchSourceLabel }}
+  — {{ batchSourceApplications.length }} records ready
+</p>
+
+<!-- EXISTING EVALUATION BUTTON -->
+<button
+  class="di-btn primary"
+  type="button"
+  [disabled]="batchSourceApplications.length === 0"
+  (click)="runBatch()">
+
+  <i class="fas fa-play"></i>
+  {{ batchCompleted ? 'Re-run Batch Evaluation' : 'Run Batch Evaluation' }}
+
+</button>
+
       </div>
 
       <div class="di-batch-graphic">
@@ -581,12 +701,17 @@
         <div class="di-toolbar">
           <div class="di-search">
             <i class="fas fa-search"></i>
-            <input type="search" [(ngModel)]="batchSearch"
-              placeholder="Search result by name or reference">
+            <input
+  type="search"
+  [(ngModel)]="batchSearch"
+  (ngModelChange)="batchPage = 1"
+  placeholder="Search result by name or reference">
           </div>
 
-          <select [(ngModel)]="batchFilter"
-            aria-label="Filter batch outcome">
+          <select
+  [(ngModel)]="batchFilter"
+  (ngModelChange)="batchPage = 1"
+  aria-label="Filter batch outcome">
             <option value="All">All Outcomes</option>
             <option value="Approved">Approved</option>
             <option value="Refer">Refer</option>
@@ -608,7 +733,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let result of batchFilteredResults | slice:0:100">
+              <tr *ngFor="let result of paginatedBatchResults">
                 <td>{{ result.application.id }}</td>
                 <td><strong>{{ result.application.name }}</strong></td>
                 <td>{{ result.application.product }}</td>
@@ -640,9 +765,61 @@
           </table>
         </div>
 
-        <div class="di-table-footer">
-          Showing up to 100 of {{ batchFilteredResults.length }} results
-        </div>
+        
+<div class="di-table-footer di-pagination-footer">
+
+  <div class="di-pagination-info">
+    Showing {{ batchStartRecord }}–{{ batchEndRecord }}
+    of {{ batchFilteredResults.length }} results
+  </div>
+
+  <div class="di-pagination-controls">
+
+    <span>Rows per page</span>
+
+    <select
+      [ngModel]="batchPageSize"
+      (ngModelChange)="changeBatchPageSize($event)">
+      <option [ngValue]="10">10</option>
+      <option [ngValue]="20">20</option>
+      <option [ngValue]="50">50</option>
+    </select>
+
+    <button type="button"
+      [disabled]="batchPage <= 1"
+      (click)="goToBatchPage(1)">
+      <i class="fas fa-angle-double-left"></i>
+    </button>
+
+    <button type="button"
+      [disabled]="batchPage <= 1"
+      (click)="goToBatchPage(batchPage - 1)">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <button type="button"
+      *ngFor="let page of batchPageNumbers"
+      [class.active]="page === batchPage"
+      (click)="goToBatchPage(page)">
+      {{ page }}
+    </button>
+
+    <button type="button"
+      [disabled]="batchPage >= batchTotalPages"
+      (click)="goToBatchPage(batchPage + 1)">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+
+    <button type="button"
+      [disabled]="batchPage >= batchTotalPages"
+      (click)="goToBatchPage(batchTotalPages)">
+      <i class="fas fa-angle-double-right"></i>
+    </button>
+
+  </div>
+
+</div>
+
       </div>
 
     </ng-container>
@@ -664,7 +841,7 @@
     <div class="di-section-header">
       <div>
         <span class="di-eyebrow">EXPLAINABLE CREDIT INTELLIGENCE</span>
-        <h2>AI Credit Copilot</h2>
+        <h2>AI Credit Overview</h2>
         <p>
           Explore decisions, risk observations and next steps
           using the selected application.
@@ -683,7 +860,7 @@
       </span>
       <div>
         <small>ECLECTICS INTELLIGENCE</small>
-        <h3>Credit Decision Copilot</h3>
+        <h3>Credit Decision Overview</h3>
         <p>
           Contextual explanations generated from active lending rules.
         </p>
@@ -889,7 +1066,7 @@
         <button class="di-btn primary" type="button"
           (click)="closeApplication(); openCopilot()">
           <i class="fas fa-magic"></i>
-          Explain with AI Copilot
+          Explain with AI Overview
         </button>
       </div>
     </div>
@@ -928,22 +1105,27 @@
             </label>
 
             <label>Rule Name *
-              <input type="text" name="name"
-                [(ngModel)]="ruleForm.name" required>
-            </label>
+  <input type="text" name="name"
+    [(ngModel)]="ruleForm.name"
+    placeholder="e.g. Minimum Credit Score"
+    required>
+</label>
             <label class="full">Description
-              <textarea name="description" rows="2"
-                [(ngModel)]="ruleForm.description"></textarea>
-            </label>
+  <textarea name="description" rows="2"
+    [(ngModel)]="ruleForm.description"
+    placeholder="Describe the purpose of this lending rule"></textarea>
+</label>
 
             <label>Category
-              <select name="category"
-                [(ngModel)]="ruleForm.category"
-                (ngModelChange)="onRuleCategoryChange()">
-                <option *ngFor="let c of categories"
-                  [value]="c">{{ c }}</option>
-              </select>
-            </label>
+  <select name="category"
+    [(ngModel)]="ruleForm.category"
+    (ngModelChange)="onRuleCategoryChange()">
+    <option *ngFor="let c of categories"
+      [value]="c">
+      {{ c === 'Credit Score' ? 'Credit Score Limit' : c }}
+    </option>
+  </select>
+</label>
 
             <label>Applicant Attribute
               <select name="field" [(ngModel)]="ruleForm.field">
@@ -960,28 +1142,34 @@
             </label>
 
             <label>Threshold
-              <input type="number" name="value"
-                [(ngModel)]="ruleForm.value" required>
-            </label>
+  <input type="number" name="value"
+    [(ngModel)]="ruleForm.value"
+    placeholder="e.g. 650"
+    required>
+</label>
 
-            <label>Action
-              <select name="action" [(ngModel)]="ruleForm.action">
-                <option *ngFor="let a of actions"
-                  [value]="a">{{ a }}</option>
-              </select>
-            </label>
+           <label>Action
+  <select name="action" [(ngModel)]="ruleForm.action">
+    <option *ngFor="let a of actions"
+      [value]="a">{{ a }}</option>
+  </select>
+</label>
 
-            <label>Severity
-              <select name="severity" [(ngModel)]="ruleForm.severity">
-                <option *ngFor="let s of severities"
-                  [value]="s">{{ s }}</option>
-              </select>
-            </label>
+<label>Severity
+  <select name="severity" [(ngModel)]="ruleForm.severity">
+    <option *ngFor="let s of severities"
+      [value]="s">{{ s }}</option>
+  </select>
+</label>
 
-            <label>Priority
-              <input type="number" name="priority" min="1"
-                [(ngModel)]="ruleForm.priority">
-            </label>
+<label>Priority
+  <input
+    type="number"
+    name="priority"
+    min="1"
+    [(ngModel)]="ruleForm.priority"
+    placeholder="e.g. 10">
+</label>
 
             <label class="di-checkbox-label">
               <input type="checkbox" name="enabled"

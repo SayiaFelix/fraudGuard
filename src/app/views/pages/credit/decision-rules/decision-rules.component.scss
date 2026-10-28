@@ -2895,3 +2895,253 @@
 .di-kpis {
   margin-top: 6px;
 }
+
+/* ==========================================
+   TYPOGRAPHY HIERARCHY
+   Level 1: page title      (biggest, darkest)
+   Level 2: section title
+   Level 3: card titles
+   Level 4: labels / table headers
+   Level 5: supporting text (lighter, regular)
+   ========================================== */
+
+/* LEVEL 1: Page title */
+.di-title-line h1 {
+  font-size: 27px;
+  font-weight: 800;
+  color: #12243e;
+  letter-spacing: -0.5px;
+}
+
+.di-title-line p {
+  font-size: 13px;
+  font-weight: 500;
+  color: #5f7089;
+}
+
+/* Tabs: clearer active state */
+.di-tabs button {
+  font-weight: 700;
+}
+
+.di-tabs button.active {
+  font-weight: 800;
+  color: #1f4fd1;
+}
+
+/* LEVEL 2: Section heading (Policy Rules, Applications...) */
+.di-section-header h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #12243e;
+  letter-spacing: -0.4px;
+}
+
+.di-section-header p {
+  font-size: 13px;
+  font-weight: 500;
+  color: #5f7089;
+}
+
+.di-eyebrow {
+  font-weight: 800;
+  letter-spacing: 1.2px;
+}
+
+/* LEVEL 3: Card titles */
+.di-card-header h3 {
+  font-size: 17px;
+  font-weight: 800;
+  color: #16294a;
+}
+
+.di-card-header p {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6f7f97;
+}
+
+.di-answer-body h3,
+.di-inspection-checks h3,
+.di-copilot-menu h3 {
+  font-weight: 800;
+  color: #16294a;
+}
+
+.di-next-banner strong {
+  font-size: 14px;
+  font-weight: 800;
+  color: #16294a;
+}
+
+/* LEVEL 4: Labels, KPIs, table headers */
+.di-kpi small {
+  font-size: 12px;
+  font-weight: 700;
+  color: #5f7089;
+}
+
+.di-kpi strong {
+  font-size: 28px;
+  font-weight: 800;
+  color: #12243e;
+}
+
+.di-kpi > div > span {
+  font-weight: 500;
+  color: #8896ac;
+}
+
+.di-table th {
+  font-size: 11px;
+  font-weight: 800;
+  color: #5f7089;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.di-table td strong,
+.di-cell-main strong {
+  font-weight: 750;
+  color: #16294a;
+}
+
+.di-badge,
+.di-score {
+  font-weight: 750;
+}
+
+/* LEVEL 5: Supporting text stays light */
+.di-cell-main small,
+.di-table-footer,
+.di-status-text {
+  font-weight: 500;
+  color: #8896ac;
+}
+
+/* Modal headings */
+.di-dialog-header h2 {
+  font-weight: 800;
+  color: #12243e;
+}
+
+.di-dialog-header p {
+  font-weight: 500;
+  color: #5f7089;
+}
+
+.di-page-eyebrow {
+  color: #3468f6;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+
+/* APPLICATIONS PAGINATION */
+
+.di-pagination-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 16px 20px;
+}
+
+.di-pagination-info {
+  font-size: 12px;
+  font-weight: 600;
+  color: #52647d;
+}
+
+.di-pagination-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  span {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    margin-right: 4px;
+  }
+
+  select {
+    height: 34px;
+    padding: 0 10px;
+    margin-right: 10px;
+    border: 1px solid #dce5f1;
+    border-radius: 7px;
+    color: #20314b;
+    background: #fff;
+    font-size: 12px;
+  }
+
+  button {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 9px;
+    border: 1px solid #dce5f1;
+    background: #fff;
+    color: #52647d;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      border-color: #3468f6;
+      color: #3468f6;
+      background: #f4f7ff;
+    }
+
+    &.active {
+      background: #3468f6;
+      color: #fff;
+      border-color: #3468f6;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .di-pagination-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.di-form-grid input::placeholder,
+.di-form-grid textarea::placeholder {
+  color: #a3aec0 !important;
+  opacity: 1;
+  font-weight: 400 !important;
+  font-style: normal;
+}
+.di-form-grid select {
+  color: #263752;
+  -webkit-text-fill-color: #263752;
+  background-color: #fff;
+  opacity: 1;
+}
+
+.di-form-grid select option {
+  color: #263752;
+  background: #fff;
+}
+
+/* placeholder styling for inputs and textarea only */
+.di-form-grid input::placeholder,
+.di-form-grid textarea::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+  opacity: 1;
+}
