@@ -235,122 +235,42 @@
        KPI CARDS
        ===================================== -->
 
-  <section class="portfolio-kpis">
+  <section class="portfolio-kpis ops-kpis">
 
-    <article class="portfolio-kpi">
-
-      <div class="kpi-top">
-
-        <div class="kpi-icon red">
-          <i class="fas fa-file-invoice"></i>
-        </div>
-
-        <span class="kpi-category">
-          PORTFOLIO VOLUME
-        </span>
-
-      </div>
-
-      <span class="kpi-title">
-        Total Applications
+    <article class="ops-kpi tone-blue">
+      <span class="ops-kpi-icon"><svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4M9 13h6M9 17h4"/></svg></span>
+      <span class="ops-kpi-copy">
+        <p>Total applications</p>
+        <strong>{{ totalApplications | number }}</strong>
+        <small>Within the selected portfolio view</small>
       </span>
-
-      <strong class="kpi-value">
-        {{ totalApplications | number }}
-      </strong>
-
-      <div class="kpi-footer">
-        Within the selected portfolio view
-      </div>
-
     </article>
 
-    <article class="portfolio-kpi">
-
-      <div class="kpi-top">
-
-        <div class="kpi-icon green">
-          <i class="fas fa-check-circle"></i>
-        </div>
-
-        <span class="kpi-category">
-          LENDING OUTCOMES
-        </span>
-
-      </div>
-
-      <span class="kpi-title">
-        Estimated Approvals
+    <article class="ops-kpi tone-green">
+      <span class="ops-kpi-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12.5 2.2 2.2 4.8-5"/></svg></span>
+      <span class="ops-kpi-copy">
+        <p>Estimated approvals</p>
+        <strong>{{ estimatedApprovals | number }}</strong>
+        <small>Derived from reported approval rates</small>
       </span>
-
-      <strong class="kpi-value">
-        {{ estimatedApprovals | number }}
-      </strong>
-
-      <div class="kpi-footer">
-        Derived from reported approval rates
-      </div>
-
     </article>
 
-    <article class="portfolio-kpi">
-
-      <div class="kpi-top">
-
-        <div class="kpi-icon amber">
-          <i class="fas fa-percentage"></i>
-        </div>
-
-        <span class="kpi-category">
-          APPROVAL PERFORMANCE
-        </span>
-
-      </div>
-
-      <span class="kpi-title">
-        Weighted Approval Rate
+    <article class="ops-kpi tone-amber">
+      <span class="ops-kpi-icon"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="7.5" r="2.2"/><circle cx="16.5" cy="16.5" r="2.2"/><path d="M17 6 7 18"/></svg></span>
+      <span class="ops-kpi-copy">
+        <p>Weighted approval rate</p>
+        <strong>{{ formatPercent(approvalRate) }}</strong>
+        <small>Weighted by application volume</small>
       </span>
-
-      <strong class="kpi-value">
-        {{ formatPercent(approvalRate) }}
-      </strong>
-
-      <div class="kpi-footer">
-        Weighted by application volume
-      </div>
-
     </article>
 
-    <article class="portfolio-kpi">
-
-      <div class="kpi-top">
-
-        <div class="kpi-icon blue">
-          <i class="fas fa-layer-group"></i>
-        </div>
-
-        <span class="kpi-category">
-          PORTFOLIO STRUCTURE
-        </span>
-
-      </div>
-
-      <span class="kpi-title">
-
-        {{ activeTab === 'products'
-          ? 'Lending Products'
-          : 'Countries Represented' }}
-
+    <article class="ops-kpi tone-violet">
+      <span class="ops-kpi-icon"><svg viewBox="0 0 24 24"><path d="m12 3 9 5-9 5L3 8l9-5z"/><path d="m3 12 9 5 9-5"/><path d="m3 16 9 5 9-5"/></svg></span>
+      <span class="ops-kpi-copy">
+        <p>{{ activeTab === 'products' ? 'Lending products' : 'Countries represented' }}</p>
+        <strong>{{ filteredSummary.categories }}</strong>
+        <small>Matching portfolio segments</small>
       </span>
-
-      <strong class="kpi-value">
-        {{ filteredSummary.categories }}
-      </strong>
-
-      <div class="kpi-footer">
-        Matching portfolio segments
-      </div>
-
     </article>
 
   </section>

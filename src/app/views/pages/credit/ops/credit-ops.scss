@@ -440,3 +440,5 @@
   .ops-card, .ops-kpi, .ops-report-switch button, .ops-metric, .ops-facts div, .ops-ages div { background: #fff !important; color: #111; border-color: #ddd; }
   .ops-head p, .ops-note, .ops-muted, .ops-table small { color: #444; }
 }
+
+@import "../reports/credit-reports.component.scss";
