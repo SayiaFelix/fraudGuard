@@ -4,6 +4,32 @@
   min-width: 0;
 }
 .loan-workflow {
+  .copilot-short-brief { font-size: 15px; line-height: 1.8; }
+  .copilot-summary-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 24px; }
+  .copilot-summary-tags span { padding: 6px 10px; border: 1px solid #dce6f2; border-radius: 7px; color: #4d6681; background: #f7f9fd; font-size: 12px; }
+  .copilot-products { padding-top: 21px; border-top: 1px solid #dce6f2; }
+  .copilot-products-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 15px; }
+  .copilot-products-heading h4 { margin: 0; font-size: 17px; color: #234260; }
+  .copilot-products-heading > span { font-size: 12px; color: #64778b; }
+  .copilot-product-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .copilot-product { min-width: 0; padding: 19px; border: 1px solid #dce5f2; border-radius: 13px; background: linear-gradient(150deg, #f2f6ff, #fff 65%); }
+  .copilot-product-basis { display: inline-block; padding: 4px 8px; border-radius: 6px; background: #e8eefc; color: #4165a5; font-size: 11px; font-weight: 650; }
+  .copilot-product h5 { margin: 14px 0 9px; color: #234260; font-size: 17px; line-height: 1.4; }
+  .copilot-product > p { margin: 0 0 17px; color: #5c7187; font-size: 13px; line-height: 1.7; }
+  .copilot-product-terms { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .copilot-product-terms strong { color: #234260; font-size: 20px; }
+  .copilot-product-terms span, .copilot-product > small { color: #64778b; font-size: 12px; }
+  .copilot-product > small { display: block; margin: 7px 0 18px; line-height: 1.7; }
+  .copilot-product-action { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding-top: 13px; border-top: 1px solid #dce5f2; color: #285bd5; font-size: 13px; font-weight: 700; text-decoration: none; }
+  .copilot-product-action:focus-visible { outline: 3px solid #8da9ef; outline-offset: 4px; }
+  .copilot-product-note { margin: 13px 0 0; color: #64778b; font-size: 12px; line-height: 1.7; }
+  .copilot-details { margin-top: 22px; padding-top: 18px; border-top: 1px solid #dce6f2; }
+  .copilot-details summary { cursor: pointer; color: #4165a5; font-size: 13px; font-weight: 650; }
+  .automatic-approval-banner { display: flex; align-items: center; gap: 14px; padding: 20px 24px; margin: 23px 0; border: 1px solid #cce6d8; border-radius: 13px; background: #edf8f1; color: #246547; }
+  .automatic-approval-banner > span { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; background: #d4ecde; font-weight: 700; }
+  .automatic-approval-banner strong { font-size: 16px; }
+  .automatic-approval-banner p { margin: 5px 0 0; font-size: 13px; line-height: 1.7; }
+  @media (max-width: 700px) { .copilot-product-grid { grid-template-columns: 1fr; } }
   --ink: #234260;
   --muted: #5c7187;
   --line: #dce5ef;
@@ -183,16 +209,12 @@
     font-weight: 650;
     white-space: nowrap;
   }
-  .form-actions,
-  .heading-actions {
+  .form-actions {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 12px;
     margin-top: 18px;
-  }
-  .heading-actions {
-    margin-top: 0;
   }
   .wf-section {
     margin-top: 20px;
@@ -349,18 +371,10 @@
   .loan-panel-heading {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
-    gap: 12px 16px;
+    gap: 15px;
     margin-bottom: 19px;
-    > div:first-child {
-      flex: 1 1 220px;
-    }
-    .heading-actions {
-      flex: 0 0 auto;
-      margin-left: auto;
-      align-self: flex-start;
-    }
     h3 {
       margin: 0;
       font-size: 17px;
@@ -733,7 +747,7 @@
   }
   .ai-kpi-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 16px;
     margin-bottom: 24px;
     > article {
@@ -832,57 +846,16 @@
     }
   }
   .wf-controls {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: end;
-    gap: 12px 14px;
-    margin: 18px 0 16px;
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin: 22px 0;
     > label {
-      min-width: 0;
+      flex: 1 1 130px;
     }
     > label.wf-search {
-      grid-column: 1 / -1;
-    }
-    > .ai-text-button {
-      justify-self: start;
-      align-self: end;
-    }
-  }
-  .wf-table.ai-application-table {
-    width: 100%;
-    min-width: 0;
-    table-layout: fixed;
-    th {
-      white-space: normal;
-      line-height: 1.35;
-    }
-    th:nth-child(1) { width: 22%; }
-    th:nth-child(2) { width: 13%; }
-    th:nth-child(3) { width: 15%; }
-    th:nth-child(4) { width: 12%; }
-    th:nth-child(5) { width: 14%; }
-    th:nth-child(6) { width: 12%; }
-    th:nth-child(7) { width: 12%; }
-    .ai-table-person {
-      min-width: 0;
-      align-items: flex-start;
-    }
-    .ai-open-button {
-      padding: 8px 8px;
-    }
-  }
-  @media (min-width: 1400px) {
-    .ai-kpi-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-    .wf-controls {
-      grid-template-columns: minmax(200px, 1.6fr) repeat(4, minmax(0, 1fr)) auto;
-      > label.wf-search {
-        grid-column: auto;
-      }
-      > .ai-text-button {
-        padding-bottom: 10px;
-      }
+      flex: 2 1 230px;
     }
   }
   .table-scroll {
@@ -2330,7 +2303,7 @@
   }
   @media (max-width: 1250px) {
     .ai-kpi-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     }
     .queue-workbench {
       grid-template-columns: 275px minmax(0, 1fr);
@@ -2505,11 +2478,8 @@
         }
       }
     }
-    .wf-controls {
-      grid-template-columns: 1fr;
-      > label.wf-search {
-        grid-column: auto;
-      }
+    .wf-controls > label {
+      flex-basis: 100%;
     }
     .ai-risk-card {
       gap: 16px;

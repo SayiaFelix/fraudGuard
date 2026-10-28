@@ -12,7 +12,7 @@ export const MODEL_WEIGHTS = [0.35, 0.40, 0.25];
 export function simulatedRisk(probability: number): RiskBand { return probability < 0.12 ? 'Low' : probability < 0.30 ? 'Medium' : 'High'; }
 
 function signals(input: ApplicationDraft): Signals {
-  if (![input.amount, input.income, input.obligations, input.tenorMonths].every(Number.isFinite) || input.amount < 10000 || input.income <= 0 || input.obligations < 0 || !Number.isInteger(input.tenorMonths) || input.tenorMonths < 1 || input.tenorMonths > 60) { throw new Error('Valid financial inputs are required for model simulation.'); }
+  if (![input.amount, input.income, input.obligations, input.tenorMonths].every(Number.isFinite) || input.amount < 1 || input.income <= 0 || input.obligations < 0 || !Number.isInteger(input.tenorMonths) || input.tenorMonths < 1 || input.tenorMonths > 60) { throw new Error('Valid financial inputs are required for model simulation.'); }
   if (!['Clean', 'Thin file', 'Adverse'].includes(input.bureau) || !['Salaried', 'Business owner', 'Self employed'].includes(input.employment)) { throw new Error('Bureau and employment inputs are required for model simulation.'); }
   return {
     burden: clamp((input.obligations + input.amount / input.tenorMonths) / input.income, 0, 2),

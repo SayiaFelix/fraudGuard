@@ -1,5 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { LoanConnectorStatus, LoanDataAvailability, LoanRecord, latestAssessment } from './loan-workflow.models';
+import { LOAN_API_ENDPOINTS, LoanApiTrace, loanApiPreview } from './loan-mock-api.client';
 
 export interface LoanConnector {
   id: string; name: string; system: string; purpose: string; usedBy: string; owner: string; required: boolean;
@@ -7,6 +8,7 @@ export interface LoanConnector {
 }
 export interface LoanConnectorResult {
   tone: 'ok' | 'bad' | 'wait'; title: string; lines: string[]; connectorId: string; applicationId: string; assessmentVersion: number; checkedAt: string;
+  trace?: LoanApiTrace;
 }
 interface ConnectorEvent { id: string; at: string; action: string; connectorId: string; connector: string; applicationId: string; outcome: string; assessmentVersion?: number; }
 interface ConnectorState { schema: 1; date: string; status: Record<string, LoanConnectorStatus>; calls: Record<string, { total: number; delivered: number }>; events: ConnectorEvent[]; }
@@ -28,6 +30,7 @@ const defaultState = (): ConnectorState => ({ schema: 1, date: today(), status: 
 @Injectable({ providedIn: 'root' })
 export class LoanIntegrationService implements OnDestroy {
   private state = defaultState(); storageError = '';
+  private previewTimes: Record<string, number> = {};
   private storageListener = (e: StorageEvent): void => { if (e.key === KEY || e.key === null) { this.restore(); } };
   constructor() { this.restore(); if (typeof window !== 'undefined') { window.addEventListener('storage', this.storageListener); } }
   ngOnDestroy(): void { if (typeof window !== 'undefined') { window.removeEventListener('storage', this.storageListener); } }
@@ -46,20 +49,21 @@ export class LoanIntegrationService implements OnDestroy {
   }
   get connectors(): LoanConnector[] {
     const calls = this.state.date === today() ? this.state.calls : {};
-    return definitions.map(d => { const c = calls[d.id]; return { ...d, status: this.state.status[d.id], latencyMs: this.state.status[d.id] === 'Paused' ? 0 : d.latencyMs,
+    return definitions.map(d => { const c = calls[d.id]; return { ...d, status: this.state.status[d.id], latencyMs: this.state.status[d.id] === 'Paused' ? 0 : this.previewTimes[d.id] || 0,
       callsToday: c?.total || 0, success: c?.total ? Math.round(c.delivered / c.total * 1000) / 10 : null }; });
   }
   get events(): ConnectorEvent[] { return copy(this.state.events); }
   count(status: LoanConnectorStatus): number { return this.connectors.filter(c => c.status === status).length; }
   get callsToday(): number { return this.connectors.reduce((sum, c) => sum + c.callsToday, 0); }
   find(id: string): LoanConnector | undefined { return this.connectors.find(c => c.id === id); }
+  endpoint(id: string): string { return LOAN_API_ENDPOINTS[id] || ''; }
   private event(s: ConnectorState, c: LoanConnector, action: string, applicationId: string, outcome: string, assessmentVersion?: number): void {
     s.events.unshift({ id: 'CONN-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8), at: new Date().toISOString(), connectorId: c.id, connector: c.name, action, applicationId, outcome, ...(assessmentVersion ? { assessmentVersion } : {}) }); s.events = s.events.slice(0, 250);
   }
   toggle(id: string): LoanConnector {
     const s = this.read(); const connector = this.find(id); if (!connector) { throw new Error('Choose an available connector.'); }
     const status: LoanConnectorStatus = s.status[id] === 'Paused' ? 'Live' : 'Paused'; s.status[id] = status;
-    this.event(s, connector, status === 'Paused' ? 'Paused' : 'Resumed', '', status === 'Paused' ? 'No simulated calls; required data gates future assessments for review.' : 'Connector available for simulated checks.');
+    this.event(s, connector, status === 'Paused' ? 'Paused' : 'Resumed', '', status === 'Paused' ? 'API preview paused; required data gates future assessments for review.' : 'Connector available for API previews.');
     this.commit(s); return this.find(id)!;
   }
   availability(): LoanDataAvailability {
@@ -71,18 +75,21 @@ export class LoanIntegrationService implements OnDestroy {
   async runCheck(id: string, record: LoanRecord): Promise<LoanConnectorResult> {
     this.restore(); const connector = this.find(id); if (!connector) { throw new Error('Select a connector.'); }
     if (!record?.assessments?.length) { throw new Error('Select a saved application before running a check.'); }
-    const assessment = latestAssessment(record); const at = new Date().toISOString();
+    const assessment = latestAssessment(record); const at = new Date().toISOString(); const started = Date.now();
     const base = { connectorId: id, applicationId: record.id, assessmentVersion: assessment.version, checkedAt: at };
     if (connector.status === 'Paused') {
-      const result: LoanConnectorResult = { ...base, tone: 'bad', title: 'Check blocked — connector paused', lines: ['Resume this connector before running a simulated check. No call was counted.'] };
+      const result: LoanConnectorResult = { ...base, tone: 'bad', title: 'Check blocked — connector paused', lines: ['Resume this connector before previewing its response. No check was counted.'] };
       const s = this.read(); this.event(s, connector, 'Check blocked', record.id, result.title, assessment.version); this.commit(s); return result;
     }
     await new Promise<void>(resolve => setTimeout(resolve, 180));
     const state = this.read(); if (state.status[id] !== connector.status) { throw new Error('Connector state changed while checking. Retry using its current status.'); }
-    const result = connector.status === 'Degraded' ? { ...base, tone: 'wait' as const, title: 'Slow connector — review required', lines: ['The simulated response is degraded. No fresh verification is asserted.', 'Resume a paused connector to restore the Live demonstration state.'] }
+    const result: LoanConnectorResult = connector.status === 'Degraded' ? { ...base, tone: 'wait' as const, title: 'Slow connector — review required', lines: ['This example shows a degraded API response. No fresh verification is asserted.', 'Pause and resume this connector to preview normal delivery.'] }
       : { ...base, ...this.readSnapshot(id, record) };
+    const elapsed = Date.now() - started;
+    result.trace = loanApiPreview(id, record, elapsed, connector.status === 'Degraded');
     const c = state.calls[id] || { total: 0, delivered: 0 }; c.total++; if (connector.status === 'Live') { c.delivered++; } state.calls[id] = c;
-    this.event(state, connector, 'Check', record.id, result.title, assessment.version); this.commit(state); return result;
+    this.event(state, connector, 'Check', record.id, result.title, assessment.version); this.commit(state);
+    this.previewTimes[id] = elapsed; return result;
   }
   private readSnapshot(id: string, record: LoanRecord): Pick<LoanConnectorResult, 'tone' | 'title' | 'lines'> {
     const a = latestAssessment(record), input = a.input, facts = a.eligibility?.customer;
