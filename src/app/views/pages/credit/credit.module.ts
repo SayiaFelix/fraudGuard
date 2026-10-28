@@ -29,9 +29,9 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: CreditDashboardComponent, data: { greeting: true } },
-      { path: 'applications/new', component: NewApplicationComponent, data: { title: 'New application', subtitle: 'Individual and bulk assessments with officer review' } },
+      { path: 'applications/new', component: NewApplicationComponent, data: { title: 'Ingestion', subtitle: 'Look up one customer, upload a file, or check a connector.' } },
       { path: 'applications/:id', component: ApplicationDetailComponent, data: { title: 'Application', subtitle: 'Score, reasons, and case notes' } },
-      { path: 'applications', component: ApplicationsComponent, data: { title: 'Applications', subtitle: 'Saved assessments and credit officer outcomes' } },
+      { path: 'applications', component: ApplicationsComponent, data: { title: 'Applications', subtitle: 'Latest offer, risk and officer status for every assessed application.' } },
       { path: 'alerts', component: DecisionQueueComponent, data: { title: 'Alerts', subtitle: 'Open alerts, with case actions on the same page' } },
       { path: 'decision-queue', component: LoanDecisionQueueComponent, data: { title: 'Decision Queue', subtitle: 'Assessed applications awaiting officer decisions' } },
       { path: 'credit-scoring', component: CreditScoringComponent, data: { title: 'Credit scoring', subtitle: 'Retail scorecard v3.2' } },

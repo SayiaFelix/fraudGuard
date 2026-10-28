@@ -92,7 +92,7 @@
     </ng-template>
   </div>
 
-  <button type="button" class="sidebar-ai" (click)="toggleAi($event)" title="Ask about scores, alerts, reports, and policy">
+  <button type="button" class="sidebar-ai" (click)="toggleAi($event)" title="Ask about policy, the portfolio, or the model">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 1 1 18 0z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
     <span>Ask AI</span>
   </button>
@@ -122,19 +122,32 @@
 
 <aside class="ai-panel" *ngIf="aiOpen" aria-label="Digital Credit assistant">
   <header>
-    <strong>Digital Credit assistant</strong>
-    <button type="button" (click)="aiOpen = false">Close</button>
+    <div>
+      <strong>Digital Credit assistant</strong>
+      <small>{{ aiContext.label }}</small>
+    </div>
+    <div class="ai-head-actions">
+      <button type="button" (click)="refreshAi()" title="Start this page's chat again">Refresh</button>
+      <button type="button" (click)="closeAi()">Close</button>
+    </div>
   </header>
-  <div class="ai-log">
-    <p *ngFor="let message of aiMessages" [class.you]="message.from === 'you'">{{ message.text }}</p>
+  <div class="ai-log" #aiLog>
+    <div *ngFor="let message of aiMessages" class="ai-msg" [class.you]="message.from === 'you'">
+      <p>{{ message.text }}</p>
+      <button *ngIf="message.download" type="button" class="ai-download" (click)="downloadNote(message)">Download handover note</button>
+    </div>
+    <p class="ai-pending" *ngIf="aiReplying">Reading this page…</p>
   </div>
+  <div class="ai-tour" *ngIf="aiTour">
+    <span>Demo {{ aiTour.step }} of {{ aiTour.total }} · {{ aiTour.title }}</span>
+    <button type="button" (click)="stopTour()">Stop</button>
+  </div>
+  <p class="ai-limit">Will not approve, change a cutoff, retrain a model, or reveal an identity number.</p>
   <div class="ai-suggest">
-    <button type="button" (click)="askAi('How does the credit score move?')">Score movement</button>
-    <button type="button" (click)="askAi('How do I work an alert?')">Work an alert</button>
-    <button type="button" (click)="askAi('Where are reports and the audit trail?')">Reports and audit</button>
+    <button type="button" *ngFor="let item of aiContext.suggestions" (click)="askAi(item.prompt)">{{ item.label }}</button>
   </div>
   <form (submit)="askAi(aiBox.value); aiBox.value = ''; $event.preventDefault()">
-    <input #aiBox type="text" placeholder="Ask about a case or a score" />
+    <input #aiBox type="text" [placeholder]="aiContext.placeholder" />
     <button type="submit">Send</button>
   </form>
 </aside>

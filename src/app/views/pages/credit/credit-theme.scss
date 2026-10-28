@@ -369,10 +369,10 @@ body.uba-credit .sidebar .eclectics-logo {
 .ai-panel {
   position: fixed;
   left: 288px;
-  bottom: 24px;
-  width: 360px;
+  bottom: 16px;
+  width: 420px;
   max-width: calc(100vw - 320px);
-  height: 460px;
+  height: min(680px, calc(100vh - 32px));
   background: #fff;
   border: 1px solid #E6ECF4;
   border-radius: 16px;
@@ -387,12 +387,27 @@ body.uba-credit .sidebar .eclectics-logo {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   padding: 14px 16px;
   border-bottom: 1px solid #E6ECF4;
 }
 
-.ai-panel header strong { color: #122033; }
-.ai-panel header button, .ai-suggest button, .ai-panel form button {
+.ai-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.ai-panel header strong { color: #122033; display: block; }
+.ai-panel header small {
+  display: block;
+  margin-top: 2px;
+  color: #067647;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.ai-panel header button, .ai-suggest button, .ai-panel form button, .ai-tour button, .ai-download {
   border: 0;
   background: #F4F7FB;
   color: #122033;
@@ -404,7 +419,9 @@ body.uba-credit .sidebar .eclectics-logo {
 }
 
 .ai-panel header button:hover,
-.ai-suggest button:hover {
+.ai-suggest button:hover,
+.ai-tour button:hover,
+.ai-download:hover {
   background: #e7f8ef;
   color: #067647;
 }
@@ -418,7 +435,11 @@ body.uba-credit .sidebar .eclectics-logo {
   gap: 8px;
 }
 
-.ai-log p {
+.ai-msg {
+  max-width: 100%;
+}
+
+.ai-msg p {
   margin: 0;
   padding: 10px 12px;
   border-radius: 12px;
@@ -426,12 +447,57 @@ body.uba-credit .sidebar .eclectics-logo {
   color: #122033;
   font-size: 13px;
   line-height: 1.45;
+  white-space: pre-wrap;
 }
 
-.ai-log p.you {
+.ai-msg.you {
+  align-self: flex-end;
+  max-width: 92%;
+}
+
+.ai-msg.you p {
   background: #067647;
   color: #fff;
-  align-self: flex-end;
+}
+
+.ai-download {
+  margin-top: 6px;
+  background: #067647;
+  color: #fff;
+}
+
+.ai-download:hover {
+  background: #059669;
+  color: #fff;
+}
+
+.ai-pending {
+  margin: 0;
+  color: #5c6b82;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ai-tour {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 16px 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #ecfdf3;
+  color: #067647;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ai-limit {
+  margin: 0;
+  padding: 0 16px 8px;
+  color: #5c6b82;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .ai-suggest {
@@ -464,6 +530,16 @@ body.uba-credit .sidebar .eclectics-logo {
 .ai-panel form button:hover {
   background: #059669;
   transform: translateY(-1px);
+}
+
+@media (max-width: 991px) {
+  .ai-panel {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+    bottom: 12px;
+  }
 }
 
 .cd-shell { min-height: 100vh; }

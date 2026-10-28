@@ -13,9 +13,9 @@ import { LoanConnector, LoanConnectorResult } from '../workflow/loan-integration
 export class NewApplicationComponent implements OnInit, OnDestroy {
   tab: 'individual' | 'bulk' | 'integration' = 'individual'; nationalId = ''; customer: LoanCustomer | null = null;
   readonly modes = [
-    { id: 'individual', label: 'Individual application', detail: 'Assess one customer', icon: '01' },
-    { id: 'bulk', label: 'Bulk Intelligence', detail: 'Assess a file of applications', icon: '02' },
-    { id: 'integration', label: 'Integration', detail: 'Connectors and application checks', icon: '03' }
+    { id: 'individual', label: 'One customer', detail: 'Look up a national ID', icon: '01' },
+    { id: 'bulk', label: 'Bulk file', detail: 'Upload and assess many', icon: '02' },
+    { id: 'integration', label: 'Connectors', detail: 'Check a saved application', icon: '03' }
   ] as const;
   connectorId = 'bureau'; integrationApplicantId = ''; integrationResult: LoanConnectorResult | null = null;
   integrationBusy = false; integrationError = ''; integrationBanner = '';

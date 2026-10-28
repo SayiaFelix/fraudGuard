@@ -22,6 +22,10 @@ import { InboxItem } from '../../pages/mobile-banking/requests/list-requests/lis
 import { AuthService } from 'src/app/shared/services/auth.service';
 import { CreditDataService } from '../../pages/credit/credit-data.service';
 import { LoanWorkflowService } from '../../pages/credit/workflow/loan-workflow.service';
+import {
+  AssistantDownload,
+  CreditAssistantService
+} from '../../pages/credit/credit-assistant.service';
 
 interface SidebarMenuGroup {
   label: string;
@@ -32,6 +36,13 @@ interface SidebarMenuGroup {
 interface SidebarAiMessage {
   from: 'you' | 'ai';
   text: string;
+  download?: AssistantDownload;
+}
+
+interface SidebarAiTour {
+  step: number;
+  total: number;
+  title: string;
 }
 
 type SidebarMenuEntry = MenuItem & {
@@ -47,6 +58,8 @@ type SidebarMenuEntry = MenuItem & {
 export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('sidebarToggler') sidebarToggler!: ElementRef;
   @ViewChild('sidebarMenu') sidebarMenu!: ElementRef;
+  @ViewChild('aiLog') aiLog?: ElementRef<HTMLElement>;
+  @ViewChild('aiBox') aiBox?: ElementRef<HTMLInputElement>;
   @Output() helpCenterToggled = new EventEmitter<MouseEvent>();
 
   menuItems: MenuItem[] = [];
@@ -54,7 +67,15 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   logoutItem?: MenuItem;
 
   aiOpen = false;
+  aiReplying = false;
   aiMessages: SidebarAiMessage[] = [];
+  aiTour: SidebarAiTour | null = null;
+  private aiTourRun = 0;
+  private aiTourDriving = false;
+  private aiReplyTimer: ReturnType<typeof setTimeout> | null = null;
+  private aiGeneration = 0;
+  private aiSessionKey = '';
+  private aiSessions = new Map<string, SidebarAiMessage[]>();
 
   userDisplayName = '';
   userTitle = '';
@@ -81,12 +102,14 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     private authservice: AuthService,
     private notificationService: NotificationService,
     private creditData: CreditDataService,
-    private loanWorkflow: LoanWorkflowService
+    private loanWorkflow: LoanWorkflowService,
+    private assistant: CreditAssistantService
   ) {
     this.subscriptions.add(
       this.router.events.subscribe(event => {
         if (event instanceof NavigationEnd) {
           this._activateMenuDropdown();
+          this.adoptAiSession(event.urlAfterRedirects || event.url);
 
           if (window.matchMedia('(max-width: 991px)').matches) {
             this.document.body.classList.remove('sidebar-open');
@@ -104,6 +127,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     );
 
     this.buildMenuGroups();
+    this.adoptAiSession(this.router.url);
 
     this.userDisplayName = this.authservice.getUserDisplayName();
     this.userTitle = this.authservice.getUserTitle();
@@ -163,6 +187,10 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.aiTourRun++;
+    if (this.aiReplyTimer) {
+      clearTimeout(this.aiReplyTimer);
+    }
     this.subscriptions.unsubscribe();
     this.desktopMedium?.removeEventListener(
       'change',
@@ -170,25 +198,189 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
+  get aiContext() {
+    return this.assistant.context(this.router.url);
+  }
+
   toggleAi(event: Event): void {
     event.preventDefault();
     this.aiOpen = !this.aiOpen;
+    if (this.aiOpen) {
+      this.adoptAiSession(this.router.url);
+      this.stickAi();
+    }
+    if (!this.aiOpen) {
+      this.haltTour();
+    }
+  }
+
+  refreshAi(): void {
+    this.haltTour();
+    this.cancelAiReply();
+    this.clearAiDraft();
+    const greeting: SidebarAiMessage = {
+      from: 'ai',
+      text: this.assistant.greeting(this.router.url)
+    };
+    this.setAiMessages([greeting]);
+    this.stickAi();
+  }
+
+  closeAi(): void {
+    this.haltTour();
+    this.aiOpen = false;
   }
 
   askAi(question: string): void {
     const text = question.trim();
-    if (!text) return;
+    if (!text || this.aiReplying) return;
+
+    const touring = !!this.aiTour;
+    if (touring) {
+      this.haltTour();
+    }
 
     this.aiOpen = true;
-    this.aiMessages = [
-      ...this.aiMessages,
-      { from: 'you', text },
-      {
-        from: 'ai',
-        // Replace this reply with the assistant service response when available.
-        text: 'The AI assistant is not available yet.'
+    const replyKey = this.aiSessionKey;
+    this.setAiMessages([...this.aiMessages, { from: 'you', text }]);
+    if (touring) {
+      this.pushAi('Tour stopped. Nothing was submitted or changed.');
+    }
+
+    this.aiReplying = true;
+    this.stickAi();
+    const turn = this.assistant.answer(text, this.router.url);
+    const generation = this.aiGeneration;
+    setTimeout(() => {
+      if (generation !== this.aiGeneration) return;
+      this.appendAi(replyKey, { from: 'ai', text: turn.text, download: turn.download });
+      if (this.aiSessionKey !== replyKey) return;
+      this.aiReplying = false;
+      if (turn.tour) {
+        void this.startTour(turn.tour);
       }
-    ];
+    }, 280);
+  }
+
+  stopTour(): void {
+    if (!this.aiTour) return;
+    this.haltTour();
+    this.pushAi('Tour stopped. No application was submitted, and no rule or cutoff was changed.');
+  }
+
+  downloadNote(message: SidebarAiMessage): void {
+    if (!message.download) return;
+    const url = URL.createObjectURL(new Blob([message.download.body], { type: 'text/plain;charset=utf-8' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = message.download.filename;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  private haltTour(): void {
+    this.aiTourRun++;
+    this.aiTour = null;
+  }
+
+  private async startTour(kind: 'workspace' | 'model'): Promise<void> {
+    const run = ++this.aiTourRun;
+    const steps = this.assistant.tourSteps(kind);
+    for (let i = 0; i < steps.length; i++) {
+      if (this.aiTourRun !== run || !this.aiOpen) return;
+      const step = steps[i];
+      this.aiTour = { step: i + 1, total: steps.length, title: step.title };
+      this.aiTourDriving = true;
+      const opened = await this.router.navigateByUrl(step.path);
+      this.aiTourDriving = false;
+      if (this.aiTourRun !== run || !this.aiOpen) return;
+      const here = this.router.url.split('?')[0].replace(/\/+$/, '') || '/';
+      if (!opened && here !== step.path) {
+        this.aiTour = null;
+        this.pushAi('I could not open the next page, so the demo stopped. Nothing was submitted or changed.');
+        return;
+      }
+      this.pushAi(step.narration());
+      await new Promise(resolve => setTimeout(resolve, 1200));
+    }
+    if (this.aiTourRun !== run || !this.aiOpen) return;
+    this.aiTour = null;
+    this.pushAi(kind === 'model'
+      ? 'Demo finished. You are back on model monitoring. I did not retrain a model, change a cutoff, or open a customer identity.'
+      : 'Walkthrough finished. I only opened pages. I did not submit an application, score a customer, or change a rule.');
+  }
+
+  private adoptAiSession(url: string): void {
+    const key = this.assistant.sessionKey(url);
+    if (key === this.aiSessionKey && this.aiMessages.length) return;
+
+    const driven = this.aiTourDriving;
+    if (!driven && this.aiTour) {
+      this.haltTour();
+    }
+    if (!driven) {
+      this.aiReplying = false;
+    }
+    this.clearAiDraft();
+    this.aiSessionKey = key;
+
+    const existing = this.aiSessions.get(key);
+    if (existing && existing.length) {
+      this.aiMessages = existing;
+    } else if (driven) {
+      this.setAiMessages([]);
+    } else {
+      this.setAiMessages([{
+        from: 'ai',
+        text: this.assistant.greeting(url)
+      }]);
+    }
+    this.stickAi();
+  }
+
+  private setAiMessages(messages: SidebarAiMessage[]): void {
+    this.aiMessages = messages;
+    if (this.aiSessionKey) {
+      this.aiSessions.set(this.aiSessionKey, messages);
+    }
+  }
+
+  private cancelAiReply(): void {
+    this.aiGeneration++;
+    if (this.aiReplyTimer) {
+      clearTimeout(this.aiReplyTimer);
+      this.aiReplyTimer = null;
+    }
+    this.aiReplying = false;
+  }
+
+  private clearAiDraft(): void {
+    if (this.aiBox?.nativeElement) {
+      this.aiBox.nativeElement.value = '';
+    }
+  }
+
+  private appendAi(key: string, message: SidebarAiMessage): void {
+    const current = this.aiSessions.get(key) || [];
+    const next = [...current, message];
+    this.aiSessions.set(key, next);
+    if (key === this.aiSessionKey) {
+      this.aiMessages = next;
+      this.stickAi();
+    }
+  }
+
+  private pushAi(text: string, download?: AssistantDownload): void {
+    this.appendAi(this.aiSessionKey, { from: 'ai', text, download });
+  }
+
+  private stickAi(): void {
+    setTimeout(() => {
+      const el = this.aiLog?.nativeElement;
+      if (el) {
+        el.scrollTop = el.scrollHeight;
+      }
+    });
   }
 
   toggleGroup(group: SidebarMenuGroup): void {

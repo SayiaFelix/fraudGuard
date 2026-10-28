@@ -10,66 +10,47 @@
   .intake-mode-tabs {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
-    margin: 24px 0;
+    gap: 4px;
+    margin: 0 0 18px;
+    padding: 4px;
+    border: 1px solid var(--intake-border);
+    border-radius: 12px;
+    background: #eef3f8;
     > button {
-      position: relative;
       display: flex;
       align-items: center;
-      gap: 13px;
+      justify-content: center;
       min-width: 0;
-      min-height: 108px;
-      padding: 19px;
-      border: 1px solid var(--intake-border);
-      border-radius: 14px;
-      background: #fff;
+      min-height: 0;
+      padding: 10px 12px;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
       color: var(--intake-text);
-      text-align: left;
-      box-shadow: 0 3px 12px #17365106;
-      transition:
-        border-color 160ms ease,
-        background 160ms ease,
-        box-shadow 160ms ease,
-        transform 160ms ease;
+      text-align: center;
+      box-shadow: none;
       > span:nth-child(2) {
-        flex: 1;
         min-width: 0;
       }
       &:hover:not(:disabled) {
-        transform: translateY(-2px);
-        border-color: #96b1e6;
-        background: #f7faff;
-        box-shadow: 0 7px 20px #234a8710;
+        background: #ffffffb8;
       }
       &:focus-visible {
         outline: 3px solid #8daff3;
-        outline-offset: 3px;
+        outline-offset: 2px;
       }
       &.active,
-      &[aria-selected="true"],
-      &.active:hover:not(:disabled),
-      &[aria-selected="true"]:hover:not(:disabled) {
-        border-color: #2553c1;
-        background: linear-gradient(120deg, #285bd5, #1f4bb5);
-        color: #fff;
-        box-shadow: 0 7px 20px #285bd525;
-        strong,
-        .intake-mode-arrow {
-          color: #fff;
-        }
-        small {
-          color: #edf3ff;
-        }
-        .intake-mode-number {
-          border-color: #ffffff45;
-          background: #ffffff1c;
-          color: #fff;
+      &[aria-selected="true"] {
+        background: #fff;
+        color: #1f4bb5;
+        box-shadow: 0 1px 3px #17365114;
+        strong {
+          color: #1f4bb5;
         }
       }
       &:disabled {
         opacity: 0.6;
         cursor: not-allowed;
-        transform: none;
       }
     }
     strong,
@@ -79,36 +60,21 @@
     }
     strong {
       color: var(--intake-heading);
-      font-size: 16px;
-      font-weight: 650;
-      line-height: 1.4;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.35;
     }
     small {
-      margin-top: 5px;
+      margin-top: 2px;
       color: var(--intake-muted);
-      font-size: 13px;
-      line-height: 1.55;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.4;
     }
   }
-  .intake-mode-number {
-    display: grid;
-    flex: 0 0 40px;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    border: 1px solid #dce6f7;
-    border-radius: 12px;
-    background: #edf3ff;
-    color: #3765ba;
-    font-size: 13px;
-    font-weight: 700;
-  }
+  .intake-mode-number,
   .intake-mode-arrow {
-    flex: 0 0 auto;
-    margin-left: auto;
-    color: #6f86a7;
-    font-size: 20px;
-    line-height: 1;
+    display: none;
   }
   .customer-risk {
     margin-top: 8px;
@@ -449,12 +415,11 @@
     .connector-kpis {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .intake-mode-tabs > button {
-      gap: 10px;
-      padding: 16px;
+    .intake-mode-tabs small {
+      display: none;
     }
-    .intake-mode-tabs strong {
-      font-size: 15px;
+    .intake-mode-tabs > button {
+      padding: 12px 10px;
     }
   }
   @media (max-width: 1000px) {
@@ -478,13 +443,13 @@
   @media (max-width: 740px) {
     .intake-mode-tabs {
       grid-template-columns: minmax(0, 1fr);
-      gap: 10px;
       > button {
-        min-height: 82px;
-        padding: 15px 17px;
+        justify-content: flex-start;
+        text-align: left;
+        padding: 12px 14px;
       }
-      strong {
-        font-size: 16px;
+      small {
+        display: block;
       }
     }
     .connector-header {
