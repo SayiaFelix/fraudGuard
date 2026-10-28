@@ -99,13 +99,14 @@
 
             <div class="rec-head">
               <span>AI recommendations</span>
-              <small>Matched to that student loan</small>
+              <small>Matched to that School Fees loan</small>
             </div>
 
             <button class="hero-card" type="button" (click)="chooseRecommendation(recommendations[0])" [disabled]="isProcessing">
               <span class="ai-pill">Top match</span>
               <h3>{{ recommendations[0].name }}</h3>
-              <p><b>Why.</b> {{ recommendations[0].why }}</p>
+              <span class="why-label">Why</span>
+              <span class="why-point" *ngFor="let point of recommendations[0].points">{{ point }}</span>
               <em>{{ money(recommendations[0].amount) }} · {{ recommendations[0].term }} months</em>
               <span class="primary-btn">{{ isProcessing ? 'Checking...' : 'Check this offer' }}</span>
             </button>
@@ -116,7 +117,8 @@
                 <em>{{ money(rec.amount) }}</em>
               </div>
               <small>{{ rec.term }} months</small>
-              <p><b>Why.</b> {{ rec.why }}</p>
+              <span class="why-label">Why</span>
+              <span class="why-point" *ngFor="let point of rec.points">{{ point }}</span>
             </button>
           </div>
 
@@ -207,7 +209,10 @@
             
             <h3>Configure your loan</h3>
             <p class="product-line" *ngIf="selectedOffer">{{ selectedOffer.name }}</p>
-            <p class="product-why" *ngIf="selectedOffer"><b>Why this loan.</b> {{ selectedOffer.why }}</p>
+            <div class="product-why" *ngIf="selectedOffer">
+              <b>Why this loan</b>
+              <span class="why-point" *ngFor="let point of selectedOffer.points">{{ point }}</span>
+            </div>
             
             <div class="form-group">
               <label>How much do you need?</label>
@@ -218,6 +223,7 @@
             <div class="form-group">
               <label>Repayment Period</label>
               <select [(ngModel)]="loanTermMonths">
+                <option [ngValue]="1">1 Month</option>
                 <option [ngValue]="6">6 Months</option>
                 <option [ngValue]="12">12 Months</option>
                 <option [ngValue]="24">24 Months</option>
@@ -251,7 +257,7 @@
           <div *ngIf="phoneTab === 'cards'" class="step-view">
             <div class="tab-screen">
               <h3>Cards</h3>
-              <p>No cards are linked to this demo profile. Open Offers for loans matched to the repaid student loan, or Loans to check a personal limit.</p>
+              <p>No cards are linked to this demo profile. Open Offers for loans matched to the repaid School Fees loan, or Loans to check a personal limit.</p>
             </div>
           </div>
 
@@ -326,15 +332,14 @@
           </div>
         </div>
 
-        <div class="quick-replies">
+        <div class="quick-replies" *ngIf="quickReplies.length">
+          <button *ngFor="let label of quickReplies" [class.confirm-btn]="label === 'Confirm'" (click)="sendQuickReply(label)">{{ label }}</button>
+        </div>
+        <div class="quick-replies" *ngIf="!quickReplies.length">
+          <button (click)="sendQuickReply('I would like to apply for a loan')">Apply for a loan</button>
+          <button (click)="sendQuickReply('Check my limit')">Check my limit</button>
           <button (click)="sendQuickReply('Recommend a loan')">Recommend a loan</button>
-          <button (click)="sendQuickReply('I want a different loan')">Different loan</button>
-          <button (click)="sendQuickReply('Why is my limit this amount?')">Why this limit?</button>
-          <button (click)="sendQuickReply('How can I increase my limit?')">Increase my limit</button>
-          <button (click)="sendQuickReply('Apply for the recommended loan')">Apply recommended</button>
-          <!-- Added Confirm button for the demo flow -->
-          <button class="confirm-btn" (click)="sendQuickReply('Confirm')" *ngIf="!applicationRef">Confirm Application</button>
-          <button (click)="sendQuickReply('Track my application')">Track status</button>
+          <button *ngIf="applicationRef" (click)="sendQuickReply('Track my application')">Application status</button>
         </div>
 
         <form class="chat-input" (ngSubmit)="sendChatMessage()">
@@ -367,7 +372,7 @@
         <small>AI product match</small>
         <strong>{{ (selectedOffer || recommendations[0]).name }}</strong>
         <em>{{ previousLoan.product }} · {{ previousLoan.status }} · {{ previousLoan.closed }}</em>
-        <p>{{ (selectedOffer || recommendations[0]).why }}</p>
+        <p>{{ whyText(selectedOffer || recommendations[0]) }}</p>
       </div>
 
       <!-- 1. Score & Risk Classification -->

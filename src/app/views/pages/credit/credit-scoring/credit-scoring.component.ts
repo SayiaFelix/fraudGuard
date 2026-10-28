@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { PRODUCTS } from '../credit-demo.data';
 import { CreditDataService } from '../credit-data.service';
 
 type Channel = 'mobile' | 'chatbot';
@@ -16,7 +17,7 @@ interface LoanRecommendation {
   name: string;
   amount: number;
   term: number;
-  why: string;
+  points: string[];
 }
 
 @Component({
@@ -34,45 +35,96 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
   };
 
   previousLoan = {
-    product: 'Student Loan',
+    product: 'School Fees',
     amount: 180000,
     status: 'Repaid on time',
     closed: 'Mar 2026'
   };
 
-  personalLoan: LoanRecommendation = {
-    name: 'Personal Loan',
-    amount: 50000,
-    term: 12,
-    why: 'A general facility from verified income. It is not tied to the student loan, so the amount starts at a comfortable point inside the limit.'
-  };
+  /** Same six products as the credit book. Amounts and tenors stay inside each product's demo range. */
+  bookLoans: LoanRecommendation[] = PRODUCTS.map(name => ({ name, ...this.loanTerms(name) }));
 
-  recommendations: LoanRecommendation[] = [
-    {
-      name: 'Professional Development Loan',
-      amount: 80000,
-      term: 12,
-      why: 'The last facility was a student loan, repaid in full and on time. Education credit that closed cleanly is why the next offer is a follow-on loan for a certification or further study.'
-    },
-    {
-      name: 'Career Starter Loan',
-      amount: 50000,
-      term: 12,
-      why: 'A repaid student loan plus verified income of Ksh 150,000 points to the move from study into work. This amount stays inside the limit that income already supports.'
-    },
-    {
-      name: 'Graduate Equipment Loan',
-      amount: 45000,
-      term: 6,
-      why: 'Customers who finish a student loan often need a laptop or tools before the first salary cycle. The clean close on the student facility is why a short equipment loan sits next to it.'
-    }
-  ];
+  /** Offers matched to the closed School Fees facility. The rest of the book stays available in chat. */
+  recommendations: LoanRecommendation[] = ['School Fees', 'Device Finance', 'Personal Loan']
+    .map(name => this.bookLoans.find(loan => loan.name === name)!);
 
   selectedOffer: LoanRecommendation | null = null;
   offerReady = false;
+  quickReplies: string[] = [];
 
   get loanChoices(): LoanRecommendation[] {
-    return [this.personalLoan, ...this.recommendations];
+    return this.bookLoans;
+  }
+
+  private loanTerms(name: string): { amount: number; term: number; points: string[] } {
+    switch (name) {
+      case 'School Fees':
+        return {
+          amount: 80000,
+          term: 12,
+          points: [
+            'Last facility was School Fees',
+            'Repaid in full and on time',
+            'Next offer is another fees cycle'
+          ]
+        };
+      case 'Device Finance':
+        return {
+          amount: 45000,
+          term: 6,
+          points: [
+            'School Fees closed cleanly',
+            'Fits a phone, laptop, or other device',
+            'Related purchase after school fees'
+          ]
+        };
+      case 'Personal Loan':
+        return {
+          amount: 50000,
+          term: 12,
+          points: [
+            'School Fees was repaid on time',
+            'For costs that are not the next term',
+            'General facility inside the limit'
+          ]
+        };
+      case 'Salary Advance':
+        return {
+          amount: 30000,
+          term: 1,
+          points: [
+            'Salaried income is on file',
+            'Advance covers one month only',
+            'Separate from the next school term'
+          ]
+        };
+      case 'SME Working Capital':
+        return {
+          amount: 120000,
+          term: 12,
+          points: [
+            'For business income, not school fees',
+            'Working capital over 12 months',
+            'Use it when the need is the business'
+          ]
+        };
+      case 'Asset Finance':
+        return {
+          amount: 150000,
+          term: 12,
+          points: [
+            'For equipment or a vehicle',
+            'Larger than a phone or laptop',
+            'Sits beside Device Finance'
+          ]
+        };
+      default:
+        return { amount: 50000, term: 12, points: ['This product is on the credit book'] };
+    }
+  }
+
+  whyText(offer: LoanRecommendation): string {
+    return offer.points.join('. ') + '.';
   }
 
   channel: Channel = 'mobile';
@@ -299,6 +351,7 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     this.applicationRef = '';
     this.selectedOffer = null;
     this.offerReady = false;
+    this.quickReplies = [];
     this.loanTermMonths = 12;
     this.phoneTab = 'home';
     this.resetChat();
@@ -313,7 +366,7 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
   resetChat() {
     this.chatMessages = [{
       sender: 'bot',
-      text: `Hello Felix. I'm Leo. Your <b>${this.previousLoan.product}</b> of <b>${this.money(this.previousLoan.amount)}</b> closed on time in ${this.previousLoan.closed}. I recommend a <b>${this.recommendations[0].name}</b> of <b>${this.money(this.recommendations[0].amount)}</b>. You can also ask for a <b>different loan</b>.`,
+      text: `Hello Felix. I am Leo, your loan assistant. How may I help you?`,
       time: this.now()
     }];
   }
@@ -342,68 +395,66 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     const lower = prompt.toLowerCase().trim();
     const a = this.assessment;
     const named = this.findNamedProduct(lower);
-    const wantsDifferent = /different|another loan|something else|other loan|not that|not this/.test(lower);
+    const wantsApply = /\b(apply|application|i want a loan|i need a loan|get a loan|take a loan)\b/.test(lower);
+    const wantsDifferent = /different|another loan|something else|other loan|not that|not this|any loan|whatever|choose another/.test(lower);
     const chat = this.smallTalk(lower);
+    this.quickReplies = [];
     let reply = '';
 
-    if (named && (lower.includes('why') || lower.includes('explain') || lower.includes('recommend') || lower.includes('suggest'))) {
-      reply = `<b>${named.name}</b> — ${this.money(named.amount)} over ${named.term} months.<br><br>${named.why}<br><br>Say <b>apply for ${named.name}</b> to start it, or ask for a different loan.`;
+    if (named && !wantsApply && (lower.includes('why') || lower.includes('explain'))) {
+      reply = this.explainProduct(named);
     }
     else if (named) {
       reply = this.prepareOffer(named);
     }
-    else if (wantsDifferent) {
+    else if (lower.includes('recommended') && wantsApply) {
+      reply = this.prepareOffer(this.recommendations[0]);
+    }
+    else if (wantsApply || wantsDifferent) {
       reply = this.loanMenu();
     }
-    else if (!lower.includes('apply') && (lower.includes('recommend') || lower.includes('suggest') || lower.includes('student'))) {
+    else if (lower.includes('recommend') || lower.includes('suggest')) {
       reply = this.recommendReply();
     }
     else if (lower.includes('increase') || lower.includes('qualify') || lower.includes('boost')) {
       reply = this.boostReply();
     }
     else if (lower === 'no' || lower === 'nope') {
-      reply = `Understood. You can still ask for the recommendation, a different loan, or your limit.`;
+      reply = `Understood.`;
     }
     else if (lower.includes('why') || lower.includes('explain')) {
-      reply = lower.includes('limit') ? this.reasonsReply() : this.recommendReply();
+      reply = lower.includes('limit') || lower.includes('score')
+        ? this.reasonsReply()
+        : `Are you asking about your limit, or about a specific loan?`;
     }
-    else if (lower.includes('limit') || lower.includes('how much')) {
-      reply = `Your indicative maximum limit is <b>${this.money(a.maxLimit)}</b>.<br><br>` +
-              `It comes from five checks: your score of <b>${a.score}</b>, verified income of <b>${this.money(this.customer.income)}</b>, existing debt of <b>${this.money(this.customer.existingDebt)}</b>, a debt-to-income ratio of <b>${a.dti.toFixed(1)}%</b>, and ${this.customer.hasDefaulted ? 'a prior default on record' : 'a clean repayment history'}.<br><br>` +
-              `Ask me <b>why this limit</b> for the full explanation, or <b>how to increase it</b> for three ways to qualify for more.`;
-    }
-    else if (lower.includes('apply')) {
-      if (this.applicationRef) {
-        reply = `You already have a pending application: <b>${this.applicationRef}</b>. You can track its status anytime.`;
-      } else if (lower.includes('recommended')) {
-        reply = this.prepareOffer(this.recommendations[0]);
-      } else {
-        reply = this.prepareOffer(this.selectedOffer || this.recommendations[0]);
-      }
+    else if (lower.includes('limit') || lower.includes('how much') || lower.includes('afford')) {
+      reply = this.limitReply(a);
     }
     else if (lower === 'yes' || lower === 'yeah' || lower === 'sure') {
-      reply = this.offerReady
-        ? ''
-        : `Tell me which loan first. Say <b>apply recommended</b>, or name one such as <b>personal loan</b>.`;
       if (this.offerReady) {
         this.confirmOffer();
         return;
       }
+      reply = this.loanMenu();
     }
-    else if (lower === 'confirm' || lower === 'proceed') {
-      this.confirmOffer();
-      return;
+    else if (lower === 'confirm' || lower === 'proceed' || lower === 'submit') {
+      if (!this.selectedOffer) {
+        reply = this.loanMenu();
+      } else {
+        this.confirmOffer();
+        return;
+      }
     }
-    else if (lower.includes('status') || lower.includes('track')) {
-      reply = this.applicationRef
-        ? `Your application <b>${this.applicationRef}</b> for <b>${(this.selectedOffer || this.recommendations[0]).name}</b> is currently in status: <b>Pending Disbursement</b>.`
-        : `You haven't submitted an application yet. Ask me to apply for the recommended loan, or name a different one.`;
+    else if (lower.includes('status') || lower.includes('track') || lower.includes('reference')) {
+      reply = this.applicationRef && this.selectedOffer
+        ? `Application <b>${this.applicationRef}</b> for <b>${this.selectedOffer.name}</b> is pending disbursement. The amount is <b>${this.money(this.requestedAmount)}</b>.`
+        : `There is no application on file.`;
     }
     else if (chat) {
       reply = chat;
     }
     else {
-      reply = `I can recommend a loan, start a different one, or just chat a little. Try "hello", "different loan", or "what can you do".`;
+      reply = `I can check your limit, recommend a loan, or prepare an application. Which do you need?`;
     }
 
     this.addBotMessage(reply);
@@ -417,21 +468,22 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
   }
 
   private confirmOffer(): void {
-    const offer = this.selectedOffer || this.recommendations[0];
+    const offer = this.selectedOffer;
+    if (!offer) return;
     this.stageOffer(offer);
     this.offerReady = false;
+    this.quickReplies = [];
     this.isProcessing = true;
     setTimeout(() => {
       this.isProcessing = false;
       this.applicationRef = 'DEMO-' + Math.floor(Math.random() * 900000 + 100000);
       this.journeyStep = 'success';
       this.addBotMessage(
-        `🎉 <b>Application Submitted Successfully!</b><br><br>` +
-        `• Product: <b>${offer.name}</b><br>` +
-        `• Reference: <b>${this.applicationRef}</b><br>` +
-        `• Amount: <b>${this.money(this.requestedAmount)}</b><br>` +
-        `• Status: <b>Pending Disbursement</b><br><br>` +
-        `Say <b>different loan</b> if you want to start another product, or track this one.`
+        `Your <b>${offer.name}</b> application has been submitted.<br><br>` +
+        `Reference: <b>${this.applicationRef}</b><br>` +
+        `Amount: <b>${this.money(this.requestedAmount)}</b><br>` +
+        `Term: <b>${this.termLabel(this.loanTermMonths)}</b><br>` +
+        `Status: pending disbursement.`
       );
     }, 1500);
   }
@@ -439,86 +491,108 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
   private prepareOffer(offer: LoanRecommendation): string {
     this.stageOffer(offer);
     this.offerReady = true;
+    this.quickReplies = ['Confirm', 'Choose another loan'];
     const priced = this.assessment;
-    const lead = offer.name === this.recommendations[0].name
-      ? `I can start the recommended <b>${offer.name}</b>.`
-      : `I can start <b>${offer.name}</b> instead.`;
-    return `${lead}<br><br>` +
-      `${offer.why}<br><br>` +
-      `• Amount: <b>${this.money(this.requestedAmount)}</b><br>` +
-      `• Term: <b>${this.loanTermMonths} Months</b><br>` +
-      `• Est. Monthly Repayment: <b>${this.money(priced.monthlyRepayment)}</b><br><br>` +
-      `Reply <b>Confirm</b> to submit this one, or name another loan.`;
+    return `<b>${offer.name}</b><br>` +
+      `Amount: <b>${this.money(this.requestedAmount)}</b><br>` +
+      `Term: <b>${this.termLabel(this.loanTermMonths)}</b><br>` +
+      `Estimated monthly repayment: <b>${this.money(priced.monthlyRepayment)}</b><br><br>` +
+      `Confirm if you want to submit this application.`;
+  }
+
+  private explainProduct(offer: LoanRecommendation): string {
+    this.quickReplies = [`Apply for ${offer.name}`];
+    const lines = offer.points.map(point => `• ${point}`).join('<br>');
+    return `<b>${offer.name}</b> is available at <b>${this.money(offer.amount)}</b> over ${this.termLabel(offer.term)}.<br><br>${lines}`;
+  }
+
+  private limitReply(a: { maxLimit: number; score: number; dti: number }): string {
+    return `Your indicative limit is <b>${this.money(a.maxLimit)}</b>.<br><br>` +
+      `• Credit score: <b>${a.score}</b><br>` +
+      `• Verified income: <b>${this.money(this.customer.income)}</b><br>` +
+      `• Existing monthly debt: <b>${this.money(this.customer.existingDebt)}</b><br>` +
+      `• Debt-to-income ratio: <b>${a.dti.toFixed(1)}%</b><br>` +
+      `• Repayment history: <b>${this.customer.hasDefaulted ? 'Prior default' : 'No defaults'}</b>`;
   }
 
   private findNamedProduct(lower: string): LoanRecommendation | null {
-    if (lower.includes('personal')) return this.personalLoan;
-    if (lower.includes('career')) return this.recommendations[1];
-    if (lower.includes('equipment') || lower.includes('laptop') || lower.includes('graduate')) return this.recommendations[2];
-    if (lower.includes('professional') || lower.includes('development') || lower.includes('certification')) return this.recommendations[0];
-    return null;
+    const catalog = [
+      { name: 'Salary Advance', keys: ['salary', 'advance'] },
+      { name: 'SME Working Capital', keys: ['working capital', 'sme', 'business'] },
+      { name: 'School Fees', keys: ['school', 'fees', 'college', 'student'] },
+      { name: 'Device Finance', keys: ['device', 'laptop', 'phone'] },
+      { name: 'Asset Finance', keys: ['asset', 'vehicle', 'equipment'] },
+      { name: 'Personal Loan', keys: ['personal'] }
+    ];
+    const chosen = catalog.find(item =>
+      item.keys.some(key => lower.includes(key)) && !this.productRejected(lower, item.keys)
+    );
+    return chosen ? this.bookLoans.find(loan => loan.name === chosen.name) || null : null;
+  }
+
+  private productRejected(lower: string, keys: string[]): boolean {
+    return keys.some(key => {
+      const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return new RegExp(`\\b(not|no|don't|dont|do not|without)\\b(?:\\W+\\w+){0,4}\\W+${escaped}\\b`).test(lower);
+    });
   }
 
   private loanMenu(): string {
-    const lines = this.loanChoices
-      .map(loan => `• <b>${loan.name}</b> — ${this.money(loan.amount)}, ${loan.term} months`)
-      .join('<br>');
-    return `The recommendation is the <b>${this.recommendations[0].name}</b>, but you can apply for a different one. Name any of these:<br><br>${lines}<br><br>For example, say <b>personal loan</b>.`;
+    this.quickReplies = this.bookLoans.map(loan => loan.name);
+    return `What type of loan would you like?`;
   }
 
   private smallTalk(lower: string): string | null {
     if (/^(hi|hello|hey|hiya|good morning|good afternoon|good evening)\b/.test(lower)) {
-      return `Hello Felix. Good to see you. I can recommend a loan, start a different one, or check your limit. What would you like to do?`;
+      return `Hello Felix. How may I help you?`;
     }
     if (lower.includes('how are you') || lower.includes("how's it going") || lower.includes('how are u')) {
-      return `I'm doing well, thank you. Ready when you are to look at a loan.`;
+      return `I am available. How may I help you?`;
     }
     if (lower.includes('thank')) {
-      return `You're welcome. I can still recommend a loan, start a different one, or check the limit.`;
+      return `You are welcome.`;
     }
     if (lower.includes('who are you') || lower.includes('your name') || lower.includes('what are you')) {
-      return `I'm Leo, the loan assistant in this demo. I look at your last facility and suggest what fits next, and I can also start a loan you name yourself.`;
+      return `I am Leo, the loan assistant for this account.`;
     }
     if (lower.includes('what can you') || lower === 'help' || lower.includes('help me')) {
-      return `Four things, all hardcoded for this demo: recommend a loan, explain why, apply for that loan or a different one, and check your limit. You can also say hello.`;
+      return `I can check your limit, recommend a loan, or prepare an application.`;
     }
     if (/\b(bye|goodbye|see you)\b/.test(lower)) {
-      return `Goodbye, Felix. Your limit will still be here when you come back.`;
+      return `Goodbye, Felix.`;
     }
-    if (lower.includes('joke')) {
-      return `A credit score walks into a bank and asks for a loan. The bank says, "Only if you can explain yourself." That is the part I am here for.`;
-    }
-    if (lower.includes('weather')) {
-      return `I don't have the weather. I do have your indicative limit of <b>${this.money(this.assessment.maxLimit)}</b>, if that is more useful.`;
+    if (lower.includes('joke') || lower.includes('weather')) {
+      return `I can help with your limit, a recommendation, or an application.`;
     }
     if (lower.includes('my name') || lower.includes('who am i')) {
-      return `You're <b>Felix Sayia</b>, customer <b>${this.customer.id}</b>.`;
+      return `This account is held by <b>${this.customer.name}</b>, <b>${this.customer.id}</b>.`;
     }
     if (lower.includes('how old') || lower.includes('where are you')) {
-      return `I'm a demo assistant on this phone, so I don't have an age or an office. I can still help you apply.`;
+      return `I am the loan assistant for this account.`;
     }
     return null;
   }
 
   private recommendReply(): string {
+    this.quickReplies = this.recommendations.map(loan => loan.name);
     const lines = this.recommendations
-      .map(rec => `• <b>${rec.name} — ${this.money(rec.amount)}, ${rec.term} months.</b> ${rec.why}`)
+      .map(rec => `• <b>${rec.name}</b> — ${this.money(rec.amount)} over ${this.termLabel(rec.term)}. ${rec.points[0]}.`)
       .join('<br>');
-    return `Your last facility was a <b>${this.previousLoan.product}</b> of <b>${this.money(this.previousLoan.amount)}</b>, ${this.previousLoan.status.toLowerCase()} in ${this.previousLoan.closed}. These are the loans matched to that history:<br><br>${lines}<br><br>Say <b>apply</b> and I will start the ${this.activeRecommendation.name}.`;
+    return `Your last facility was <b>${this.previousLoan.product}</b> of <b>${this.money(this.previousLoan.amount)}</b>, ${this.previousLoan.status.toLowerCase()} in ${this.previousLoan.closed}.<br><br>${lines}`;
   }
 
   private reasonsReply(): string {
     const lines = this.limitReasons
-      .map(reason => `• <b>${reason.title} — ${reason.value}.</b> ${reason.detail}`)
+      .map(reason => `• <b>${reason.title}: ${reason.value}.</b> ${reason.detail}`)
       .join('<br>');
-    return `Your indicative limit is <b>${this.money(this.assessment.maxLimit)}</b>. These are the five reasons behind it:<br><br>${lines}<br><br>I can also show you three ways to increase this limit.`;
+    return `Your indicative limit is <b>${this.money(this.assessment.maxLimit)}</b>.<br><br>${lines}`;
   }
 
   private boostReply(): string {
     const lines = this.limitBoosts
       .map(boost => `• <b>${boost.title}.</b> ${boost.detail}`)
       .join('<br>');
-    return `Three ways to increase this limit:<br><br>${lines}<br><br>On the Mobile Banking tab, open Loans and use <b>How can I increase my limit?</b> to try a higher income or a lower debt and see the new ceiling.`;
+    return `The limit can move in three ways:<br><br>${lines}`;
   }
 
   private addBotMessage(text: string) {
@@ -529,5 +603,9 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
 
   private now() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
   private scrollToChatBottom() { setTimeout(() => { const el = document.getElementById('chat-scroll'); if (el) el.scrollTop = el.scrollHeight; }, 50); }
+  private termLabel(months: number): string {
+    return `${months} ${months === 1 ? 'month' : 'months'}`;
+  }
+
   money(val: number) { return new Intl.NumberFormat('en-KE', { style: 'currency', currency: 'KES', maximumFractionDigits: 0 }).format(val || 0); }
 }
