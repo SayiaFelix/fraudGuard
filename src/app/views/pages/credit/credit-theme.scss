@@ -388,24 +388,56 @@ body.uba-credit .sidebar .eclectics-logo {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 14px 16px;
-  border-bottom: 1px solid #E6ECF4;
+  padding: 14px 14px 12px;
+  background: #142d4e;
+  border-bottom: 3px solid #c8102e;
 }
-
 .ai-head-actions {
   display: flex;
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
 }
-.ai-panel header strong { color: #122033; display: block; }
+.ai-panel header strong {
+  color: #fff;
+  display: block;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
 .ai-panel header small {
   display: block;
-  margin-top: 2px;
-  color: #067647;
+  margin-top: 3px;
+  color: #f6c9d1;
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ai-panel header .ai-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  cursor: pointer;
+}
+.ai-panel header .ai-icon-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ai-panel header .ai-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.24);
+  color: #fff;
+  transform: none;
 }
 .ai-panel header button, .ai-suggest button, .ai-panel form button, .ai-tour button, .ai-download {
   border: 0;
@@ -448,6 +480,10 @@ body.uba-credit .sidebar .eclectics-logo {
   font-size: 13px;
   line-height: 1.45;
   white-space: pre-wrap;
+}
+
+.ai-msg p strong {
+  font-weight: 800;
 }
 
 .ai-msg.you {
@@ -505,6 +541,12 @@ body.uba-credit .sidebar .eclectics-logo {
   flex-wrap: wrap;
   gap: 6px;
   padding: 0 16px 10px;
+}
+.ai-suggest button {
+  font-weight: 800;
+  color: #142d4e;
+  background: #fff7f8;
+  border: 1px solid #f3d0d7;
 }
 
 .ai-panel form {

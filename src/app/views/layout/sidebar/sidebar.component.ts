@@ -231,6 +231,14 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.aiOpen = false;
   }
 
+  aiHtml(text: string): string {
+    const escaped = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    return escaped.replace(/^You are on .+$/m, line => `<strong>${line}</strong>`);
+  }
+
   askAi(question: string): void {
     const text = question.trim();
     if (!text || this.aiReplying) return;
