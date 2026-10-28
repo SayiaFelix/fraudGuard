@@ -53,7 +53,7 @@ try {
   const original = new CreditDataService();
   const auth = { getCurrentUser: () => ({ username: 'officer@example.test' }) };
   const workflow = new LoanWorkflowService(original, auth);
-  assert.equal(workflow.customers.length, 8); assert.equal(workflow.lookup('UNKNOWN'), null);
+  assert.equal(workflow.customers.length, 15); assert.equal(workflow.lookup('UNKNOWN'), null);
   assert.equal(workflow.lookup('ke-3391208').profile.applicant, 'Joseph Mwangi');
   const draft = workflow.customers[0].profile;
   const clearFacts = { ...workflow.customers[0].facts };
@@ -206,7 +206,7 @@ try {
   for (const invalid of [{ amount: 0 }, { income: 0 }, { amount: NaN }, { obligations: -1 }, { tenorMonths: 1.5 }, { product: 'Unknown' }, { nationalId: 'UNKNOWN' }]) {
     await assert.rejects(workflow.submit({ ...draft, ...invalid }, { submissionKey: 'invalid' }));
   }
-  const expectedBands = ['Low', 'Low', 'Low', 'Medium', 'Medium', 'Medium', 'High', 'High']; const bandFixtures = [];
+  const expectedBands = ['Low', 'Low', 'Low', 'Medium', 'Medium', 'Medium', 'High', 'High', 'Low', 'Low', 'Medium', 'Medium', 'High', 'High', 'High']; const bandFixtures = [];
   for (const [i, customer] of workflow.customers.entries()) {
     const saved = await workflow.submit(customer.profile, { submissionKey: customer.id });
     const assessment = latestAssessment(saved); const reference = original.scoreDraft(customer.profile);
@@ -214,12 +214,15 @@ try {
     assert.equal(assessment.recommendation, reference.decision); assert.equal(assessment.affordability.dti, reference.dti);
     assert.equal(assessment.baseScore + assessment.contributions.reduce((sum, x) => sum + x.impact, 0), assessment.score);
     assert.equal(saved.status, 'Awaiting decision');
-    assert.equal(customer.profile.country, 'Kenya'); assert.equal(assessment.ai.risk, expectedBands[i]); assert(assessment.limit.maximumAmount >= 10000);
+    assert.equal(customer.profile.country, 'Kenya'); assert.equal(assessment.ai.risk, expectedBands[i], customer.profile.applicant); assert(assessment.limit.maximumAmount >= 10000);
     assert(assessment.limit.offer && assessment.limit.recommendedAmount > 0); assert(validLoanLimit(assessment.limit, assessment.input, assessment.policy));
     if (assessment.ai.risk !== 'Low') { assert.equal(assessment.limit.outcome, 'Refer for review'); assert.equal(workflow.approvalNeedsOverride(assessment, 'recommended'), true); }
     bandFixtures.push({ name: customer.profile.applicant, id: customer.profile.nationalId, risk: assessment.ai.risk, likelihood: assessment.ai.probability, requested: customer.profile.amount, limit: assessment.limit.maximumAmount, proposed: assessment.limit.recommendedAmount, outcome: assessment.limit.outcome });
   }
   fs.writeFileSync(path.join(os.tmpdir(), 'loan-kenya-band-fixtures.json'), JSON.stringify(bandFixtures, null, 2));
+  const felix = bandFixtures.find(customer => customer.name === 'Felix Sayia');
+  assert(felix); assert.equal(felix.risk, 'Low'); assert.equal(felix.requested, 400000);
+  assert.equal(felix.limit, 436000); assert.equal(felix.proposed, 400000);
   const highCase = workflow.applications.find(x => latestAssessment(x).ai.risk === 'High');
   assert.throws(() => workflow.decide(highCase.id, 'Approve', 'Reviewed the smaller high risk proposal.', 1, false, 'recommended'), /Acknowledge/);
   const highApproved = workflow.decide(highCase.id, 'Approve', 'Verified repayment evidence and authorised the smaller high risk exception.', 1, true, 'recommended');
@@ -392,12 +395,12 @@ try {
   assert.equal(localStorage.getItem(LOAN_STORAGE_KEY), '{bad json'); localStorage.setItem(LOAN_STORAGE_KEY, snapshot);
   for (const item of [apps, queue, detail, component, workflow, storageReload, legacyStore, invalidModelStore, earlierAiStore, invalidLimitStore, invalidApprovalStore, invalidEligibilityStore, earlierLimitsStore, corrupt]) { item.ngOnDestroy(); }
   console.log('PASS: seven eligibility checks, exact boundary/unknown/zero handling, downstream limits and approvals, verification reassessment and historical context.');
-  console.log('PASS: eight Kenyan profiles across all risk bands, positive band-adjusted limits, reviewed High-risk approval, integration controls/availability/activity and ranked graph shares.');
+  console.log('PASS: fifteen Kenyan profiles across all risk bands, positive band-adjusted limits, reviewed High-risk approval, integration controls/availability/activity and ranked graph shares.');
   console.log('PASS: policy context alongside unchanged model sensitivities, actionable submission feedback, all officer actions, safe storage retry and override validation.');
   console.log('PASS: full/reduced limits, independent maximum reconciliation, identity invariance, decline/referral, exact approved amount and legacy-state compatibility.');
   console.log('PASS: deterministic three-model simulation, weighted reconciliation, identity-invariant financial inputs and directional sensitivities.');
   console.log('PASS: scenario isolation, policy-constrained advice, old assessment compatibility and invalid ensemble-state rejection.');
-  console.log('PASS: original scorecard reuse, eight-customer lookup, unknown IDs and all draft validation guards.');
+  console.log('PASS: original scorecard reuse, fifteen-customer lookup, unknown IDs and all draft validation guards.');
   console.log('PASS: individual and CSV/XLSX/XLS bulk submission, duplicate protection, partial invalid rows and retry.');
   console.log('PASS: pending review, approve, decline, information request, policy override and final-status guards.');
   console.log('PASS: reassessment version history, saved-state restoration, quota failure and corrupt-state preservation.');

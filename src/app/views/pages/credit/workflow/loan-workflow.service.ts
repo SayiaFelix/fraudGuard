@@ -261,7 +261,7 @@ export class LoanWorkflowService implements OnDestroy {
       recommendation: preview.decision, reasons: copy(preview.reasons), ai: simulateLoanAi(input, policy, preview.decision),
       limit, limitations: [
         'The ensemble represents logistic, boosted-tree and forest-style model outputs using deterministic surrogates. No trained ML estimator or generative AI API is executed.',
-        'New intake uses eight fictional Kenyan financial profiles and demonstration identity, KYC, account/employment tenure, CRB, loan/lender, internal-default, age and balance facts. Older saved profiles retain their original snapshots. These facts are not live verification results. Records and decisions are stored in this browser.',
+        'New intake uses ' + this.customers.length + ' fictional Kenyan financial profiles and demonstration identity, KYC, account/employment tenure, CRB, loan/lender, internal-default, age and balance facts. Older saved profiles retain their original snapshots. These facts are not live verification results. Records and decisions are stored in this browser.',
         'The seven eligibility checks are a separate deterministic policy gate. Demo defaults are 6 account months, at most 4 active loans and 3 active lenders, and 6 employment/business months; DTI uses the saved configurable credit policy. Missing facts require review. Age and average balance provide context only and do not enter the six-signal model simulation.',
         'Affordability uses principal / months and reported obligations. Interest, fees and separately itemised living expenses are unavailable.',
         'Risk thresholds (700 / 580) come from the original scorecard. They are separate from the configurable lending cutoffs.',
