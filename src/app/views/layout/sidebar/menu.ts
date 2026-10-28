@@ -25,6 +25,7 @@ export const MENU: MenuItem[] = [
 
   { isTitle: true, label: 'Workspace' },
   { label: 'Ingestion', icon: 'plus-circle', link: '/applications/new', exact: true },
+  { label: 'Channel Simulator', icon: 'smartphone', link: '/credit-scoring', exact: true },
   {
     label: 'Applications',
     icon: 'file-text',
@@ -35,7 +36,6 @@ export const MENU: MenuItem[] = [
   { label: 'Decision Queue', icon: 'inbox', link: '/decision-queue', exact: true, badge: { text: 8, variant: 'uba' } },
 
   { isTitle: true, label: 'Risk & Decisioning' },
-  { label: 'Channel Simulator', icon: 'smartphone', link: '/credit-scoring', exact: true },
   { label: 'Decision Rules', icon: 'sliders', link: '/decision-rules', exact: true },
   { label: 'Policy Simulator', icon: 'shuffle', link: '/policy-simulator', exact: true },
 

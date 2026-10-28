@@ -4,6 +4,7 @@ import { CreditDataService } from '../credit-data.service';
 
 type Channel = 'mobile' | 'chatbot';
 type JourneyStep = 'welcome' | 'limit-check' | 'explain' | 'apply' | 'success';
+type PhoneTab = 'home' | 'loans' | 'cards' | 'profile';
 
 interface ChatMessage {
   sender: 'bot' | 'customer';
@@ -26,6 +27,7 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
   };
 
   channel: Channel = 'mobile';
+  phoneTab: PhoneTab = 'home';
   journeyStep: JourneyStep = 'welcome'; 
   isProcessing = false;
 
@@ -38,12 +40,15 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
   whatIfDebt = 20000;
 
   applicationRef = '';
+  phoneTime = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  phoneScale = 1;
 
   chatInput = '';
   chatMessages: ChatMessage[] = [];
   isBotTyping = false;
 
   private sub = new Subscription();
+  private clock?: ReturnType<typeof setInterval>;
 
   constructor(public credit: CreditDataService, private cdr: ChangeDetectorRef) {}
 
@@ -51,9 +56,23 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     this.whatIfIncome = this.customer.income;
     this.whatIfDebt = this.customer.existingDebt;
     this.resetChat();
+    this.clock = setInterval(() => {
+      this.phoneTime = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    }, 1000);
+    this.fitPhone();
+    window.addEventListener('resize', this.fitPhone);
   }
 
-  ngOnDestroy(): void { this.sub.unsubscribe(); }
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
+    if (this.clock) clearInterval(this.clock);
+    window.removeEventListener('resize', this.fitPhone);
+  }
+
+  private fitPhone = () => {
+    const available = window.innerHeight - 348;
+    this.phoneScale = Math.min(1, Math.max(0.68, available / 820));
+  };
 
   calculateAssessment(income = this.customer.income, debt = this.customer.existingDebt) {
     let score = 500;
@@ -115,7 +134,72 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     return this.calculateAssessment(this.whatIfIncome, this.whatIfDebt);
   }
 
+  get limitReasons(): { title: string; value: string; detail: string }[] {
+    const a = this.assessment;
+    const income = this.money(this.customer.income);
+    const debt = this.money(this.customer.existingDebt);
+    const dti = a.dti.toFixed(1);
+    return [
+      {
+        title: 'Credit score',
+        value: `${a.score} / 850`,
+        detail: a.score >= 650
+          ? `A score of ${a.score} is in the ${a.riskCategory.toLowerCase()} risk band and clears the 650 line, so the offer is not held back by score.`
+          : `A score of ${a.score} is under the 650 line, so the limit stays lower until the score improves.`
+      },
+      {
+        title: 'Verified monthly income',
+        value: income,
+        detail: `The limit is built from ${income} of verified income. Only income the bank can confirm is used to size a comfortable repayment.`
+      },
+      {
+        title: 'Existing monthly debt',
+        value: debt,
+        detail: `${debt} is already committed each month. That amount is reserved before any new loan repayment is added.`
+      },
+      {
+        title: 'Debt-to-income ratio',
+        value: `${dti}%`,
+        detail: a.dti <= 40
+          ? `At ${dti}%, total obligations stay inside the 40% ceiling. That is the rule that lets this limit through.`
+          : `At ${dti}%, total obligations are above the 40% ceiling, so the limit is cut until the ratio comes back down.`
+      },
+      {
+        title: 'Repayment history',
+        value: this.customer.hasDefaulted ? 'Prior default' : 'No defaults',
+        detail: this.customer.hasDefaulted
+          ? 'A previous default is on record, which reduces how far the limit can go until a clean period is established.'
+          : 'There is no default on record. A clean history is one of the reasons this limit is available.'
+      }
+    ];
+  }
+
+  get limitBoosts(): { title: string; detail: string }[] {
+    return [
+      {
+        title: 'Increase verified income',
+        detail: 'A higher confirmed income lifts the 40% repayment budget. The same rule then supports a larger principal.'
+      },
+      {
+        title: 'Reduce existing monthly debt',
+        detail: 'Every shilling of debt you clear is freed for a new repayment, which raises the ceiling before the 40% cap is reached.'
+      },
+      {
+        title: 'Keep a clean repayment record',
+        detail: 'Paying this loan and any existing facilities on time is what keeps the score in the band that can unlock a higher limit later.'
+      }
+    ];
+  }
+
+  openPhoneTab(tab: PhoneTab): void {
+    this.phoneTab = tab;
+    if (tab === 'loans' && this.journeyStep === 'welcome' && !this.isProcessing) {
+      this.startJourney();
+    }
+  }
+
   startJourney() {
+    this.phoneTab = 'loans';
     this.isProcessing = true;
     setTimeout(() => {
       this.isProcessing = false;
@@ -142,7 +226,8 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     this.showWhatIf = false;
     this.whatIfIncome = this.customer.income;
     this.whatIfDebt = this.customer.existingDebt;
-    this.applicationRef = ''; 
+    this.applicationRef = '';
+    this.phoneTab = 'home';
     this.resetChat();
   }
 
@@ -185,34 +270,19 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     const a = this.assessment;
     let reply = '';
 
-    if (lower === 'yes' || lower === 'yeah' || lower === 'sure') {
-      reply = `Great! To increase your limit, you could:<br><br>` +
-              `• Reduce your existing monthly debt (currently <b>${this.money(this.customer.existingDebt)}</b>).<br>` +
-              `• Increase your verified income.<br>` +
-              `• Maintain a clean repayment history.<br><br>` +
-              `You can also try our <b>What-If Simulator</b> on the Mobile App to see exactly how paying off your car loan might increase your limit!`;
+    if (lower === 'yes' || lower === 'yeah' || lower === 'sure' || lower.includes('increase') || lower.includes('more') || lower.includes('qualify')) {
+      reply = this.boostReply();
     }
     else if (lower === 'no' || lower === 'nope') {
       reply = `Understood. If you change your mind, you can always ask me to explain your limit or help you apply for a loan.`;
     }
+    else if (lower.includes('why') || lower.includes('explain')) {
+      reply = this.reasonsReply();
+    }
     else if (lower.includes('limit') || lower.includes('how much')) {
       reply = `Your indicative maximum limit is <b>${this.money(a.maxLimit)}</b>.<br><br>` +
-              `This is calculated based on your income of <b>${this.money(this.customer.income)}</b> and existing monthly obligations of <b>${this.money(this.customer.existingDebt)}</b>.`;
-    } 
-    else if (lower.includes('why') || lower.includes('explain')) {
-      const passedChecks = a.policyChecks.filter(c => c.passed).length;
-      const failedChecks = a.policyChecks.filter(c => !c.passed).map(c => c.label).join(', ');
-      
-      reply = `Here is the detailed breakdown of your assessment, Felix:<br><br>` +
-              `📊 <b>Financial Health</b><br>` +
-              `• Credit Score: <b>${a.score}</b> (${a.riskCategory} Risk)<br>` +
-              `• Debt-to-Income (DTI): <b>${a.dti.toFixed(1)}%</b> (Max allowed: 40%)<br>` +
-              `• Passed <b>${passedChecks} of 3</b> automated policy checks.<br><br>` +
-              `🛡️ <b>Policy Engine</b><br>` +
-              (failedChecks ? `• The limiting factor was: <b>${failedChecks}</b>.<br><br>` : `• All policy thresholds were successfully met.<br><br>`) +
-              `🤖 <b>AI Next Action</b><br>` +
-              `• <b>${a.nextAction}</b><br><br>` +
-              `Would you like to explore how to increase this limit?`;
+              `It comes from five checks: your score of <b>${a.score}</b>, verified income of <b>${this.money(this.customer.income)}</b>, existing debt of <b>${this.money(this.customer.existingDebt)}</b>, a debt-to-income ratio of <b>${a.dti.toFixed(1)}%</b>, and ${this.customer.hasDefaulted ? 'a prior default on record' : 'a clean repayment history'}.<br><br>` +
+              `Ask me <b>why this limit</b> for the full explanation, or <b>how to increase it</b> for three ways to qualify for more.`;
     }
     else if (lower.includes('apply')) {
       if (this.applicationRef) {
@@ -253,6 +323,20 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     }
 
     this.addBotMessage(reply);
+  }
+
+  private reasonsReply(): string {
+    const lines = this.limitReasons
+      .map(reason => `• <b>${reason.title} — ${reason.value}.</b> ${reason.detail}`)
+      .join('<br>');
+    return `Your indicative limit is <b>${this.money(this.assessment.maxLimit)}</b>. These are the five reasons behind it:<br><br>${lines}<br><br>I can also show you three ways to increase this limit.`;
+  }
+
+  private boostReply(): string {
+    const lines = this.limitBoosts
+      .map(boost => `• <b>${boost.title}.</b> ${boost.detail}`)
+      .join('<br>');
+    return `Three ways to increase this limit:<br><br>${lines}<br><br>On the Mobile Banking tab, open Loans and use <b>How can I increase my limit?</b> to try a higher income or a lower debt and see the new ceiling.`;
   }
 
   private addBotMessage(text: string) {

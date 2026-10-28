@@ -127,13 +127,18 @@
       <small>{{ aiContext.label }}</small>
     </div>
     <div class="ai-head-actions">
-      <button type="button" (click)="refreshAi()" title="Start this page's chat again">Refresh</button>
-      <button type="button" (click)="closeAi()">Close</button>
+      <button type="button" class="ai-icon-btn" (click)="refreshAi()" title="Start this page's chat again" aria-label="Refresh">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.4-6.1"/><path d="M21 3v6h-6"/></svg>
+      </button>
+      <button type="button" class="ai-icon-btn" (click)="closeAi()" title="Close" aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
     </div>
   </header>
   <div class="ai-log" #aiLog>
     <div *ngFor="let message of aiMessages" class="ai-msg" [class.you]="message.from === 'you'">
-      <p>{{ message.text }}</p>
+      <p *ngIf="message.from === 'you'">{{ message.text }}</p>
+      <p *ngIf="message.from === 'ai'" [innerHTML]="aiHtml(message.text)"></p>
       <button *ngIf="message.download" type="button" class="ai-download" (click)="downloadNote(message)">Download handover note</button>
     </div>
     <p class="ai-pending" *ngIf="aiReplying">Reading this page…</p>

@@ -50,20 +50,28 @@
     <!-- LEFT: CHANNEL WORKSPACE                    -->
     <!-- ========================================== -->
     <main class="channel-workspace">
-      
-      <!-- ========================================== -->
-      <!-- MOBILE APP FLOW                            -->
-      <!-- ========================================== -->
-      <section *ngIf="channel === 'mobile'" class="phone-frame">
-        <div class="phone-top">
-          <span>UBA Mobile</span>
-          <span class="secure">● Secure</span>
-        </div>
+      <div class="device-stage" [style.height.px]="820 * phoneScale">
+        <div class="device" aria-label="Customer phone" [style.transform]="'scale(' + phoneScale + ')'">
+          <span class="side-btn silent"></span>
+          <span class="side-btn vol-up"></span>
+          <span class="side-btn vol-down"></span>
+          <span class="side-btn power"></span>
 
+          <div class="device-screen">
+            <div class="status-bar">
+              <span class="status-time">{{ phoneTime }}</span>
+              <span class="dynamic-island"></span>
+              <span class="status-icons" aria-hidden="true">
+                <svg viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="0.6"/><rect x="5" y="4.5" width="3" height="7.5" rx="0.6"/><rect x="10" y="2" width="3" height="10" rx="0.6"/><rect x="15" y="0" width="3" height="12" rx="0.6"/></svg>
+                <svg viewBox="0 0 16 12"><path d="M8 10.2a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6zM3.2 7.4a6.8 6.8 0 0 1 9.6 0M1 5a9.8 9.8 0 0 1 14 0" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                <svg viewBox="0 0 25 12"><rect x="0.6" y="0.6" width="20" height="10.8" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="2" y="2" width="14" height="8" rx="1"/><path d="M22.2 4.2h1.2c.5 0 .8.3.8.8v2c0 .5-.3.8-.8.8h-1.2"/></svg>
+              </span>
+            </div>
+
+      <section *ngIf="channel === 'mobile'" class="phone-app">
         <div class="mobile-content">
-          
-          <!-- STEP 1: WELCOME -->
-          <div *ngIf="journeyStep === 'welcome'" class="step-view">
+
+          <div *ngIf="phoneTab === 'home'" class="step-view">
             <div class="greeting">
               <h2>Hello, Felix 👋</h2>
               <p>Welcome back. Need a little extra cash?</p>
@@ -77,9 +85,17 @@
             </div>
           </div>
 
+          <ng-container *ngIf="phoneTab === 'loans'">
+          <div *ngIf="isProcessing && journeyStep === 'welcome'" class="step-view">
+            <div class="greeting">
+              <h2>Loans</h2>
+              <p>Checking your limit...</p>
+            </div>
+          </div>
+
           <!-- STEP 2: LIMIT CHECK & EXPLAIN -->
           <div *ngIf="journeyStep === 'limit-check' || journeyStep === 'explain'" class="step-view">
-            <button class="back-btn" (click)="journeyStep = 'welcome'">← Back</button>
+            <button class="back-btn" (click)="openPhoneTab('home')">← Home</button>
             
             <!-- SEMI-CIRCLE CREDIT SCORE GAUGE -->
             <div class="score-gauge-card">
@@ -113,44 +129,32 @@
             <!-- DETAILED EXPLAINABILITY -->
             <div class="explain-card">
               <h3>Why this limit?</h3>
-              <p class="sub-text">We analyze your income and debt to ensure you can comfortably repay the loan.</p>
-              
-              <!-- Income Bar -->
-              <div class="metric-bar">
-                <div class="metric-header">
-                  <span>Verified Monthly Income</span>
-                  <strong>{{ money(customer.income) }}</strong>
-                </div>
-                <div class="bar-track"><div class="bar-fill income" style="width: 100%;"></div></div>
-                <small>Your income supports your application.</small>
-              </div>
+              <p class="sub-text">Five checks set this offer. Each one explains how far the limit can go.</p>
 
-              <!-- DTI Bar -->
-              <div class="metric-bar">
+              <div class="reason" *ngFor="let reason of limitReasons">
                 <div class="metric-header">
-                  <span>Debt-to-Income Ratio (DTI)</span>
-                  <strong [style.color]="assessment.dti > 40 ? '#d97706' : '#10b981'">{{ assessment.dti | number:'1.1-1' }}%</strong>
+                  <span>{{ reason.title }}</span>
+                  <strong>{{ reason.value }}</strong>
                 </div>
-                <div class="bar-track">
-                  <div class="bar-fill" [ngClass]="assessment.dti > 40 ? 'warning' : 'good'" [style.width.%]="assessment.dti"></div>
-                </div>
-                <small *ngIf="assessment.dti <= 40">Your debt is within the healthy 40% limit.</small>
-                <small *ngIf="assessment.dti > 40" style="color: #d97706;">Your DTI is slightly high. We require it to be under 40%.</small>
+                <p>{{ reason.detail }}</p>
               </div>
 
               <button class="secondary-btn" (click)="showWhatIf = !showWhatIf">
-                {{ showWhatIf ? 'Close Simulator' : 'How can I increase my limit?' }}
+                {{ showWhatIf ? 'Close' : 'How can I increase my limit?' }}
               </button>
 
-              <!-- WHAT-IF SIMULATOR -->
               <div class="what-if" *ngIf="showWhatIf">
-                <p>Adjust your income or debt to see the impact instantly.</p>
+                <div class="boost" *ngFor="let boost of limitBoosts">
+                  <strong>{{ boost.title }}</strong>
+                  <p>{{ boost.detail }}</p>
+                </div>
+                <p>Try a higher income or a lower debt and see the new ceiling.</p>
                 <label>Monthly Income: {{ money(whatIfIncome) }}</label>
                 <input type="range" min="50000" max="300000" step="10000" [(ngModel)]="whatIfIncome">
-                
+
                 <label>Existing Debt: {{ money(whatIfDebt) }}</label>
                 <input type="range" min="0" max="100000" step="5000" [(ngModel)]="whatIfDebt">
-                
+
                 <div class="what-if-result">
                   New Max Limit: <b>{{ money(whatIfAssessment.maxLimit) }}</b>
                 </div>
@@ -203,8 +207,43 @@
             
             <button class="secondary-btn full" (click)="resetJourney()">Start New Application</button>
           </div>
+          </ng-container>
+
+          <div *ngIf="phoneTab === 'cards'" class="step-view">
+            <div class="tab-screen">
+              <h3>Cards</h3>
+              <p>No cards are linked to this demo profile. Open Loans to review the personal loan limit and apply.</p>
+            </div>
+          </div>
+
+          <div *ngIf="phoneTab === 'profile'" class="step-view">
+            <div class="tab-screen">
+              <h3>{{ customer.name }}</h3>
+              <p>{{ customer.id }}</p>
+              <p>Verified income {{ money(customer.income) }} · Existing debt {{ money(customer.existingDebt) }}</p>
+            </div>
+          </div>
 
         </div>
+
+        <nav class="phone-tabs">
+          <button type="button" [class.on]="phoneTab === 'home'" (click)="openPhoneTab('home')">
+            <svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>
+            <span>Home</span>
+          </button>
+          <button type="button" [class.on]="phoneTab === 'loans'" (click)="openPhoneTab('loans')">
+            <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>
+            <span>Loans</span>
+          </button>
+          <button type="button" [class.on]="phoneTab === 'cards'" (click)="openPhoneTab('cards')">
+            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/></svg>
+            <span>Cards</span>
+          </button>
+          <button type="button" [class.on]="phoneTab === 'profile'" (click)="openPhoneTab('profile')">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M5 19c1.2-3 3.4-4.5 7-4.5S17.8 16 19 19"/></svg>
+            <span>Profile</span>
+          </button>
+        </nav>
       </section>
 
       <!-- ========================================== -->
@@ -246,7 +285,7 @@
 
         <div class="quick-replies">
           <button (click)="sendQuickReply('Why is my limit this amount?')">Why this limit?</button>
-          <button (click)="sendQuickReply('How can I get more?')">Get more credit</button>
+          <button (click)="sendQuickReply('How can I increase my limit?')">Increase my limit</button>
           <button (click)="sendQuickReply('Apply for a loan')">Apply now</button>
           <!-- Added Confirm button for the demo flow -->
           <button class="confirm-btn" (click)="sendQuickReply('Confirm')" *ngIf="!applicationRef">Confirm Application</button>
@@ -259,6 +298,10 @@
         </form>
       </section>
 
+            <div class="home-indicator" aria-hidden="true"><i></i></div>
+          </div>
+        </div>
+      </div>
     </main>
 
     <!-- ========================================== -->

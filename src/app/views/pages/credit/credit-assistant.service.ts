@@ -228,7 +228,7 @@ export class CreditAssistantService {
   greeting(url: string): string {
     const page = this.context(url);
     return [
-      `You are on ${page.label}.`,
+      `You are on ${page.label} page.`,
       '',
       'I can answer a policy question, read the portfolio in plain language, explain the model in operational terms, or rebuild one handover note for an officer to edit.',
       '',
