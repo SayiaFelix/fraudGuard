@@ -9,6 +9,8 @@ import { recommendLoanLimit, validLoanLimit } from './loan-limit.engine';
 import { combineLoanDecisions, customerFacts, DEMO_LOAN_CUSTOMER_FACTS, evaluateLoanEligibility, validLoanEligibility } from './loan-eligibility.engine';
 import { KENYA_LOAN_CUSTOMERS } from './loan-customers.data';
 import { LoanIntegrationService } from './loan-integration.service';
+import { evaluateAutomaticApproval, validAutomaticApproval, SMALL_LOAN_AUTO_LIMIT } from './loan-auto-approval.engine';
+import { LoanProductSuggestion, recommendLoanProducts } from './loan-product-recommender';
 
 function copy<T>(value: T): T { return JSON.parse(JSON.stringify(value)); }
 export function loanId(prefix: string): string {
@@ -21,7 +23,7 @@ export function validateLoanDraft(input: ApplicationDraft): void {
   }
   if (!PRODUCTS.includes(input.product) || !COUNTRIES.includes(input.country)) { throw new Error('Choose a supported product and country.'); }
   if (!['Salaried', 'Business owner', 'Self employed'].includes(input.employment) || !['Clean', 'Thin file', 'Adverse'].includes(input.bureau)) { throw new Error('Confirm valid employment and bureau information.'); }
-  if (!Number.isFinite(input.amount) || input.amount < 10000 || !Number.isInteger(input.tenorMonths) || input.tenorMonths < 1 || input.tenorMonths > 60) { throw new Error('Enter an amount of at least KSh 10,000 and a tenor of 1–60 whole months.'); }
+  if (!Number.isFinite(input.amount) || input.amount < 1 || !Number.isInteger(input.tenorMonths) || input.tenorMonths < 1 || input.tenorMonths > 60) { throw new Error('Enter an amount of at least KSh 1 and a tenor of 1–60 whole months.'); }
   if (!Number.isFinite(input.income) || input.income <= 0 || !Number.isFinite(input.obligations) || input.obligations < 0) { throw new Error('Income must be positive and obligations cannot be negative.'); }
 }
 
@@ -29,6 +31,7 @@ export function validateLoanDraft(input: ApplicationDraft): void {
 export class LoanWorkflowService implements OnDestroy {
   readonly products = PRODUCTS;
   readonly statuses = LOAN_STATUSES;
+  readonly automaticApprovalLimit = SMALL_LOAN_AUTO_LIMIT;
   readonly customers: LoanCustomer[] = copy(KENYA_LOAN_CUSTOMERS);
   // Older saved applications retain their original identity and remain readable.
   private readonly legacyCustomers: LoanCustomer[] = [0, 1, 2, 5, 11].map((index, position) => {
@@ -55,36 +58,42 @@ export class LoanWorkflowService implements OnDestroy {
   find(id: string): LoanRecord | undefined { const record = this.subject.value.find(x => x.id === id); return record ? copy(record) : undefined; }
   latest = latestAssessment;
   pending = isPending;
+  isAutoApproved(record: LoanRecord): boolean { return record.status === 'Approved' && record.approvalMode === 'Automatic'; }
   money(value: number): string { return this.credit.money(value); }
   // Format generated copy only; saved assessments and numerical model outputs stay unchanged.
   displayText(value: string): string { return value.replace(/\bsimulated\b[ \t]*/gi, '').replace(/\bensemble simulation\b/gi, 'ensemble'); }
   advice(assessment: LoanAssessment): CreditDecision { return combineLoanDecisions(combineLoanDecisions(assessment.ai?.advice || assessment.recommendation, assessment.eligibility?.decision || 'Approved'), assessment.integration?.decision || 'Approved'); }
   customerRisk(customer: LoanCustomer): string { return simulatedRisk(simulatedLoanProbability(customer.profile)); }
   bureauLabel(a: LoanAssessment): string { return a.eligibility?.customer.crbBlacklisted === true ? 'Blacklisted' : a.eligibility?.customer.crbDefaulter === true ? 'Defaulter listed' : a.input.bureau; }
-  recommendationLabel(a: LoanAssessment): string { return a.limit?.outcome || (this.advice(a) === 'Approved' ? 'Support approval' : this.advice(a) === 'Declined' ? 'Recommend decline' : 'Refer for review'); }
+  recommendationLabel(a: LoanAssessment): string { return a.automaticApproval?.eligible ? 'Approved automatically' : a.limit?.outcome || (this.advice(a) === 'Approved' ? 'Support approval' : this.advice(a) === 'Declined' ? 'Recommend decline' : 'Refer for review'); }
   limitSummary(a: LoanAssessment): string {
     const l = a.limit; if (!l) { return ''; }
+    if (a.automaticApproval?.eligible) { return this.money(a.input.amount) + ' is approved under the small-loan policy after the required checks passed. No officer decision is required.'; }
     return l.offer ? (l.outcome === 'Refer for review' ? 'A proposed amount of ' : 'An offer of ') + this.money(l.recommendedAmount) + ' is indicated against the ' + this.money(l.requestedAmount) + ' request. The risk-adjusted limit is ' + this.money(l.maximumAmount) + ' at ' + l.tenorMonths + ' months.' + (l.outcome === 'Refer for review' ? ' Officer review and an acknowledged exception are required for approval.' : '')
       : l.outcome === 'Decline' ? 'No eligible principal is recommended at this term. Review the decisive policy or affordability finding.' : (l.maximumAmount > 0 ? 'Indicative repayment capacity is ' + this.money(l.maximumAmount) + '. ' : '') + 'No supported offer is established until the outstanding findings are resolved.';
   }
-  facilityAdvice(a: LoanAssessment): CreditDecision { return a.limit ? a.limit.outcome.startsWith('Approve') ? 'Approved' : a.limit.outcome === 'Decline' ? 'Declined' : 'Refer' : this.advice(a); }
+  facilityAdvice(a: LoanAssessment): CreditDecision { return a.automaticApproval?.eligible ? 'Approved' : a.limit ? a.limit.outcome.startsWith('Approve') ? 'Approved' : a.limit.outcome === 'Decline' ? 'Declined' : 'Refer' : this.advice(a); }
   approvalNeedsOverride(a: LoanAssessment, basis: 'requested' | 'recommended'): boolean {
     if (basis === 'recommended') { return !a.limit?.offer || !a.limit.outcome.startsWith('Approve'); }
     return this.advice(a) !== 'Approved' || (!!a.limit && a.limit.outcome !== 'Approve full amount');
   }
   riskFor(assessment: LoanAssessment): string { return assessment.ai?.risk || assessment.risk; }
   previewScenario = previewLoanScenario;
+  productSuggestions(a: LoanAssessment): LoanProductSuggestion[] {
+    return recommendLoanProducts({ ...a, policy: copy(this.credit.policy), integration: this.integration.availability() },
+      candidate => this.credit.scoreDraft(candidate));
+  }
   initials(name: string): string { return name.split(' ').filter(Boolean).slice(0, 2).map(x => x.charAt(0)).join('').toUpperCase(); }
   downloadAssessment(record: LoanRecord): void {
     this.download(JSON.stringify(record, null, 2), record.id + '-assessment.json', 'application/json');
   }
   exportApplications(records: LoanRecord[]): void {
-    const headers = ['application_id', 'customer_name', 'national_id', 'requested_amount', 'scorecard_score', 'risk_outlook', 'simulated_default_likelihood', 'combined_recommendation', 'officer_status', 'submitted_at', 'model_origin', 'recommended_limit', 'recommended_offer', 'limit_outcome', 'approved_amount', 'offer_score', 'offer_simulated_likelihood', 'national_id_verified', 'kyc_completed', 'account_tenure_months', 'crb_defaulter', 'crb_blacklisted', 'active_loans', 'active_lenders', 'previous_institution_default', 'employment_tenure_months', 'age_years', 'average_balance_6m', 'eligibility_recommendation'];
+    const headers = ['application_id', 'customer_name', 'national_id', 'requested_amount', 'scorecard_score', 'risk_outlook', 'simulated_default_likelihood', 'combined_recommendation', 'officer_status', 'submitted_at', 'model_origin', 'recommended_limit', 'recommended_offer', 'limit_outcome', 'approved_amount', 'offer_score', 'offer_simulated_likelihood', 'national_id_verified', 'kyc_completed', 'account_tenure_months', 'crb_defaulter', 'crb_blacklisted', 'active_loans', 'active_lenders', 'previous_institution_default', 'employment_tenure_months', 'age_years', 'average_balance_6m', 'eligibility_recommendation', 'approval_mode'];
     const quote = (value: unknown): string => {
       let s = String(value ?? ''); if (/^[=+\-@\t\r]/.test(s)) { s = "'" + s; }
       return '"' + s.replace(/"/g, '""') + '"';
     };
-    const rows = records.map(record => { const a = latestAssessment(record); const c = a.eligibility?.customer; return [record.id, record.customerName, record.nationalId, a.input.amount, a.score, this.riskFor(a), a.ai?.probability ?? '', this.advice(a), record.status, record.submittedAt, a.ai?.origin || 'NO_ENSEMBLE_SNAPSHOT', a.limit?.maximumAmount ?? '', a.limit?.recommendedAmount ?? '', a.limit?.outcome ?? '', record.approvedAmount ?? '', a.limit?.offer?.score ?? '', a.limit?.offer?.probability ?? '', c?.nationalIdVerified ?? '', c?.kycCompleted ?? '', c?.accountTenureMonths ?? '', c?.crbDefaulter ?? '', c?.crbBlacklisted ?? '', c?.activeLoans ?? '', c?.activeLenders ?? '', c?.previousInstitutionDefault ?? '', c?.employmentTenureMonths ?? '', c?.ageYears ?? '', c?.averageBalance6m ?? '', a.eligibility?.decision ?? '']; });
+    const rows = records.map(record => { const a = latestAssessment(record); const c = a.eligibility?.customer; return [record.id, record.customerName, record.nationalId, a.input.amount, a.score, this.riskFor(a), a.ai?.probability ?? '', this.advice(a), record.status, record.submittedAt, a.ai?.origin || 'NO_ENSEMBLE_SNAPSHOT', a.limit?.maximumAmount ?? '', a.limit?.recommendedAmount ?? '', a.limit?.outcome ?? '', record.approvedAmount ?? '', a.limit?.offer?.score ?? '', a.limit?.offer?.probability ?? '', c?.nationalIdVerified ?? '', c?.kycCompleted ?? '', c?.accountTenureMonths ?? '', c?.crbDefaulter ?? '', c?.crbBlacklisted ?? '', c?.activeLoans ?? '', c?.activeLenders ?? '', c?.previousInstitutionDefault ?? '', c?.employmentTenureMonths ?? '', c?.ageYears ?? '', c?.averageBalance6m ?? '', a.eligibility?.decision ?? '', record.approvalMode || (record.status === 'Approved' ? 'Officer' : '')]; });
     this.download([headers, ...rows].map(row => row.map(quote).join(',')).join('\r\n'), 'credit-applications.csv', 'text/csv;charset=utf-8');
   }
   private download(content: string, name: string, type: string): void {
@@ -126,6 +135,7 @@ export class LoanWorkflowService implements OnDestroy {
           || (a.integration.decision === 'Refer' && !a.integration.reasons.length))) { return false; }
         if (a.limit?.offer && a.integration?.decision === 'Refer') { return false; }
         if (a.eligibility !== undefined && (!validLoanEligibility(a.eligibility, a.input, a.policy) || JSON.stringify(a.checks) !== JSON.stringify(a.eligibility.checks))) { return false; }
+        if (a.automaticApproval !== undefined && !validAutomaticApproval(a.automaticApproval, a)) { return false; }
         if (a.limit?.offer && a.eligibility && evaluateLoanEligibility(a.eligibility.customer, { ...a.input, amount: a.limit.recommendedAmount }, a.policy, a.eligibility.policy).decision !== 'Approved') { return false; }
         if (a.ai) {
           const expected: CreditDecision = a.recommendation === 'Declined' ? 'Declined' : a.recommendation === 'Approved' && a.ai.risk === 'Low' && a.affordability.dti <= a.policy.maxDti ? 'Approved' : 'Refer';
@@ -133,20 +143,32 @@ export class LoanWorkflowService implements OnDestroy {
         }
         return a.version === index + 1 && a.input.nationalId === record.nationalId && a.mode === 'SIMULATED' && a.modelAvailable === false && Number.isFinite(a.score) && a.score >= 300 && a.score <= 900 && ['Low', 'Medium', 'High'].includes(a.risk) && ['Approved', 'Declined', 'Refer'].includes(a.recommendation) && Array.isArray(a.checks) && a.checks.every(c => typeof c.name === 'string' && typeof c.observed === 'string' && typeof c.requirement === 'string' && ['Pass', 'Triggered', 'Not implemented', 'Needs review'].includes(c.result)) && Array.isArray(a.contributions) && a.contributions.every(c => typeof c.label === 'string' && Number.isFinite(c.impact)) && a.baseScore + a.contributions.reduce((sum, c) => sum + c.impact, 0) === a.score && Array.isArray(a.reasons) && a.reasons.every(x => typeof x === 'string') && Array.isArray(a.limitations) && a.limitations.every(x => typeof x === 'string') && Number.isFinite(a.affordability?.dti) && Number.isFinite(a.affordability?.installment) && Number.isFinite(Date.parse(a.assessedAt));
       })) { return false; }
-      if (!record.history.every(e => typeof e.reason === 'string' && typeof e.informationRequested === 'string' && typeof e.officer === 'string' && ['Portal session', 'Demo identity'].includes(e.officerSource) && ['Assessed', 'Reassessed', 'Approve', 'Decline', 'Request information'].includes(e.action) && (e.previousStatus === 'Not submitted' || LOAN_STATUSES.includes(e.previousStatus)) && LOAN_STATUSES.includes(e.status) && Number.isFinite(Date.parse(e.timestamp)) && e.assessmentVersion >= 1 && e.assessmentVersion <= record.assessments.length)) { return false; }
+      if (!record.history.every(e => typeof e.reason === 'string' && typeof e.informationRequested === 'string' && typeof e.officer === 'string' && ['Portal session', 'Demo identity', 'System policy'].includes(e.officerSource) && ['Assessed', 'Reassessed', 'Approve', 'Decline', 'Request information', 'Auto-approved'].includes(e.action) && (e.previousStatus === 'Not submitted' || LOAN_STATUSES.includes(e.previousStatus)) && LOAN_STATUSES.includes(e.status) && Number.isFinite(Date.parse(e.timestamp)) && e.assessmentVersion >= 1 && e.assessmentVersion <= record.assessments.length)) { return false; }
       const last = record.history[record.history.length - 1];
       for (const event of record.history) {
+        if (event.action === 'Auto-approved') {
+          const a = record.assessments[event.assessmentVersion - 1];
+          if (!a.automaticApproval?.eligible || !validAutomaticApproval(a.automaticApproval, a) ||
+              event.officerSource !== 'System policy' || event.officer !== 'Decision engine' ||
+              event.automaticRule !== 'small-loan-policy-1' || event.policyOverride ||
+              event.previousStatus !== 'Awaiting decision' || event.status !== 'Approved' ||
+              event.approvedAmount !== a.input.amount || event.approvalBasis !== 'Requested amount') { return false; }
+        } else if (event.officerSource === 'System policy' || event.automaticRule !== undefined) { return false; }
         if (event.approvedAmount !== undefined || event.approvedTenorMonths !== undefined || event.approvalBasis !== undefined) {
           const a = record.assessments[event.assessmentVersion - 1];
-          if (event.action !== 'Approve' || !Number.isFinite(event.approvedAmount) || event.approvedAmount! < 10000 || event.approvedAmount! > a.input.amount
+          if (!['Approve', 'Auto-approved'].includes(event.action) || !Number.isFinite(event.approvedAmount) || event.approvedAmount! < 1 || event.approvedAmount! > a.input.amount
             || event.approvedTenorMonths !== a.input.tenorMonths || !['Requested amount', 'Recommended offer'].includes(event.approvalBasis!)) { return false; }
           if (event.approvalBasis === 'Requested amount' && event.approvedAmount !== a.input.amount) { return false; }
           if (event.approvalBasis === 'Recommended offer' && (!a.limit?.offer || event.approvedAmount !== a.limit.recommendedAmount || a.limit.outcome === 'Decline')) { return false; }
-          if (this.approvalNeedsOverride(a, event.approvalBasis === 'Recommended offer' ? 'recommended' : 'requested') && !event.policyOverride) { return false; }
+          if (event.action !== 'Auto-approved' && this.approvalNeedsOverride(a, event.approvalBasis === 'Recommended offer' ? 'recommended' : 'requested') && !event.policyOverride) { return false; }
         }
       }
       if (record.approvedAmount !== undefined && (record.status !== 'Approved' || last?.approvedAmount !== record.approvedAmount)) { return false; }
       if (last?.approvedAmount !== undefined && last.approvedAmount !== record.approvedAmount) { return false; }
+      if (record.approvalMode !== undefined && !['Automatic', 'Officer'].includes(record.approvalMode)) { return false; }
+      if ((record.approvalMode === 'Automatic') !== (last?.action === 'Auto-approved')) { return false; }
+      if (latestAssessment(record).automaticApproval?.eligible &&
+          (record.status !== 'Approved' || record.approvalMode !== 'Automatic' || last?.assessmentVersion !== record.assessments.length)) { return false; }
       return !!last && last.status === record.status;
     } catch { return false; }
   }
@@ -200,7 +222,15 @@ export class LoanWorkflowService implements OnDestroy {
       const previousStatus = original?.status || 'Not submitted';
       record.assessments.push(assessment); record.status = 'Awaiting decision'; record.updatedAt = now; record.submissionKeys.push(options.submissionKey);
       record.history.push({ id: loanId('EVENT'), action: original ? 'Reassessed' : 'Assessed', ...this.officer(), timestamp: now,
-        previousStatus, status: record.status, reason: original ? (options.reassessmentNote || '').trim() : 'Assessment completed; officer decision required.', informationRequested: '', assessmentVersion: assessment.version, policyOverride: false });
+        previousStatus, status: record.status, reason: original ? (options.reassessmentNote || '').trim() : assessment.automaticApproval?.eligible ? 'Assessment completed; small-loan automatic-approval checks passed.' : 'Assessment completed; officer decision required.', informationRequested: '', assessmentVersion: assessment.version, policyOverride: false });
+      if (assessment.automaticApproval?.eligible) {
+        record.status = 'Approved'; record.approvedAmount = draft.amount; record.approvalMode = 'Automatic';
+        record.history.push({ id: loanId('EVENT'), action: 'Auto-approved', officer: 'Decision engine', officerSource: 'System policy',
+          timestamp: now, previousStatus: 'Awaiting decision', status: 'Approved', assessmentVersion: assessment.version,
+          reason: 'Automatically approved under the KSh 10,000 small-loan policy. Eligibility, bureau, data, risk and affordability checks passed.',
+          informationRequested: '', policyOverride: false, approvedAmount: draft.amount,
+          approvedTenorMonths: draft.tenorMonths, approvalBasis: 'Requested amount', automaticRule: 'small-loan-policy-1' });
+      }
       const latest = this.readStored(); const concurrent = original ? latest.find(x => x.id === original.id) : undefined;
       if (original && (!concurrent || concurrent.updatedAt !== original.updatedAt || concurrent.assessments.length !== original.assessments.length || concurrent.history.length !== original.history.length)) { throw new Error('The application changed during assessment. Reload it before retrying.'); }
       const duplicate = latest.find(x => x.submissionKeys.includes(options.submissionKey));
@@ -230,7 +260,7 @@ export class LoanWorkflowService implements OnDestroy {
     const previousStatus = record.status;
     record.status = action === 'Approve' ? 'Approved' : action === 'Decline' ? 'Declined' : 'More information required';
     record.updatedAt = new Date().toISOString();
-    if (action === 'Approve') { record.approvedAmount = approvedAmount; }
+    if (action === 'Approve') { record.approvedAmount = approvedAmount; record.approvalMode = 'Officer'; }
     record.history.push({ id: loanId('EVENT'), action, ...this.officer(), timestamp: record.updatedAt, previousStatus, status: record.status,
       reason: text, informationRequested: action === 'Request information' ? text : '', assessmentVersion: assessment.version, policyOverride: override,
       ...(action === 'Approve' ? { approvedAmount, approvedTenorMonths: assessment.input.tenorMonths, approvalBasis: approvalBasis === 'recommended' ? 'Recommended offer' as const : 'Requested amount' as const } : {}) });
@@ -252,7 +282,7 @@ export class LoanWorkflowService implements OnDestroy {
     });
     if (!limit.offer && eligibility.reasons.length) { limit.reasons.push(...eligibility.reasons); }
     if (!limit.offer && integration.reasons.length) { limit.reasons.push(...integration.reasons); }
-    return { version, assessedAt: new Date().toISOString(), input: copy(input), mode: 'SIMULATED', modelAvailable: false,
+    const assessment: LoanAssessment = { version, assessedAt: new Date().toISOString(), input: copy(input), mode: 'SIMULATED', modelAvailable: false,
       modelMessage: 'The ensemble uses deterministic model simulations for demonstration. Its likelihoods are illustrative, uncalibrated and do not come from trained estimators or an inference API.',
       score: preview.score, scoreMinimum: 300, scoreMaximum: 900, risk: preview.risk, baseScore: 500, contributions,
       policy, configuredRules: rules, checks: copy(eligibility.checks), eligibility, integration,
@@ -261,7 +291,7 @@ export class LoanWorkflowService implements OnDestroy {
       recommendation: preview.decision, reasons: copy(preview.reasons), ai: simulateLoanAi(input, policy, preview.decision),
       limit, limitations: [
         'The ensemble represents logistic, boosted-tree and forest-style model outputs using deterministic surrogates. No trained ML estimator or generative AI API is executed.',
-        'New intake uses eight fictional Kenyan financial profiles and demonstration identity, KYC, account/employment tenure, CRB, loan/lender, internal-default, age and balance facts. Older saved profiles retain their original snapshots. These facts are not live verification results. Records and decisions are stored in this browser.',
+        'New intake uses ' + this.customers.length + ' fictional Kenyan financial profiles and demonstration identity, KYC, account/employment tenure, CRB, loan/lender, internal-default, age and balance facts. Older saved profiles retain their original snapshots. These facts are not live verification results. Records and decisions are stored in this browser.',
         'The seven eligibility checks are a separate deterministic policy gate. Demo defaults are 6 account months, at most 4 active loans and 3 active lenders, and 6 employment/business months; DTI uses the saved configurable credit policy. Missing facts require review. Age and average balance provide context only and do not enter the six-signal model simulation.',
         'Affordability uses principal / months and reported obligations. Interest, fees and separately itemised living expenses are unavailable.',
         'Risk thresholds (700 / 580) come from the original scorecard. They are separate from the configurable lending cutoffs.',
@@ -269,8 +299,10 @@ export class LoanWorkflowService implements OnDestroy {
         'Ensemble risk bands are below 12% / below 30% / otherwise high, using illustrative likelihoods without a validated default horizon. Agreement is the proportion of model risk votes matching the ensemble, not predictive accuracy.',
         'Copilot briefings are composed from the actual assessment inputs and checks using templates. Combined advice describes the original request; a smaller recommended offer is assessed separately. Officer review remains required.',
         'New risk-adjusted limits use 100% / 65% / 35% of principal-only repayment capacity for Low / Medium / High requested-risk bands, capped by the configured amount ceiling. Candidate likelihood ceilings are 12% / 30% / 50%. These are demonstration risk-appetite settings. Medium and High proposals always need officer review and explicit override acknowledgement before approval.',
-        'Eight fictional Kenyan profiles are used for new intake. Existing saved customer identities and assessment histories are retained. Connector availability is simulated; no external identity, CRB, SMS, sanctions or payout service is called.'
+        this.customers.length + ' fictional Kenyan profiles are used for new intake. Existing saved customer identities and histories are retained. API endpoints and JSON responses are browser-only previews built from the saved assessment. No separate service or external bank, identity, CRB, SMS, sanctions or payout connection is used.'
       ] };
+    assessment.automaticApproval = evaluateAutomaticApproval(assessment);
+    return assessment;
   }
   private policyChecks(input: ApplicationDraft, score: number, dti: number, policy: PolicySettings, rules: DecisionRule[]): LoanCheck[] {
     const checks: LoanCheck[] = [

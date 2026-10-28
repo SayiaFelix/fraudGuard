@@ -1,36 +1,13 @@
 
 <div class="di-page">
-
-  <!-- PAGE HEADER -->
-  <header class="di-header">
-    <div>
-      <div class="di-breadcrumb">
-        Lending Operations
-        <span>/</span>
-        AI Credit Intelligence
-        <span>/</span>
-        Decision Rules
-      </div>
-
-      <div class="di-title-line">
-        <span class="di-brand-icon">
-          <i class="fas fa-brain"></i>
-        </span>
-        <div>
-          <h1>Decision Intelligence Studio</h1>
-          <p>
-            Intelligent lending policies, application decisions
-            and explainable insights.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <span class="di-demo-pill">
-      <i class="fas fa-circle"></i>
-      DEMO ENVIRONMENT
-    </span>
-  </header>
+   <header class="di-header">
+  <div class="di-title-line">
+  <div class="di-heading-content">
+    <h1>Decision Intelligence Studio</h1>
+    <p>Manage credit policies, applications and intelligent lending decisions.</p>
+  </div>
+</div>
+</header>
 
   <!-- WORKSPACE NAVIGATION -->
   <nav class="di-tabs" aria-label="Credit decisioning workspaces">
@@ -808,13 +785,16 @@
             <pre class="di-report">{{ assessmentReport }}</pre>
 
             <button class="di-btn primary" type="button"
-              (click)="copyReport()">
-              <i class="fas fa-copy"></i>
-              Copy Assessment
-            </button>
+  (click)="exportAssessmentPDF()">
+  <i class="fas fa-file-pdf"></i>
+  Export PDF
+</button>
+            
           </ng-container>
 
         </div>
+
+
 
         <footer class="di-ai-footer">
           <i class="fas fa-shield-alt"></i>
@@ -937,7 +917,7 @@
         </button>
       </div>
 
-      <form (ngSubmit)="saveRule()">
+      <form class="di-rule-form" (ngSubmit)="saveRule()">
         <div class="di-dialog-body">
           <p class="di-form-error" *ngIf="ruleError">{{ ruleError }}</p>
 

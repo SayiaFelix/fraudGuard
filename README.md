@@ -1,53 +1,37 @@
-# UBA lending workflow — three modules, latest consolidated files
-
-This ZIP combines all previous workflow updates. Earlier ZIPs do not need to be applied in sequence. Use it inside your existing `finca_fraud_portal` Angular project.
-
-## Contents
-
-- **New Application:** Individual application, Bulk Intelligence and Integration panels.
-- **Applications:** Saved assessments, filters, application detail and assessment/decision history.
-- **Decision Queue:** Review, approve, decline, request information and record the approved amount.
-- **Shared workflow:** model perspectives, risk-adjusted limits, seven policy checks, eight Kenyan profiles, integration controls, file imports and ranked Explainable Outlook with floating hover cards.
-- The latest clean wording and decision submission fixes.
-
-There are 25 code/configuration files: 23 in `src`/`scripts`, plus two older fixes in `optional-support`. `FILE_LIST.md` lists each path. `package-manifest.json` includes provenance and SHA-256 hashes.
+# 15-customer intake and bulk upload update
 
 ## Install
 
-1. Stop Angular with Ctrl+C.
-2. Merge this ZIP's `src` and `scripts` folders into the existing project folder containing `package.json`. Replace matching files and add new files; retain your other project files.
-3. If you have since customised `credit.module.ts` or `sidebar.component.ts`, merge the workflow component registrations, Decision Queue route and workflow counts into your current files, retaining your other changes. Declare credit components in `CreditModule` only.
-4. Run from that existing project folder:
+Copy the included src and scripts folders into your existing Angular project beside package.json. Replace the three matching files. These are update files, not a standalone project.
 
-```powershell
-npx ng serve --port 22602
-```
+- src/app/views/pages/credit/workflow/loan-customers.data.ts: 15 customers, preserving the existing nine identities and adding six Kenyan profiles.
+- src/app/views/pages/credit/workflow/loan-workflow.service.ts: the assessment description now uses the current customer count automatically.
+- scripts/check-loan-workflow.mjs: updated checks for all 15 customers and Felix's exact limit and proposed offer.
 
-Open `http://localhost:22602` after compilation. This is an update package, not a standalone Angular project: it contains no `package.json`, `node_modules` or build output. It adds no npm dependency.
+Let Angular recompile and refresh the browser. The in-app Download template button already reads the customer directory and now includes all 15 rows. No New Application template or styling replacement is required.
 
-## Optional support references
+## Upload
 
-These are separate from the three modules and are not applied by merging the main `src`/`scripts` folders:
+1. Install the code updates first so every uploaded national ID resolves to its customer profile.
+2. Open New Application > Bulk Intelligence.
+3. Select either uploads/UBA_Bulk_Upload_15_Customers.csv or uploads/UBA_Bulk_Upload_15_Customers.xlsx.
+4. Confirm 15 rows are Ready, then select Assess valid / retry failed rows.
+5. Open Applications or Decision Queue to review the saved assessments.
 
-- `optional-support/angular.json`: the earlier full-portal configuration with the inherited development bundle-size budget disabled. If your current configuration needs that adjustment, merge its development `budgets: []` setting while retaining your other configurations. Production settings in the reference retain their earlier values.
-- `optional-support/src/app/views/pages/credit/decision-rules/decision-rules.component.ts`: the earlier compilation repair for an original file missing its component/class wrapper. Keep your newer working Decision Rules page. Use this reference only if that original compilation repair is still needed.
+Use either format for a batch. The Excel file's first worksheet, Applications, contains the upload data. Customer reference lists all 15 names and expected default-policy results; that worksheet is not imported.
 
-## Verify and demonstrate
+The upload columns remain national_id, requested_amount, tenor_months, product, application_id and reassessment_note. Customer names, monthly income and verification facts are retrieved from the updated customer directory. Leave application_id and reassessment_note blank for these new application examples.
 
-With the existing project's dependencies installed, run:
+## Customers and expected results
 
-```powershell
-node scripts/check-loan-workflow.mjs
-```
+There are five Low, five Medium and five High AI risk profiles under the default policy and available required connectors. Risk labels are calculated, not stored as overrides. Every profile produces a positive proposed offer. The existing eight customers keep their previous inputs and results.
 
-Create an Individual application for Samuel Mwangi or Mercy Njeri to see a positive reviewed High-risk proposal. Open Explainable Outlook and hover, focus or tap a bar: the explanation floats beside or above/below it without pushing the graph down. Review the application in Decision Queue and record an outcome with the required rationale and acknowledgements.
+Felix Sayia keeps income KSh 150,000, requested principal KSh 400,000, a 12-month term and KSh 20,400 monthly obligations. The current calculations give Low AI risk, a KSh 436,000 maximum and KSh 400,000 proposed offer. His source scorecard remains 624, requiring officer review under the default 700 approval cutoff. Additional profile and verification details are demonstration assumptions.
 
-Bulk Intelligence's Download template includes all eight Kenyan profiles. Integration reads the saved assessment and supports checks and pause/resume controls. Existing browser records remain on the same origin/port.
+New profiles: John Kamau, Purity Naliaka, Hassan Abdi, Esther Chebet, Kevin Omondi and Rose Wanjiku. New customer IDs are appended so the prior nine internal IDs remain stable.
 
-The model/connector simulation badges and methodology disclosures remain. This consolidation introduces no trained model or live bank/CRB/KYC/SMS/payout endpoint.
+The default policy is approve from 700, decline below 580, maximum debt service / income 45%, and maximum principal KSh 2,000,000. Different policy settings, changed financial inputs or unavailable required connectors can change the results.
 
-## Package validation
+## Verification
 
-Every included code/configuration file matches the latest applicable update byte for byte. All 25 hashes, ZIP integrity, module/shared-file references, eight profile names, the hover implementation, clean wording and policy-table columns were checked.
-
-No source logic was changed during consolidation. The preceding hover version passed strict Angular compilation, a full development build and desktop/mobile browser checks. The later wording-only patch received text/binding comparison and formatter checks. A new full Angular build was not run for this archive assembly.
+The existing workflow checks passed with 15 customers. Both delivered upload files passed the actual upload parser, customer lookup, validation and bulk submission: 15 Ready and 15 saved, with Felix's requested figures intact. The CSV matches the application's generated template. Both Excel worksheets were rendered and inspected. No full Angular production build was run for this data update.

@@ -1,5 +1,6 @@
 
 import { Component, OnInit } from '@angular/core';
+import { jsPDF } from 'jspdf';
 
 type Operator = 'lt' | 'lte' | 'gt' | 'gte' | 'eq' | 'neq';
 type Action = 'Decline' | 'Manual Review';
@@ -957,6 +958,74 @@ export class DecisionRulesComponent implements OnInit {
       'This is a synthetic, rule-based demonstration.',
       'It is not a production ML credit decision.'
     ].join('\n');
+  }
+
+  exportAssessmentPDF(): void {
+    if (!this.selectedEvaluation) {
+      this.notify('Select an application first.', true);
+      return;
+    }
+
+    try {
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const margin = 20;
+      const width = pdf.internal.pageSize.getWidth();
+      const height = pdf.internal.pageSize.getHeight();
+      const textWidth = width - margin * 2;
+      let y = 23;
+
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(16);
+      pdf.setTextColor(35, 55, 82);
+      pdf.text('ECLECTICS CREDIT INTELLIGENCE', margin, y);
+      y += 9;
+      pdf.setFontSize(11);
+      pdf.setTextColor(52, 104, 246);
+      pdf.text('CREDIT ASSESSMENT REPORT', margin, y);
+      y += 7;
+      pdf.setDrawColor(225, 233, 243);
+      pdf.line(margin, y, width - margin, y);
+      y += 10;
+
+      const headings = new Set([
+        'DECISION EXPLANATION', 'KEY OBSERVATIONS', 'SUGGESTED NEXT ACTIONS'
+      ]);
+
+      for (const raw of this.assessmentReport.split(/\r?\n/)) {
+        const line = raw.trim();
+        if (!line) { y += 3; continue; }
+        if (line === 'ECLECTICS CREDIT INTELLIGENCE' ||
+            line === 'SIMULATED CREDIT ASSESSMENT' || /^-+$/.test(line)) continue;
+
+        const heading = headings.has(line);
+        pdf.setFont('helvetica', heading ? 'bold' : 'normal');
+        pdf.setFontSize(heading ? 11 : 10);
+        pdf.setTextColor(heading ? 52 : 65, heading ? 104 : 80, heading ? 246 : 100);
+
+        const wrapped: string[] = pdf.splitTextToSize(line, textWidth);
+        for (const part of wrapped) {
+          if (y + 6 > height - 20) { pdf.addPage(); y = 23; }
+          pdf.text(part, margin, y);
+          y += heading ? 6.5 : 5.5;
+        }
+        y += heading ? 3 : 1;
+      }
+
+      const pages = pdf.getNumberOfPages();
+      for (let page = 1; page <= pages; page++) {
+        pdf.setPage(page);
+        pdf.setFontSize(8);
+        pdf.setTextColor(145, 155, 175);
+        pdf.text(`Page ${page} of ${pages}`, width - margin, height - 12, { align: 'right' });
+      }
+
+      const safeId = this.selectedEvaluation.application.id.replace(/[^a-zA-Z0-9_-]/g, '_');
+      pdf.save(`Credit_Assessment_${safeId}.pdf`);
+      this.notify('Assessment PDF exported successfully.');
+    } catch (error) {
+      console.error('PDF export failed:', error);
+      this.notify('Unable to export assessment PDF.', true);
+    }
   }
 
   copyReport(): void {

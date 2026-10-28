@@ -37,7 +37,7 @@ export function evaluateLoanEligibility(value: Partial<LoanCustomerFacts> | unde
   const facts = customerFacts(value);
   if (![policy.minAccountMonths, policy.maxActiveLoans, policy.maxActiveLenders, policy.minEmploymentMonths].every(n => Number.isSafeInteger(n) && n >= 0)
     || !Number.isFinite(sourcePolicy.maxDti) || sourcePolicy.maxDti <= 0 || sourcePolicy.maxDti > 1
-    || ![input.amount, input.income, input.obligations, input.tenorMonths].every(Number.isFinite) || input.income <= 0 || input.amount < 10000 || input.obligations < 0 || input.tenorMonths <= 0) { throw new Error('Valid policy and financial inputs are required for eligibility checks.'); }
+    || ![input.amount, input.income, input.obligations, input.tenorMonths].every(Number.isFinite) || input.income <= 0 || input.amount < 1 || input.obligations < 0 || input.tenorMonths <= 0) { throw new Error('Valid policy and financial inputs are required for eligibility checks.'); }
   let decision: CreditDecision = 'Approved'; const checks: LoanCheck[] = []; const reasons: string[] = [];
   const add = (code: string, name: string, observed: string, requirement: string, failed: boolean, missing: boolean, failure: CreditDecision): void => {
     const effect: CreditDecision = failed ? failure : missing ? 'Refer' : 'Approved';

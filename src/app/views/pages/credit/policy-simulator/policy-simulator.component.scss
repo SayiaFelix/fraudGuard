@@ -1101,4 +1101,99 @@
 
     h3 { font-size: 19px; }
   }
+
+  /* Compact Policy Simulator Header */
+
+.policy-studio {
+  padding-top: 12px;
+}
+
+.studio-header {
+  display: flex;
+  align-items: center !important;
+  margin-top: 0 !important;
+  margin-bottom: 10px !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+.studio-header-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.studio-header-icon {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #e6eeff;
+  color: #3468f6;
+  font-size: 20px;
+}
+
+.studio-header h1 {
+  margin: 0 0 4px;
+  font-size: 25px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.studio-header p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #7d8da4;
+}
+
+/* FIX HEADER SPACING AND ICON ALIGNMENT */
+
+.policy-studio {
+  padding-top: 0 !important;
+}
+
+.studio-header {
+  display: flex;
+  align-items: center !important;
+  margin-top: 0 !important;
+  margin-bottom: 14px !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+.studio-header-content {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.studio-header-icon {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  background: #e6eeff;
+  border-radius: 11px;
+  color: #3468f6;
+  font-size: 19px;
+}
+
+.studio-header h1 {
+  margin: 0 0 3px !important;
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.studio-header p {
+  margin: 0 !important;
+  font-size: 12px;
+  line-height: 1.4;
+}
 }

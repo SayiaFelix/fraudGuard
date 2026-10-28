@@ -29,9 +29,9 @@ export interface LoanScenario {
 }
 export type LoanLimitOutcome = 'Approve full amount' | 'Approve reduced amount' | 'Refer for review' | 'Decline';
 export interface LoanLimitRecommendation {
-  version: 'limit-demo-1' | 'limit-demo-2'; outcome: LoanLimitOutcome; requestedAmount: number; tenorMonths: number;
+  version: 'limit-demo-1' | 'limit-demo-2' | 'limit-demo-3'; outcome: LoanLimitOutcome; requestedAmount: number; tenorMonths: number;
   maximumAmount: number; recommendedAmount: number; monthlyBudget: number; affordabilityCeiling: number;
-  policyCeiling: number; minimumAmount: 10000; increment: 1000; riskCeiling: number;
+  policyCeiling: number; minimumAmount: 10000 | 1; increment: 1000 | 1; riskCeiling: number;
   riskBand?: RiskBand; riskMultiplier?: number;
   offer: { score: number; probability: number; dti: number; installment: number; policyDecision: CreditDecision } | null;
   reasons: string[];
@@ -49,6 +49,10 @@ export interface LoanAssessment {
   eligibility?: LoanEligibility;
   sourceChecks?: LoanCheck[];
   integration?: LoanDataAvailability;
+  automaticApproval?: LoanAutomaticApproval;
+}
+export interface LoanAutomaticApproval {
+  version: 'small-loan-policy-1'; threshold: 10000; eligible: boolean; reasons: string[];
 }
 export type LoanConnectorStatus = 'Live' | 'Degraded' | 'Paused';
 export interface LoanDataAvailability {
@@ -56,17 +60,19 @@ export interface LoanDataAvailability {
   connectors: Array<{ id: string; name: string; status: LoanConnectorStatus }>; reasons: string[];
 }
 export interface LoanEvent {
-  id: string; action: 'Assessed' | 'Reassessed' | 'Approve' | 'Decline' | 'Request information';
-  officer: string; officerSource: 'Portal session' | 'Demo identity'; timestamp: string;
+  id: string; action: 'Assessed' | 'Reassessed' | 'Approve' | 'Decline' | 'Request information' | 'Auto-approved';
+  officer: string; officerSource: 'Portal session' | 'Demo identity' | 'System policy'; timestamp: string;
   previousStatus: LoanStatus | 'Not submitted'; status: LoanStatus;
   reason: string; informationRequested: string; assessmentVersion: number; policyOverride: boolean;
   approvedAmount?: number; approvedTenorMonths?: number; approvalBasis?: 'Requested amount' | 'Recommended offer';
+  automaticRule?: 'small-loan-policy-1';
 }
 export interface LoanRecord {
   id: string; customerId: string; nationalId: string; customerName: string;
   submittedAt: string; updatedAt: string; status: LoanStatus;
   submissionKeys: string[]; assessments: LoanAssessment[]; history: LoanEvent[];
   approvedAmount?: number;
+  approvalMode?: 'Automatic' | 'Officer';
 }
 export interface BulkApplicationRow {
   row: number; nationalId: string; amount: number; tenorMonths: number; product: string;

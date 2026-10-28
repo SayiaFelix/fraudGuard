@@ -15,7 +15,7 @@ const temp = fs.mkdtempSync(path.join(root, '.loan-check-'));
 const credit = 'src/app/views/pages/credit/';
 const names = [
   'credit-demo.data.ts', 'credit-data.service.ts', 'workflow/loan-workflow.models.ts',
-  'workflow/loan-workflow.service.ts', 'workflow/loan-bulk.ts', 'workflow/loan-ai.engine.ts', 'workflow/loan-limit.engine.ts', 'workflow/loan-eligibility.engine.ts', 'workflow/loan-customers.data.ts', 'workflow/loan-integration.service.ts', 'workflow/loan-assessment.component.ts',
+  'workflow/loan-workflow.service.ts', 'workflow/loan-bulk.ts', 'workflow/loan-ai.engine.ts', 'workflow/loan-limit.engine.ts', 'workflow/loan-eligibility.engine.ts', 'workflow/loan-auto-approval.engine.ts', 'workflow/loan-product-recommender.ts', 'workflow/loan-customers.data.ts', 'workflow/loan-integration.service.ts', 'workflow/loan-mock-api.client.ts', 'workflow/loan-assessment.component.ts',
   'new-application/new-application.component.ts', 'applications/applications.component.ts',
   'applications/application-detail.component.ts', 'decision-queue/loan-decision-queue.component.ts'
 ];
@@ -53,7 +53,7 @@ try {
   const original = new CreditDataService();
   const auth = { getCurrentUser: () => ({ username: 'officer@example.test' }) };
   const workflow = new LoanWorkflowService(original, auth);
-  assert.equal(workflow.customers.length, 8); assert.equal(workflow.lookup('UNKNOWN'), null);
+  assert.equal(workflow.customers.length, 15); assert.equal(workflow.lookup('UNKNOWN'), null);
   assert.equal(workflow.lookup('ke-3391208').profile.applicant, 'Joseph Mwangi');
   const draft = workflow.customers[0].profile;
   const clearFacts = { ...workflow.customers[0].facts };
@@ -206,7 +206,7 @@ try {
   for (const invalid of [{ amount: 0 }, { income: 0 }, { amount: NaN }, { obligations: -1 }, { tenorMonths: 1.5 }, { product: 'Unknown' }, { nationalId: 'UNKNOWN' }]) {
     await assert.rejects(workflow.submit({ ...draft, ...invalid }, { submissionKey: 'invalid' }));
   }
-  const expectedBands = ['Low', 'Low', 'Low', 'Medium', 'Medium', 'Medium', 'High', 'High']; const bandFixtures = [];
+  const expectedBands = ['Low', 'Low', 'Low', 'Medium', 'Medium', 'Medium', 'High', 'High', 'Low', 'Low', 'Medium', 'Medium', 'High', 'High', 'High']; const bandFixtures = [];
   for (const [i, customer] of workflow.customers.entries()) {
     const saved = await workflow.submit(customer.profile, { submissionKey: customer.id });
     const assessment = latestAssessment(saved); const reference = original.scoreDraft(customer.profile);
@@ -214,12 +214,15 @@ try {
     assert.equal(assessment.recommendation, reference.decision); assert.equal(assessment.affordability.dti, reference.dti);
     assert.equal(assessment.baseScore + assessment.contributions.reduce((sum, x) => sum + x.impact, 0), assessment.score);
     assert.equal(saved.status, 'Awaiting decision');
-    assert.equal(customer.profile.country, 'Kenya'); assert.equal(assessment.ai.risk, expectedBands[i]); assert(assessment.limit.maximumAmount >= 10000);
+    assert.equal(customer.profile.country, 'Kenya'); assert.equal(assessment.ai.risk, expectedBands[i], customer.profile.applicant); assert(assessment.limit.maximumAmount >= 10000);
     assert(assessment.limit.offer && assessment.limit.recommendedAmount > 0); assert(validLoanLimit(assessment.limit, assessment.input, assessment.policy));
     if (assessment.ai.risk !== 'Low') { assert.equal(assessment.limit.outcome, 'Refer for review'); assert.equal(workflow.approvalNeedsOverride(assessment, 'recommended'), true); }
     bandFixtures.push({ name: customer.profile.applicant, id: customer.profile.nationalId, risk: assessment.ai.risk, likelihood: assessment.ai.probability, requested: customer.profile.amount, limit: assessment.limit.maximumAmount, proposed: assessment.limit.recommendedAmount, outcome: assessment.limit.outcome });
   }
   fs.writeFileSync(path.join(os.tmpdir(), 'loan-kenya-band-fixtures.json'), JSON.stringify(bandFixtures, null, 2));
+  const felix = bandFixtures.find(customer => customer.name === 'Felix Sayia');
+  assert(felix); assert.equal(felix.risk, 'Low'); assert.equal(felix.requested, 400000);
+  assert.equal(felix.limit, 436000); assert.equal(felix.proposed, 400000);
   const highCase = workflow.applications.find(x => latestAssessment(x).ai.risk === 'High');
   assert.throws(() => workflow.decide(highCase.id, 'Approve', 'Reviewed the smaller high risk proposal.', 1, false, 'recommended'), /Acknowledge/);
   const highApproved = workflow.decide(highCase.id, 'Approve', 'Verified repayment evidence and authorised the smaller high risk exception.', 1, true, 'recommended');
@@ -308,8 +311,28 @@ try {
   component.ngOnInit(); component.nationalId = 'UNKNOWN'; await component.lookup(); assert.equal(component.customer, null); assert.match(component.error, /not found/);
   component.setTab('integration'); assert.equal(component.tab, 'integration'); assert(component.integrationApplicantId); component.connectorId = 'identity'; await component.runIntegrationCheck(); assert.equal(component.integrationResult.connectorId, 'identity'); component.setTab('individual');
   component.nationalId = draft.nationalId; await component.lookup(); const count = workflow.applications.length;
-  await Promise.all([component.submit(), component.submit()]); assert.equal(workflow.applications.length, count + 1);
+  const assessmentStarted = Date.now(); const pendingAssessment = component.submit();
+  assert.equal(component.busy, true); assert.equal(component.created, null);
+  assert.equal(workflow.applications.length, count);
+  component.setTab('bulk'); assert.equal(component.tab, 'individual');
+  await Promise.all([pendingAssessment, component.submit()]); assert.equal(workflow.applications.length, count + 1);
+  assert.equal(component.busy, false); assert(Date.now() - assessmentStarted >= 1800);
   assert.deepEqual(latestAssessment(component.created).eligibility.customer, clearFacts);
+  const failedComponent = new NewApplicationComponent(new FormBuilder(), {}, workflow);
+  failedComponent.nationalId = draft.nationalId; await failedComponent.lookup();
+  const preservedAmount = failedComponent.form.getRawValue().amount, submitActual = workflow.submit;
+  workflow.submit = async () => { throw new Error('Assessment temporarily unavailable'); };
+  await failedComponent.submit(); assert.equal(failedComponent.busy, false); assert.equal(failedComponent.created, null);
+  assert.match(failedComponent.error, /temporarily unavailable/); assert.equal(failedComponent.form.getRawValue().amount, preservedAmount);
+  workflow.submit = submitActual;
+  await failedComponent.submit(); assert(failedComponent.created); assert.equal(failedComponent.busy, false);
+  failedComponent.ngOnDestroy();
+  const leavingComponent = new NewApplicationComponent(new FormBuilder(), {}, workflow);
+  leavingComponent.nationalId = draft.nationalId; await leavingComponent.lookup();
+  const beforeLeaving = workflow.applications.length, leavingRun = leavingComponent.submit();
+  leavingComponent.ngOnDestroy(); await leavingRun;
+  assert.equal(workflow.applications.length, beforeLeaving); assert.equal(leavingComponent.created, null);
+  assert.equal(leavingComponent.busy, false);
   const headers = ['national_id', 'requested_amount', 'tenor_months', 'product', 'application_id', 'reassessment_note'];
   const validRow = [draft.nationalId, '250000', '12', 'Personal Loan', '', ''];
   assert.deepEqual(parseLoanCsv('a,b\r\n"one,two","escaped ""quote"""'), [['a', 'b'], ['one,two', 'escaped "quote"']]);
@@ -392,15 +415,16 @@ try {
   assert.equal(localStorage.getItem(LOAN_STORAGE_KEY), '{bad json'); localStorage.setItem(LOAN_STORAGE_KEY, snapshot);
   for (const item of [apps, queue, detail, component, workflow, storageReload, legacyStore, invalidModelStore, earlierAiStore, invalidLimitStore, invalidApprovalStore, invalidEligibilityStore, earlierLimitsStore, corrupt]) { item.ngOnDestroy(); }
   console.log('PASS: seven eligibility checks, exact boundary/unknown/zero handling, downstream limits and approvals, verification reassessment and historical context.');
-  console.log('PASS: eight Kenyan profiles across all risk bands, positive band-adjusted limits, reviewed High-risk approval, integration controls/availability/activity and ranked graph shares.');
+  console.log('PASS: fifteen Kenyan profiles across all risk bands, positive band-adjusted limits, reviewed High-risk approval, integration controls/availability/activity and ranked graph shares.');
   console.log('PASS: policy context alongside unchanged model sensitivities, actionable submission feedback, all officer actions, safe storage retry and override validation.');
   console.log('PASS: full/reduced limits, independent maximum reconciliation, identity invariance, decline/referral, exact approved amount and legacy-state compatibility.');
   console.log('PASS: deterministic three-model simulation, weighted reconciliation, identity-invariant financial inputs and directional sensitivities.');
   console.log('PASS: scenario isolation, policy-constrained advice, old assessment compatibility and invalid ensemble-state rejection.');
-  console.log('PASS: original scorecard reuse, eight-customer lookup, unknown IDs and all draft validation guards.');
+  console.log('PASS: original scorecard reuse, fifteen-customer lookup, unknown IDs and all draft validation guards.');
   console.log('PASS: individual and CSV/XLSX/XLS bulk submission, duplicate protection, partial invalid rows and retry.');
+  console.log('PASS: visible assessment loading, duplicate-click guard, error recovery, retry and navigation cleanup.');
   console.log('PASS: pending review, approve, decline, information request, policy override and final-status guards.');
   console.log('PASS: reassessment version history, saved-state restoration, quota failure and corrupt-state preservation.');
   console.log('PASS: real page controllers, list filters/pagination, version selection, queue selection and shared status updates.');
-  console.log('LIMIT: no lending backend or trained ML model exists in the source ZIP; no live backend/model tests were claimed.');
+  console.log('LIMIT: API examples run in the browser; no external lending backend or trained ML model is called.');
 } finally { fs.rmSync(temp, { recursive: true, force: true }); }
