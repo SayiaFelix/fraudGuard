@@ -911,7 +911,7 @@ export class CreditAssistantService {
     const assessment = this.loans.latest(record);
     const policy = assessment.policy;
     const body = [
-      'ECLECTICS DIGITAL CREDIT — HANDOVER NOTE',
+      'ECLECTICS AI CREDIT INTELLIGENCE — HANDOVER NOTE',
       'Rebuilt for an officer to edit. This is not a credit decision.',
       'National ID, phone, and account numbers are withheld.',
       '',
@@ -939,7 +939,7 @@ export class CreditAssistantService {
       'Officer note (edit before handover):',
       '',
       '',
-      `Prepared ${new Date().toISOString()} by the Digital Credit assistant.`,
+      `Prepared ${new Date().toISOString()} by the AI Credit assistant.`,
       'The assistant did not approve, decline, or override policy.'
     ].join('\n');
     return {
@@ -957,7 +957,7 @@ export class CreditAssistantService {
   private noteFromLegacy(app: CreditApplication, source: string): AssistantTurn {
     const policy = this.credit.policy;
     const body = [
-      'ECLECTICS DIGITAL CREDIT — HANDOVER NOTE',
+      'ECLECTICS AI CREDIT INTELLIGENCE — HANDOVER NOTE',
       'Rebuilt for an officer to edit. This is not a credit decision.',
       'National ID, phone, and account numbers are withheld.',
       '',
@@ -987,7 +987,7 @@ export class CreditAssistantService {
       'Officer note (edit before handover):',
       '',
       '',
-      `Prepared ${new Date().toISOString()} by the Digital Credit assistant.`,
+      `Prepared ${new Date().toISOString()} by the AI Credit assistant.`,
       'The assistant did not approve, decline, or override policy.'
     ].join('\n');
     return {

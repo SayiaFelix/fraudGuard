@@ -158,7 +158,7 @@ export class CreditDashboardComponent implements OnInit, OnDestroy {
     const prepared = (this.briefAt || new Date()).toLocaleString('en-GB', {
       day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit'
     });
-    write(`Digital Credit Decisioning  ·  ${prepared}`, 10, [102, 117, 138], 'normal', 5);
+    write(`AI Credit Intelligence  ·  ${prepared}`, 10, [102, 117, 138], 'normal', 5);
     write(brief.lead, 12, [15, 23, 42], 'bold', 2);
     write(brief.period, 9, [102, 117, 138], 'normal', 4);
 
