@@ -1,5 +1,5 @@
 <div class="loan-workflow">
-  <header class="ai-page-hero"><div><span class="ai-eyebrow">INTELLIGENT LENDING</span><h2>Data Ingestion</h2><p>Bring customer insight, model perspectives and lending policy into one assessment.</p></div><div class="ai-hero-aside"><span class="ai-mode"><i></i>Demo environment</span><small>Profile → Model ensemble → Officer review</small></div></header>
+  <header class="ai-page-hero"><div><span class="ai-eyebrow text-primary">INTELLIGENT LENDING</span><h2>Data Ingestion</h2><p>Bring customer insight, model perspectives and lending policy into one assessment.</p></div><div class="ai-hero-aside"><span class="ai-mode text-primary"><i></i>Demo environment</span><small>Profile → Model ensemble → Officer review</small></div></header>
   <div class="loan-page-content">
   <div class="wf-error" *ngIf="workflow.storageError" role="alert">{{ workflow.storageError }}</div>
   <div class="ai-flow-steps" *ngIf="tab === 'individual'"><div [class.current]="!customer && !created"><b>01</b><span>Identify customer<small>Retrieve the financial profile</small></span></div><div [class.current]="!!customer && !created"><b>02</b><span>Shape the facility<small>Confirm terms and assess</small></span></div><div [class.current]="!!created"><b>03</b><span>Explore the insights<small>Review the recommended next step</small></span></div></div>
