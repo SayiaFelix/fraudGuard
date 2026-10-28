@@ -2972,3 +2972,24 @@
   }
   @media (prefers-reduced-motion: reduce) { .copilot-loading-dot { animation: none; } }
 }
+
+// Page-body gutter only: the hero/header and nested assessments keep their layout.
+.loan-workflow > .loan-page-content {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding-inline: 28px;
+}
+
+@media (max-width: 700px) {
+  .loan-workflow > .loan-page-content {
+    padding-inline: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .loan-workflow > .loan-page-content {
+    padding-inline: 16px;
+  }
+}

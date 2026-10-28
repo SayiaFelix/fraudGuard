@@ -4,6 +4,7 @@
     <div><span class="ai-eyebrow">LENDING / DECISIONS</span><h2>Decision workspace</h2><p>Review the evidence, compare the offer and record a clear outcome.</p></div>
     <div class="ai-hero-aside"><span class="ai-mode">Demo environment</span></div>
   </header>
+  <div class="loan-page-content">
   <div class="wf-error" *ngIf="workflow.storageError" role="alert">{{ workflow.storageError }}</div>
   <div class="ai-queue-kpis">
     <button type="button" [class.active]="scope === 'pending'" [attr.aria-pressed]="scope === 'pending'" (click)="scope = 'pending'; page = 1"><span class="ai-card-icon">◈</span><span><strong>{{ awaiting + information }}</strong><small>Pending decisions</small></span><b>→</b></button>
@@ -61,5 +62,6 @@
       <app-loan-assessment class="wf-section" [assessment]="latest(app)" [applicationId]="app.id"></app-loan-assessment>
     </main>
     <ng-template #chooseCase><main class="queue-detail"><div class="wf-error" *ngIf="error" role="alert">{{ error }}</div><article class="loan-panel"><div class="ai-empty"><span>◈</span><h3>Select an application to begin</h3><p>Review customer evidence, policy findings and the model outlook in one workspace.</p><a class="btn-primary" routerLink="/applications/new">Create an application</a></div></article></main></ng-template>
+  </div>
   </div>
 </div>
