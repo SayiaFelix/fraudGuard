@@ -26,8 +26,8 @@
         <div class="cd-pop" *ngIf="showNotes">
           <div class="cd-pop-head">Alerts</div>
           <a *ngFor="let item of queue" [routerLink]="['/alerts']" [queryParams]="{ id: item.id }" (click)="closePopovers()">
-            <b>{{ item.applicant }}</b>
-            <span>{{ item.product }} · {{ item.score }}</span>
+            <b>{{ item.name }}</b>
+            <span>{{ item.detail }}</span>
           </a>
           <p *ngIf="!queue.length" class="cd-empty">The queue is clear.</p>
         </div>

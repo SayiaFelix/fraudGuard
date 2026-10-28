@@ -235,7 +235,7 @@ export class LoanWorkflowService implements OnDestroy {
         record.status = 'Approved'; record.approvedAmount = draft.amount; record.approvalMode = 'Automatic';
         record.history.push({ id: loanId('EVENT'), action: 'Auto-approved', officer: 'Decision engine', officerSource: 'System policy',
           timestamp: now, previousStatus: 'Awaiting decision', status: 'Approved', assessmentVersion: assessment.version,
-          reason: 'Automatically approved under the KSh 10,000 small-loan policy. Eligibility, bureau, data, risk and affordability checks passed.',
+          reason: 'Confirmed automatically. The ' + this.money(draft.amount) + ' request is within the ' + this.money(SMALL_LOAN_AUTO_LIMIT) + ' threshold. Eligibility, bureau, data, risk and affordability checks passed.',
           informationRequested: '', policyOverride: false, approvedAmount: draft.amount,
           approvedTenorMonths: draft.tenorMonths, approvalBasis: 'Requested amount', automaticRule: 'small-loan-policy-1' });
       }

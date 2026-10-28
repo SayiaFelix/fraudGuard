@@ -1,0 +1,109 @@
+.desk-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.72fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.desk-main,
+.desk-side {
+  min-width: 0;
+}
+
+.desk-side {
+  position: sticky;
+  top: 12px;
+}
+
+.desk-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 14px;
+  margin: 0 0 8px;
+}
+
+.desk-facts span {
+  display: block;
+  color: #5c7187;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.desk-facts strong {
+  display: block;
+  margin-top: 2px;
+  color: #234260;
+  font-size: 14px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.desk-meta {
+  margin: 0 0 14px;
+  color: #5c7187;
+  font-size: 12px;
+}
+
+.desk-reason {
+  margin: 0;
+  color: #3d5270;
+  font-size: 13px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.loan-workflow label.desk-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  font-weight: 600;
+}
+
+.loan-workflow label.desk-check input {
+  width: auto;
+  min-height: 0;
+  margin: 0;
+}
+
+.desk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.desk-actions .btn-primary,
+.desk-actions .btn-ghost,
+.loan-panel-heading .btn-ghost,
+.wf-pagination .btn-ghost,
+.form-actions .ai-open-button,
+.ai-empty .btn-primary {
+  min-height: 32px;
+  padding: 5px 11px;
+  font-size: 12px;
+  border-radius: 7px;
+  box-shadow: none;
+}
+
+.loan-workflow .desk-table.wf-table {
+  min-width: 0;
+}
+
+.desk-table tbody tr {
+  cursor: pointer;
+}
+
+.desk-table tr.selected td {
+  background: #f3f7ff;
+}
+
+@media (max-width: 1100px) {
+  .desk-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .desk-side {
+    position: static;
+  }
+}

@@ -20,7 +20,6 @@ import { Subscription } from 'rxjs';
 import { NotificationService } from '../../../shared/services/NotificationService';
 import { InboxItem } from '../../pages/mobile-banking/requests/list-requests/list-requests.component';
 import { AuthService } from 'src/app/shared/services/auth.service';
-import { CreditDataService } from '../../pages/credit/credit-data.service';
 import { LoanWorkflowService } from '../../pages/credit/workflow/loan-workflow.service';
 import {
   AssistantDownload,
@@ -101,7 +100,6 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private authservice: AuthService,
     private notificationService: NotificationService,
-    private creditData: CreditDataService,
     private loanWorkflow: LoanWorkflowService,
     private assistant: CreditAssistantService
   ) {
@@ -153,26 +151,16 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
         const queue = this.menuItems.find(
           item => item.link === '/decision-queue'
         );
+        const alerts = this.menuItems.find(item => item.link === '/alerts');
+        const open = apps.filter(item => this.loanWorkflow.pending(item)).length;
 
         if (applications) {
           applications.badge = { text: apps.length, variant: 'uba' };
         }
 
         if (queue) {
-          queue.badge = {
-            text: apps.filter(item => this.loanWorkflow.pending(item)).length,
-            variant: 'uba'
-          };
+          queue.badge = { text: open, variant: 'uba' };
         }
-      })
-    );
-
-    this.subscriptions.add(
-      this.creditData.applications$.subscribe(apps => {
-        const open = apps.filter(
-          item => item.decision === 'Refer' && item.caseStatus !== 'Closed'
-        ).length;
-        const alerts = this.menuItems.find(item => item.link === '/alerts');
 
         if (alerts) {
           alerts.badge = { text: open, variant: 'uba' };
@@ -447,7 +435,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private updateInboxBadge(notifications: InboxItem[]): void {
-    const inboxMenuItem = this.menuItems.find(item => item.label === 'Alerts');
+    const inboxMenuItem = this.menuItems.find(item => item.label === 'Alerts' && item.link !== '/alerts');
     if (!inboxMenuItem) return;
 
     const unreadCount = notifications.length;

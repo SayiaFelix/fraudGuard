@@ -3,8 +3,8 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { initialsFromName, officerDisplayName } from 'src/app/shared/services/auth.service';
-import { CreditApplication } from './credit-demo.data';
-import { CreditDataService } from './credit-data.service';
+import { latestAssessment } from './workflow/loan-workflow.models';
+import { LoanWorkflowService } from './workflow/loan-workflow.service';
 
 @Component({
   selector: 'app-credit-shell',
@@ -21,13 +21,13 @@ export class CreditShellComponent implements OnInit, OnDestroy {
   email = '';
   title = 'Bank Officer';
   initials = 'U';
-  queue: CreditApplication[] = [];
+  queue: { id: string; name: string; detail: string }[] = [];
   private sub = new Subscription();
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    public credit: CreditDataService
+    private workflow: LoanWorkflowService
   ) {}
 
   ngOnInit(): void {
@@ -37,8 +37,12 @@ export class CreditShellComponent implements OnInit, OnDestroy {
         document.body.classList.remove('sidebar-open');
       })
     );
-    this.sub.add(this.credit.applications$.subscribe(apps => {
-      this.queue = apps.filter(item => item.decision === 'Refer' && item.caseStatus !== 'Closed').slice(0, 5);
+    this.sub.add(this.workflow.applications$.subscribe(apps => {
+      this.queue = apps.filter(item => this.workflow.pending(item)).slice(0, 5).map(item => ({
+        id: item.id,
+        name: item.customerName,
+        detail: `${latestAssessment(item).input.product} · ${item.status}`
+      }));
     }));
     this.sub.add(interval(1000).subscribe(() => this.now = new Date()));
     this.loadOfficer();
