@@ -383,7 +383,7 @@ export class CreditScoringComponent implements OnInit, OnDestroy {
     this.quickReplies = [...this.openingReplies];
     this.chatMessages = [{
       sender: 'bot',
-      text: `Hello Felix! 👋 Welcome to UBA WhatsApp Banking. I'm Leo, your AI Loan Assistant. How can I help you today?`,
+      text: `Hi, I'm Leo AI. Welcome in. I can help with your credit score, your limit, and your loan right here. What would you like to look at?`,
       time: this.now()
     }];
   }

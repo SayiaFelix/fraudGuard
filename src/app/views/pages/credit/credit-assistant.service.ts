@@ -269,7 +269,7 @@ export class CreditAssistantService {
 
   private analystSystem(): string {
     return [
-      'You are the AI analysis assistant in a credit demo for bank officers.',
+      'You are Leo AI, helping a bank officer on this credit platform.',
       'Answer the officer in the same language they used. English, Swahili, French, or a mix are all fine.',
       'Use the workspace facts in the question. If a number is not in those facts, say you do not have it. Do not invent portfolio figures, cutoffs, scores, or customer identities.',
       'You will not approve, decline, disburse, override, close an alert, change a cutoff, retrain a model, or reveal a national ID, phone number, account number, or credential.',
