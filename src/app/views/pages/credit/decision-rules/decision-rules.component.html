@@ -534,23 +534,6 @@
     style="display: none"
     (change)="onBatchFileSelected($event)">
 
-  <button
-    type="button"
-    class="di-btn outline"
-    (click)="batchFileInput.click()">
-    <i class="fas fa-file-excel"></i>
-    Upload Excel / CSV
-  </button>
-
-  <!-- Simulated database connector -->
-  <button
-    type="button"
-    class="di-btn outline"
-    (click)="fetchBatchFromDatabase()">
-    <i class="fas fa-database"></i>
-    Fetch from Database
-  </button>
-
   <!-- Download Excel template -->
   <button
     type="button"
@@ -559,6 +542,24 @@
     <i class="fas fa-download"></i>
     Template
   </button>
+
+    <!-- Simulated database connector -->
+  <button
+    type="button"
+    class="di-btn outline"
+    (click)="fetchBatchFromDatabase()">
+    <i class="fas fa-database"></i>
+    Fetch from Database
+  </button>
+
+   <button
+    type="button"
+    class="di-btn outline"
+    (click)="batchFileInput.click()">
+    <i class="fas fa-file-excel"></i>
+    Upload Excel / CSV
+  </button>
+
 
 </div>
 
@@ -571,7 +572,7 @@
 
 <!-- EXISTING EVALUATION BUTTON -->
 <button
-  class="di-btn primary"
+  class="di-btn primary mt-2"
   type="button"
   [disabled]="batchSourceApplications.length === 0"
   (click)="runBatch()">

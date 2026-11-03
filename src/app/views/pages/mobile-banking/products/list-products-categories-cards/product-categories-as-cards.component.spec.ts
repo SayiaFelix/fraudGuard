@@ -5,7 +5,6 @@ import { ProductCategoriesAsCardsComponent } from './product-categories-as-cards
 describe('StarterComponent', () => {
   let component: ProductCategoriesAsCardsComponent;
   let fixture: ComponentFixture<ProductCategoriesAsCardsComponent>;
-
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ ProductCategoriesAsCardsComponent ]
