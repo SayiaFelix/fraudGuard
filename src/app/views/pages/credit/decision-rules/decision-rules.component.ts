@@ -2,6 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import * as XLSX from 'xlsx';
+import { GroqService } from '../../../../shared/services/groq.service';
 
 type Operator = 'lt' | 'lte' | 'gt' | 'gte' | 'eq' | 'neq';
 type Action = 'Decline' | 'Manual Review';
@@ -72,12 +73,15 @@ interface Evaluation {
   styleUrls: ['./decision-rules.component.scss']
 })
 export class DecisionRulesComponent implements OnInit {
+  constructor(private groq: GroqService) {}
 
   private readonly RULES_KEY = 'uba_credit_decision_rules_v1';
   private readonly APPLICATIONS_KEY = 'eclectics_decision_applications_v2';
 
   activeTab: Tab = 'rules';
   activeInsight: Insight = 'explanation';
+  copilotLoading = false;
+  private grokCopilot: { explanation: string; factors: string[]; actions: string[] } | null = null;
 
   readonly categories = [
     'Credit Score',
@@ -1219,9 +1223,52 @@ async onBatchFileSelected(event: Event): Promise<void> {
 
     this.activeTab = 'copilot';
     this.activeInsight = 'explanation';
+    void this.loadCopilotNarrative();
+  }
+
+  private async loadCopilotNarrative(): Promise<void> {
+    const facts = this.copilotFacts();
+    if (!facts) return;
+    this.copilotLoading = true;
+    this.grokCopilot = null;
+    try {
+      const result = await this.groq.json<{ explanation?: string; factors?: string[]; actions?: string[] }>(
+        'You explain a simulated lending-policy result for a credit officer. Use only the facts given. Reply in plain language. Do not invent rules that are not listed. Do not include a national ID or phone number. Return JSON: {"explanation":"...","factors":["..."],"actions":["..."]}.',
+        [{ role: 'user', content: facts }]
+      );
+      this.grokCopilot = {
+        explanation: (result.explanation || '').trim(),
+        factors: (result.factors || []).map(item => String(item)).filter(Boolean).slice(0, 6),
+        actions: (result.actions || []).map(item => String(item)).filter(Boolean).slice(0, 6)
+      };
+      if (!this.grokCopilot.explanation) this.grokCopilot = null;
+    } catch {
+      this.grokCopilot = null;
+    } finally {
+      this.copilotLoading = false;
+    }
+  }
+
+  private copilotFacts(): string {
+    const e = this.selectedEvaluation;
+    if (!e) return '';
+    const a = e.application;
+    const dti = this.getDti(a);
+    const triggered = e.results
+      .filter(result => result.triggered)
+      .map(result => `${result.rule.name} (${result.rule.action})`);
+    return [
+      `Application ${a.id} for ${a.name}.`,
+      `Product ${a.product}. Amount ${a.amount}. Score ${a.score ?? 'unavailable'}.`,
+      `Debt-to-income ${dti === null ? 'unavailable' : dti.toFixed(1) + '%'}.`,
+      `Policy recommendation: ${e.decision}.`,
+      `Triggered rules: ${triggered.join('; ') || 'none'}.`,
+      `Recorded reasons: ${e.reasons.join('; ') || 'none'}.`
+    ].join('\n');
   }
 
   get copilotExplanation(): string {
+    if (this.grokCopilot?.explanation) return this.grokCopilot.explanation;
     const e = this.selectedEvaluation;
     if (!e) return 'Select an application to begin.';
 
@@ -1251,6 +1298,7 @@ async onBatchFileSelected(event: Event): Promise<void> {
   }
 
   get copilotFactors(): string[] {
+    if (this.grokCopilot?.factors.length) return this.grokCopilot.factors;
     const e = this.selectedEvaluation;
     if (!e) return [];
 
@@ -1260,6 +1308,7 @@ async onBatchFileSelected(event: Event): Promise<void> {
   }
 
   get copilotActions(): string[] {
+    if (this.grokCopilot?.actions.length) return this.grokCopilot.actions;
     const e = this.selectedEvaluation;
     if (!e) return [];
 

@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnChange
 import { LoanAssessment, LoanCheck, LoanRiskDriver, LoanScenario } from './loan-workflow.models';
 import { LoanWorkflowService } from './loan-workflow.service';
 import { LoanProductSuggestion } from './loan-product-recommender';
+import { GroqService } from '../../../../shared/services/groq.service';
 
 let nextDriverPopoverId = 0;
 
@@ -10,6 +11,7 @@ export class LoanAssessmentComponent implements OnChanges, OnDestroy {
   @Input() assessment: LoanAssessment;
   @Input() applicationId = '';
   productSuggestions: LoanProductSuggestion[] = [];
+  grokBrief = '';
   copilotState: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
   copilotError = '';
   activeTab: 'insights' | 'drivers' | 'policy' | 'profile' = 'insights';
@@ -32,7 +34,7 @@ export class LoanAssessmentComponent implements OnChanges, OnDestroy {
   private readonly driverScroll = (event: Event) => {
     if (!this.driverPopover?.nativeElement.contains(event.target as Node)) { this.queueDriverPosition(); }
   };
-  constructor(public workflow: LoanWorkflowService, private changeDetector?: ChangeDetectorRef) {}
+  constructor(public workflow: LoanWorkflowService, private groq: GroqService, private changeDetector?: ChangeDetectorRef) {}
   readonly MathAbs = Math.abs;
   ngOnChanges(): void {
     this.hideDriver(); this.resetCopilot(); this.resetScenario(); this.activeTab = 'insights';
@@ -47,15 +49,18 @@ export class LoanAssessmentComponent implements OnChanges, OnDestroy {
     if (this.destroyed || !this.assessment?.ai || this.copilotState === 'loading') { return; }
     if (this.copilotState === 'ready') { this.resetCopilot(); return; }
     const request = ++this.copilotRequest;
-    this.copilotState = 'loading'; this.copilotError = ''; this.productSuggestions = [];
+    this.copilotState = 'loading'; this.copilotError = ''; this.productSuggestions = []; this.grokBrief = '';
     try {
-      // Local demo briefing; the visible loading transition is not a remote LLM call.
-      await new Promise<void>(resolve => {
-        const timer = setTimeout(() => { this.copilotWait = null; resolve(); }, 850);
-        this.copilotWait = { timer, resolve };
-      });
+      const [brief, suggestions] = await Promise.all([
+        this.groq.chat(
+          'You are a credit officer briefing writer. Write one short paragraph, in plain language, about this application. Use only the facts given. Do not include a national ID, phone number, or account number. Do not say you are approving the loan. No HTML.',
+          [{ role: 'user', content: this.copilotFacts() }]
+        ).catch(() => ''),
+        Promise.resolve(this.workflow.productSuggestions(this.assessment))
+      ]);
       if (this.destroyed || request !== this.copilotRequest) { return; }
-      this.productSuggestions = this.workflow.productSuggestions(this.assessment);
+      this.grokBrief = brief;
+      this.productSuggestions = suggestions;
       this.copilotState = 'ready';
     } catch (error) {
       if (!this.destroyed && request === this.copilotRequest) {
@@ -67,19 +72,36 @@ export class LoanAssessmentComponent implements OnChanges, OnDestroy {
     ++this.copilotRequest;
     const pending = this.copilotWait; this.copilotWait = null;
     if (pending) { clearTimeout(pending.timer); pending.resolve(); }
-    this.copilotState = 'idle'; this.copilotError = ''; this.productSuggestions = [];
+    this.copilotState = 'idle'; this.copilotError = ''; this.productSuggestions = []; this.grokBrief = '';
   }
   get ai() { return this.assessment.ai; }
   get customer() { return this.assessment.eligibility?.customer; }
   get eligibilityPassed(): number { return this.assessment.eligibility?.checks.filter(c => c.result === 'Pass').length || 0; }
   get reviewActions(): string[] { return [...(this.assessment.eligibility?.reasons.map(x => 'Resolve customer eligibility finding — ' + x + '.') || []), ...(this.ai?.actions || [])].slice(0, 3); }
   get copilotBrief(): string {
+    if (this.grokBrief) return this.grokBrief;
     const a = this.assessment;
     if (a.automaticApproval?.eligible) { return this.workflow.money(a.input.amount) + ' approved automatically. All required checks passed.'; }
     if (!a.limit?.offer) { return 'This request needs review. Resolve the policy or affordability findings before selecting an offer.'; }
     return (a.ai?.risk || a.risk) + ' risk. ' + this.workflow.money(a.limit.recommendedAmount) +
       ' proposed against the ' + this.workflow.money(a.input.amount) + ' request. ' +
       (a.eligibility?.decision === 'Approved' ? 'Customer eligibility checks passed.' : 'Review the outstanding policy findings.');
+  }
+  private copilotFacts(): string {
+    const a = this.assessment;
+    const checks = (a.eligibility?.checks || []).map(check => `${check.code} ${check.result}`);
+    return [
+      `Product ${a.input.product}. Requested ${this.workflow.money(a.input.amount)} over ${a.input.tenorMonths} months.`,
+      `Monthly income ${this.workflow.money(a.input.income)}. Employment ${a.input.employment}. Bureau ${a.input.bureau}.`,
+      `Score ${a.score}. Risk ${a.ai?.risk || a.risk}.`,
+      `Recommendation ${this.workflow.recommendationLabel(a)}.`,
+      `Debt service ${(a.affordability.dti * 100).toFixed(1)}%.`,
+      a.limit ? `Limit outcome ${a.limit.outcome}. Proposed ${this.workflow.money(a.limit.recommendedAmount)}.` : 'No limit snapshot.',
+      `Eligibility ${a.eligibility?.decision || 'not recorded'}.`,
+      `Reasons: ${(a.reasons || []).join('; ') || 'none'}.`,
+      `Checks: ${checks.join('; ') || 'none'}.`,
+      a.automaticApproval?.eligible ? 'The small-loan policy marked this eligible for automatic routing.' : 'Automatic routing does not apply.'
+    ].join('\n');
   }
   suggestionParams(suggestion: LoanProductSuggestion): Record<string, string | number> {
     return { customer: this.assessment.input.nationalId, product: suggestion.product, amount: suggestion.amount,

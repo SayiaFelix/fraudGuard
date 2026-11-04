@@ -94,7 +94,7 @@
             <div class="history-card">
               <span>Last facility</span>
               <strong>{{ previousLoan.product }}</strong>
-              <p>{{ money(previousLoan.amount) }} · {{ previousLoan.status }} · Closed {{ previousLoan.closed }}</p>
+              <p><b>{{ money(previousLoan.amount) }}</b> · <b>{{ previousLoan.status }}</b> · Closed {{ previousLoan.closed }}</p>
             </div>
 
             <div class="rec-head">
@@ -161,7 +161,7 @@
             <div class="limit-display">
               <span>{{ selectedOffer ? selectedOffer.name : 'Your indicative limit' }}</span>
               <h2>{{ money(assessment.maxLimit) }}</h2>
-              <p *ngIf="selectedOffer">Indicative limit · requested {{ money(requestedAmount) }}</p>
+              <p *ngIf="selectedOffer">Indicative limit · requested <b>{{ money(requestedAmount) }}</b></p>
             </div>
 
             <!-- DETAILED EXPLAINABILITY -->
@@ -207,7 +207,7 @@
           <div *ngIf="journeyStep === 'apply'" class="step-view">
             <button class="back-btn" (click)="journeyStep = 'limit-check'">← Back</button>
             
-            <h3>Configure your loan</h3>
+            <h3>Apply your loan</h3>
             <p class="product-line" *ngIf="selectedOffer">{{ selectedOffer.name }}</p>
             <div class="product-why" *ngIf="selectedOffer">
               <b>Why this loan</b>
@@ -245,7 +245,7 @@
           <div *ngIf="journeyStep === 'success'" class="step-view success-view">
             <div class="success-icon">✓</div>
             <h2>Application Submitted!</h2>
-            <p *ngIf="selectedOffer">{{ selectedOffer.name }} · {{ money(requestedAmount) }}</p>
+            <p *ngIf="selectedOffer"><b>{{ selectedOffer.name }}</b> · <b>{{ money(requestedAmount) }}</b></p>
             <p>Your reference number is</p>
             <h3 class="ref-num">{{ applicationRef }}</h3>
             <p class="status">Status: Pending Disbursement</p>
@@ -265,7 +265,7 @@
             <div class="tab-screen">
               <h3>{{ customer.name }}</h3>
               <p>{{ customer.id }}</p>
-              <p>Verified income {{ money(customer.income) }} · Existing debt {{ money(customer.existingDebt) }}</p>
+              <p>Verified income <b>{{ money(customer.income) }}</b> · Existing debt <b>{{ money(customer.existingDebt) }}</b></p>
             </div>
           </div>
 
@@ -335,11 +335,11 @@
         <div class="quick-replies" *ngIf="quickReplies.length">
           <button *ngFor="let label of quickReplies" [class.confirm-btn]="label === 'Confirm'" (click)="sendQuickReply(label)">{{ label }}</button>
         </div>
-        <div class="quick-replies" *ngIf="!quickReplies.length">
-          <button (click)="sendQuickReply('I would like to apply for a loan')">Apply for a loan</button>
+        <div class="quick-replies" *ngIf="!quickReplies.length && !isBotTyping">
           <button (click)="sendQuickReply('Check my limit')">Check my limit</button>
-          <button (click)="sendQuickReply('Recommend a loan')">Recommend a loan</button>
-          <button *ngIf="applicationRef" (click)="sendQuickReply('Track my application')">Application status</button>
+          <button (click)="sendQuickReply('Apply for a loan')">Apply for a loan</button>
+          <button (click)="sendQuickReply('Track my application')">Track my application</button>
+          <button (click)="sendQuickReply('Recommend a loan for me')">Recommend a loan for me</button>
         </div>
 
         <form class="chat-input" (ngSubmit)="sendChatMessage()">

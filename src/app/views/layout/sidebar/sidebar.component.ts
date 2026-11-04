@@ -20,7 +20,6 @@ import { Subscription } from 'rxjs';
 import { NotificationService } from '../../../shared/services/NotificationService';
 import { InboxItem } from '../../pages/mobile-banking/requests/list-requests/list-requests.component';
 import { AuthService } from 'src/app/shared/services/auth.service';
-import { CreditDataService } from '../../pages/credit/credit-data.service';
 import { LoanWorkflowService } from '../../pages/credit/workflow/loan-workflow.service';
 import {
   AssistantDownload,
@@ -101,7 +100,6 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private authservice: AuthService,
     private notificationService: NotificationService,
-    private creditData: CreditDataService,
     private loanWorkflow: LoanWorkflowService,
     private assistant: CreditAssistantService
   ) {
@@ -153,26 +151,16 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
         const queue = this.menuItems.find(
           item => item.link === '/decision-queue'
         );
+        const alerts = this.menuItems.find(item => item.link === '/alerts');
+        const open = apps.filter(item => this.loanWorkflow.pending(item)).length;
 
         if (applications) {
           applications.badge = { text: apps.length, variant: 'uba' };
         }
 
         if (queue) {
-          queue.badge = {
-            text: apps.filter(item => this.loanWorkflow.pending(item)).length,
-            variant: 'uba'
-          };
+          queue.badge = { text: open, variant: 'uba' };
         }
-      })
-    );
-
-    this.subscriptions.add(
-      this.creditData.applications$.subscribe(apps => {
-        const open = apps.filter(
-          item => item.decision === 'Refer' && item.caseStatus !== 'Closed'
-        ).length;
-        const alerts = this.menuItems.find(item => item.link === '/alerts');
 
         if (alerts) {
           alerts.badge = { text: open, variant: 'uba' };
@@ -236,7 +224,10 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
-    return escaped.replace(/^You are on .+$/m, line => `<strong>${line}</strong>`);
+    return escaped
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>')
+      .replace(/^You are on .+$/m, line => `<strong>${line}</strong>`);
   }
 
   askAi(question: string): void {
@@ -257,9 +248,16 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.aiReplying = true;
     this.stickAi();
-    const turn = this.assistant.answer(text, this.router.url);
+    const history = this.aiMessages
+      .slice(0, -1)
+      .filter(message => message.text && !message.download)
+      .slice(-8)
+      .map(message => ({
+        role: message.from === 'you' ? 'user' as const : 'assistant' as const,
+        content: message.text
+      }));
     const generation = this.aiGeneration;
-    setTimeout(() => {
+    void this.assistant.answer(text, this.router.url, history).then(turn => {
       if (generation !== this.aiGeneration) return;
       this.appendAi(replyKey, { from: 'ai', text: turn.text, download: turn.download });
       if (this.aiSessionKey !== replyKey) return;
@@ -267,7 +265,11 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
       if (turn.tour) {
         void this.startTour(turn.tour);
       }
-    }, 280);
+    }).catch(() => {
+      if (generation !== this.aiGeneration) return;
+      this.appendAi(replyKey, { from: 'ai', text: 'I could not reach the analysis service. Ask again in a moment.' });
+      this.aiReplying = false;
+    });
   }
 
   stopTour(): void {
@@ -433,7 +435,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private updateInboxBadge(notifications: InboxItem[]): void {
-    const inboxMenuItem = this.menuItems.find(item => item.label === 'Alerts');
+    const inboxMenuItem = this.menuItems.find(item => item.label === 'Alerts' && item.link !== '/alerts');
     if (!inboxMenuItem) return;
 
     const unreadCount = notifications.length;

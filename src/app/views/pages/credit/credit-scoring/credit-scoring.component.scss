@@ -508,7 +508,8 @@
   input[type="range"] { width: 100%; accent-color: var(--uba-red); margin-bottom: 10px; }
   .what-if-result {
     background: #f0fdf4; padding: 10px; border-radius: 8px; text-align: center;
-    font-size: 13px; color: #166534; margin: 15px 0;
+    font-size: 13px; color: #166534; margin: 15px 0; font-weight: 700;
+    b { font-weight: 800; }
   }
 }
 

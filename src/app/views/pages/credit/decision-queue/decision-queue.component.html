@@ -1,107 +1,165 @@
-<div class="alerts-page">
-<header class="alerts-head">
-  <span>Credit operations · Case desk</span>
-  <h1>Alerts</h1>
-  <p>Open alerts, with case actions on the same page.</p>
-</header>
+<div class="loan-workflow desk">
+  <header class="ai-page-hero">
+    <div>
+      <span class="ai-eyebrow">LENDING / ALERTS</span>
+      <h2>Alerts</h2>
+      <p>Open applications from the same book as Applications.</p>
+    </div>
+    <div class="ai-hero-aside"><span class="ai-mode"><i></i>Demo environment</span></div>
+  </header>
 
-<div class="toolbar">
-  <div class="chips">
-    <button type="button" *ngFor="let item of ['All', 'High', 'Medium', 'Unassigned']" [class.on]="filter === item" (click)="setFilter(item)">{{ item }}</button>
+  <div class="wf-error" *ngIf="workflow.storageError" role="alert">{{ workflow.storageError }}</div>
+
+  <div class="ai-queue-kpis">
+    <button type="button" [class.active]="view === 'open'" (click)="setView('open')">
+      <span><strong>{{ openCount }}</strong><small>Open</small></span>
+    </button>
+    <button type="button" [class.active]="view === 'awaiting'" (click)="setView('awaiting')">
+      <span><strong>{{ awaitingCount }}</strong><small>Awaiting decision</small></span>
+    </button>
+    <button type="button" [class.active]="view === 'information'" (click)="setView('information')">
+      <span><strong>{{ informationCount }}</strong><small>Needs information</small></span>
+    </button>
   </div>
-  <span class="queue-count">{{ queueLabel }}</span>
-</div>
 
-<section class="queue-grid">
-  <article class="cd-card">
-    <div class="table-scroll">
-      <table class="cd-table">
-        <thead>
-          <tr>
-            <th>Applicant</th>
-            <th>Product</th>
-            <th>Amount</th>
-            <th>Score</th>
-            <th>Status</th>
-            <th>Owner</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let row of queue" (click)="select(row.id)" [class.selected]="row.id === selectedId">
-            <td>
-              <strong>{{ row.applicant }}</strong>
-              <small>{{ row.id }}</small>
-            </td>
-            <td>{{ row.product }}</td>
-            <td>{{ credit.money(row.amount) }}</td>
-            <td><span class="score-pill" [ngClass]="credit.riskClass(row.risk)">{{ row.score }}</span></td>
-            <td>{{ row.caseStatus }}</td>
-            <td>{{ row.assignedTo }}</td>
-          </tr>
-          <tr *ngIf="!queue.length">
-            <td colspan="6" class="cd-empty">Nothing in this slice of the queue.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </article>
+  <div class="desk-split">
+    <article class="loan-panel desk-main">
+      <div class="loan-panel-heading">
+        <div>
+          <h3>Open cases</h3>
+        </div>
+        <span>{{ rows.length }} shown</span>
+      </div>
 
-  <article class="cd-card case-panel" *ngIf="selected as app">
-    <p class="eyebrow">{{ app.id }} · {{ app.country }}</p>
-    <div class="case-title">
-      <h2>{{ app.applicant }}</h2>
-      <span class="pill" [ngClass]="credit.decisionClass(app.decision)">{{ app.decision }}</span>
-    </div>
-    <p class="case-meta">{{ app.product }} · {{ credit.money(app.amount) }} · {{ app.tenorMonths }} months</p>
-    <div class="case-score">
-      <strong [ngClass]="credit.riskClass(app.risk)">{{ app.score }}</strong>
-      <span>{{ app.risk }} risk · DTI {{ app.dti | percent:'1.0-0' }} · {{ app.bureau }}</span>
-    </div>
+      <div class="wf-controls">
+        <label class="wf-search">Search
+          <input type="search" [(ngModel)]="search" (ngModelChange)="page = 1" placeholder="Name, ID or reference" />
+        </label>
+        <label>Risk
+          <select [(ngModel)]="risk" (ngModelChange)="page = 1">
+            <option value="">All</option>
+            <option>Low</option>
+            <option>Medium</option>
+            <option>High</option>
+          </select>
+        </label>
+      </div>
 
-    <ul class="reason-list">
-      <li *ngFor="let reason of app.reasonCodes">{{ reason }}</li>
-    </ul>
+      <div class="table-scroll">
+        <table class="cd-table wf-table desk-table">
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Requested</th>
+              <th>Risk</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let app of pageRows" [class.selected]="app.id === selectedId" (click)="select(app.id)">
+              <td>
+                <div class="ai-table-person">
+                  <span class="ai-avatar">{{ workflow.initials(app.customerName) }}</span>
+                  <div>
+                    <strong>{{ app.customerName }}</strong>
+                    <small>{{ app.nationalId }}</small>
+                    <small>{{ latest(app).input.product }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <strong>{{ workflow.money(latest(app).input.amount) }}</strong>
+                <small>{{ latest(app).input.tenorMonths }} months</small>
+              </td>
+              <td>
+                <span class="pill" [ngClass]="workflow.credit.riskClass(workflow.riskFor(latest(app)))">{{ workflow.riskFor(latest(app)) }}</span>
+                <small>Score {{ latest(app).score }}</small>
+              </td>
+              <td>
+                <span class="ai-status" [attr.data-status]="app.status">{{ app.status }}</span>
+                <small>{{ app.submittedAt | date:'dd MMM':'+0300' }}</small>
+              </td>
+            </tr>
+            <tr *ngIf="!pageRows.length">
+              <td colspan="4">
+                <div class="ai-empty">
+                  <h3>{{ apps.length ? 'No open alerts in this view.' : 'No applications yet.' }}</h3>
+                  <p>{{ apps.length ? 'Try another filter.' : 'Assess an application and it will appear here until a decision is recorded.' }}</p>
+                  <a *ngIf="!apps.length" class="btn-primary" routerLink="/applications/new">New assessment</a>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <div class="mini-facts">
-      <span>Income {{ credit.money(app.income) }}</span>
-      <span>{{ app.employment }}</span>
-      <span>{{ app.channel }}</span>
-      <span>{{ app.caseStatus }}</span>
-    </div>
+      <div class="wf-pagination" *ngIf="rows.length">
+        <span>{{ rangeStart }}–{{ rangeEnd }} of {{ rows.length }}</span>
+        <div>
+          <button type="button" class="btn-ghost" [disabled]="page <= 1" (click)="page = page - 1">Previous</button>
+          <button type="button" class="btn-ghost" [disabled]="page >= pages" (click)="page = page + 1">Next</button>
+        </div>
+      </div>
+    </article>
 
-    <p class="banner" *ngIf="banner">{{ banner }}</p>
+    <article class="loan-panel desk-side" *ngIf="selected as app; else pick">
+      <div class="loan-panel-heading">
+        <div>
+          <h3>{{ app.customerName }}</h3>
+          <p class="wf-muted">{{ app.nationalId }}</p>
+        </div>
+        <span class="ai-status" [attr.data-status]="app.status">{{ app.status }}</span>
+      </div>
 
-    <div class="case-actions" *ngIf="app.decision === 'Refer' && app.caseStatus !== 'Closed'">
-      <button type="button" class="btn-primary" (click)="act('approve')">Approve</button>
-      <button type="button" class="btn-danger" (click)="act('decline')">Decline</button>
-      <button type="button" class="btn-ghost" (click)="act('request-info')">Request info</button>
-      <button type="button" class="btn-ghost" (click)="act('escalate')">Escalate</button>
-    </div>
-    <p class="fine" *ngIf="app.caseStatus === 'Closed'">This case is closed. The decision is already on the book.</p>
+      <div class="desk-facts">
+        <div><span>Requested</span><strong>{{ workflow.money(latest(app).input.amount) }}</strong></div>
+        <div><span>Offer</span><strong>{{ latest(app).limit?.offer ? workflow.money(latest(app).limit!.recommendedAmount) : '—' }}</strong></div>
+        <div><span>Score</span><strong>{{ latest(app).score }}</strong></div>
+        <div><span>Advice</span><strong>{{ workflow.recommendationLabel(latest(app)) }}</strong></div>
+      </div>
 
-    <div class="assign-row" *ngIf="app.decision === 'Refer' && app.caseStatus !== 'Closed'">
-      <select [(ngModel)]="assignee">
-        <option *ngFor="let analyst of credit.analysts">{{ analyst }}</option>
-      </select>
-      <button type="button" class="btn-ghost" (click)="act('assign')">Assign</button>
-    </div>
+      <p class="desk-meta">{{ latest(app).input.product }} · {{ latest(app).input.tenorMonths }} months · v{{ latest(app).version }}</p>
 
-    <label class="note-box">
-      Case note
-      <textarea [(ngModel)]="note" rows="3" placeholder="Affordability checked against salary credit."></textarea>
-    </label>
-    <button type="button" class="btn-ghost" (click)="act('note')" [disabled]="!note.trim()">Add note</button>
+      <div class="wf-success" *ngIf="banner && !bannerError" role="status">{{ banner }}</div>
+      <div class="wf-error" *ngIf="banner && bannerError" role="alert">{{ banner }}</div>
 
-    <div class="note" *ngFor="let item of app.notes">
-      <strong>{{ item.author }}</strong>
-      <span>{{ item.time }}</span>
-      <p>{{ item.text }}</p>
-    </div>
-  </article>
+      <ng-container *ngIf="workflow.pending(app); else closed">
+        <label *ngIf="latest(app).limit?.offer">Amount
+          <select [(ngModel)]="basis">
+            <option value="recommended">Recommended {{ workflow.money(latest(app).limit!.recommendedAmount) }}</option>
+            <option value="requested">Requested {{ workflow.money(latest(app).input.amount) }}</option>
+          </select>
+        </label>
 
-  <article class="cd-card case-panel" *ngIf="!selected">
-    <h2>Select a case</h2>
-    <p class="fine">Alerts and case actions live on this queue. Approve, decline, request information, escalate, or assign without leaving the page.</p>
-  </article>
-</section>
+        <label>Reason
+          <textarea [(ngModel)]="reason" rows="3" placeholder="Why this outcome"></textarea>
+        </label>
+
+        <label class="desk-check" *ngIf="needsOverride">
+          <input type="checkbox" [(ngModel)]="ack" />
+          Outside policy
+        </label>
+
+        <div class="desk-actions">
+          <button type="button" class="btn-primary" [disabled]="!canApprove" (click)="act('Approve')">Approve</button>
+          <button type="button" class="btn-ghost" [disabled]="!reasonReady" (click)="act('Decline')">Decline</button>
+          <button type="button" class="btn-ghost" [disabled]="!reasonReady" (click)="act('Request information')">Request info</button>
+        </div>
+      </ng-container>
+      <ng-template #closed>
+        <p class="wf-muted">Decision recorded.</p>
+      </ng-template>
+
+      <div class="form-actions">
+        <a class="ai-open-button" [routerLink]="['/applications', app.id]">Open application</a>
+      </div>
+    </article>
+
+    <ng-template #pick>
+      <article class="loan-panel desk-side">
+        <h3>Select a case</h3>
+        <p class="wf-muted">Choose an application from the list.</p>
+      </article>
+    </ng-template>
+  </div>
 </div>
