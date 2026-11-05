@@ -6,7 +6,7 @@ const ng = spawn(process.execPath, [
   path.join(root, 'node_modules/@angular/cli/bin/ng'),
   'serve',
   '--port',
-  '22600',
+  '4200',
   '--proxy-config',
   'proxy.conf.js'
 ], { stdio: 'inherit', cwd: root });

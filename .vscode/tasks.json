@@ -1,0 +1,47 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Temporary Angular build diagnostic",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build",
+				"--",
+				"--verbose"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			]
+		},
+		{
+			"label": "Temporary Angular alternate-output check",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build",
+				"--",
+				"--output-path",
+				"C:\\Users\\Felix\\AppData\\Local\\Temp\\fraudguard-build-check"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			]
+		},
+		{
+			"label": "Remove temporary Angular output",
+			"type": "shell",
+			"command": "rm",
+			"args": [
+				"-rf",
+				"--",
+				"UsersFelixAppDataLocalTempfraudguard-build-check"
+			],
+			"isBackground": false
+		}
+	]
+}

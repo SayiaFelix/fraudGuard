@@ -2,8 +2,10 @@ const { spawn, execFileSync } = require('child_process');
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
+const loadEnv = require('./server/load-env.cjs');
 
 const BUILD = '2';
+loadEnv(path.resolve(__dirname, '.env'));
 const port = Number(process.env.GROQ_PROXY_PORT || 22601);
 let child = null;
 let restarts = 0;
